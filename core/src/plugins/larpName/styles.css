@@ -1,0 +1,38 @@
+.larp-name-extras {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.larp-verified,
+.larp-crown {
+    display: inline-flex;
+    align-items: center;
+}
+
+.larp-clan-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 16px;
+    padding: 0 5px;
+    border-radius: 4px;
+    background: var(--background-modifier-accent, rgb(255 255 255 / 10%));
+    color: var(--text-default, var(--text-normal));
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+.larp-clan-tag img {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+}
+
+.larp-name-extras-profile {
+    height: 22px;
+    margin-left: 0;
+}
