@@ -1,0 +1,19 @@
+{
+    "name": "larpcord-root",
+    "private": true,
+    "version": "0.1.0",
+    "description": "Larpcord – eigenständiger Discord-Client für rein lokales, kosmetisches Larpen",
+    "license": "GPL-3.0-or-later",
+    "scripts": {
+        "postinstall": "node scripts/install.mjs",
+        "build": "node scripts/build.mjs",
+        "build:dev": "node scripts/build.mjs --dev",
+        "dev": "node scripts/build.mjs --dev && pnpm -C desktop exec electron .",
+        "package": "node scripts/build.mjs && pnpm -C desktop exec electron-builder --publish never",
+        "icons": "python scripts/generate-icons.py"
+    },
+    "engines": {
+        "node": ">=22",
+        "pnpm": ">=11"
+    }
+}
