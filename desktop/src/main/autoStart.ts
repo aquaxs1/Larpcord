@@ -37,8 +37,8 @@ function makeAutoStartLinuxDesktop(): AutoStart {
             const desktopFile = stripIndent`
                 [Desktop Entry]
                 Type=Application
-                Name=Vesktop
-                Comment=Vesktop autostart script
+                Name=Larpcord
+                Comment=Larpcord autostart script
                 Exec=${getEscapedCommandLine().join(" ")}
                 StartupNotify=false
                 Terminal=false

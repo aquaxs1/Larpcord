@@ -15,7 +15,7 @@ const vesktopDir = dirname(process.execPath);
 export const PORTABLE =
     process.platform === "win32" &&
     !process.execPath.toLowerCase().endsWith("electron.exe") &&
-    !existsSync(join(vesktopDir, "Uninstall Vesktop.exe"));
+    !existsSync(join(vesktopDir, "Uninstall Larpcord.exe"));
 
 export const DATA_DIR =
     process.env.VENCORD_USER_DATA_DIR || (PORTABLE ? join(vesktopDir, "Data") : join(app.getPath("userData")));
@@ -31,7 +31,7 @@ export const VENCORD_QUICKCSS_FILE = join(VENCORD_SETTINGS_DIR, "quickCss.css");
 export const VENCORD_SETTINGS_FILE = join(VENCORD_SETTINGS_DIR, "settings.json");
 export const VENCORD_THEMES_DIR = join(DATA_DIR, "themes");
 
-export const USER_AGENT = `Vesktop/${app.getVersion()} (https://github.com/Vencord/Vesktop)`;
+export const USER_AGENT = `Larpcord/${app.getVersion()}`;
 
 // dimensions shamelessly stolen from Discord Desktop :3
 export const MIN_WIDTH = 940;

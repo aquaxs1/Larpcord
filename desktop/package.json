@@ -1,12 +1,13 @@
 {
-    "name": "vesktop",
+    "name": "larpcord",
+    "productName": "Larpcord",
     "version": "1.6.7",
     "private": true,
-    "description": "Vesktop is a custom Discord desktop app",
+    "description": "Larpcord – a standalone Discord client for local, cosmetic larping (based on Vesktop)",
     "keywords": [],
-    "homepage": "https://vencord.dev/",
+    "homepage": "https://github.com/larpcord/larpcord",
     "license": "GPL-3.0-or-later",
-    "author": "Vendicated <vendicated@riseup.net>",
+    "author": "Larpcord contributors (based on Vesktop by Vendicated)",
     "main": "dist/js/main.js",
     "scripts": {
         "build": "tsx scripts/build/build.mts",
@@ -64,9 +65,9 @@
         "pnpm": ">=11"
     },
     "build": {
-        "appId": "dev.vencord.vesktop",
-        "productName": "Vesktop",
-        "executableName": "vesktop",
+        "appId": "dev.larpcord.app",
+        "productName": "Larpcord",
+        "executableName": "larpcord",
         "files": [
             "!*",
             "!node_modules",
@@ -87,9 +88,9 @@
             "appimage": "1.0.3"
         },
         "linux": {
-            "icon": "build/icon.svg",
+            "icon": "build/icon.png",
             "category": "Network",
-            "maintainer": "vendicated+vesktop@riseup.net",
+            "maintainer": "larpcord@users.noreply.github.com",
             "target": [
                 {
                     "target": "deb",
@@ -122,13 +123,13 @@
             ],
             "desktop": {
                 "entry": {
-                    "Name": "Vesktop",
+                    "Name": "Larpcord",
                     "GenericName": "Internet Messenger",
                     "Type": "Application",
                     "Categories": "Network;InstantMessaging;Chat;",
-                    "Keywords": "discord;vencord;electron;chat;",
+                    "Keywords": "discord;larpcord;vencord;electron;chat;",
                     "MimeType": "x-scheme-handler/discord",
-                    "StartupWMClass": "vesktop"
+                    "StartupWMClass": "larpcord"
                 }
             }
         },
@@ -176,7 +177,10 @@
         },
         "nsis": {
             "include": "build/installer.nsh",
-            "oneClick": false
+            "oneClick": false,
+            "artifactName": "Larpcord-Setup.exe",
+            "shortcutName": "Larpcord",
+            "uninstallDisplayName": "Larpcord"
         },
         "win": {
             "icon": "build/icon.ico",
@@ -184,22 +188,12 @@
                 {
                     "target": "nsis",
                     "arch": [
-                        "x64",
-                        "arm64"
-                    ]
-                },
-                {
-                    "target": "zip",
-                    "arch": [
-                        "x64",
-                        "arm64"
+                        "x64"
                     ]
                 }
             ]
         },
-        "publish": {
-            "provider": "github"
-        },
+        "publish": null,
         "rpm": {
             "fpm": [
                 "--rpm-rpmbuild-define=_build_id_links none"
@@ -214,6 +208,17 @@
             "onlyLoadAppFromAsar": true,
             "loadBrowserProcessSpecificV8Snapshot": false,
             "grantFileProtocolExtraPrivileges": false
-        }
+        },
+        "extraResources": [
+            {
+                "from": "vencord",
+                "to": "vencord",
+                "filter": [
+                    "vencordDesktop*.js",
+                    "vencordDesktop*.css",
+                    "package.json"
+                ]
+            }
+        ]
     }
 }

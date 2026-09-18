@@ -17,7 +17,7 @@ export const DeveloperOptionsButton: SettingsComponent = ({ settings }) => {
 
 function openDeveloperOptionsModal(settings: Settings) {
     openModal(props => (
-        <Modal {...props} size="lg" title="Vesktop Developer Options">
+        <Modal {...props} size="lg" title="Larpcord Developer Options">
             <Heading tag="h4">Vencord Location</Heading>
             <VencordLocationPicker settings={settings} />
 
@@ -65,7 +65,7 @@ const VencordLocationPicker: SettingsComponent = ({ settings }) => {
                                 break;
                             case "ok":
                                 Toasts.show({
-                                    message: "Vencord install changed. Fully restart Vesktop to apply.",
+                                    message: "Core install changed. Fully restart Larpcord to apply.",
                                     id: Toasts.genId(),
                                     type: Toasts.Type.SUCCESS
                                 });

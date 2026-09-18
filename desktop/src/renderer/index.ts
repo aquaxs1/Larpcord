@@ -21,15 +21,15 @@ import { Settings } from "./settings";
 export { Settings };
 
 VesktopLogger.log("read if cute :3");
-VesktopLogger.log("Vesktop v" + VesktopNative.app.getVersion());
+VesktopLogger.log("Larpcord v" + VesktopNative.app.getVersion());
 
 const SettingsPlugin = Vencord.Plugins.plugins
     .Settings as typeof import("@vencord/types/plugins/_core/settings").default;
 
 SettingsPlugin.customEntries.push({
     key: "vesktop",
-    title: "Vesktop",
-    panelTitle: "Vesktop Settings",
+    title: "Larpcord Desktop",
+    panelTitle: "Larpcord Desktop Settings",
     Component: SettingsUi,
     Icon: VesktopSettingsIcon
 });
