@@ -71,6 +71,8 @@ interface EntryOptions {
     panelTitle?: string,
     Component: ComponentType<{}>,
     Icon: ComponentType<IconProps>;
+    /** Larpcord: Einträge mit position "top" stehen ganz oben im Einstellungsbereich */
+    position?: "top";
 }
 interface SettingsLayoutBuilder {
     key?: string;
@@ -168,6 +170,7 @@ export default definePlugin({
         const { buildEntry } = this;
 
         const vencordEntries: SettingsLayoutNode[] = [
+            ...this.customEntries.filter(e => e.position === "top").map(buildEntry),
             buildEntry({
                 key: "vencord_main",
                 title: "Core",
@@ -213,7 +216,7 @@ export default definePlugin({
                 Component: PatchHelperTab,
                 Icon: PatchHelperIcon
             }),
-            ...this.customEntries.map(buildEntry),
+            ...this.customEntries.filter(e => e.position !== "top").map(buildEntry),
             // TODO: Remove deprecated customSections in a future update
             ...this.customSections.map((func, i) => {
                 const { section, element, label } = func(FallbackSectionTypes);

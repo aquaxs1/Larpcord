@@ -53,6 +53,7 @@ export const PluginTags = [
     "Emotes",
     "Friends",
     "Fun",
+    "Larpcord",
     "Media",
     "Notifications",
     "Organisation",

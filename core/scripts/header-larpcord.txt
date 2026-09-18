@@ -1,0 +1,3 @@
+Larpcord, a standalone Discord client for local cosmetic larping
+Copyright (c) {year} {author}
+SPDX-License-Identifier: GPL-3.0-or-later
