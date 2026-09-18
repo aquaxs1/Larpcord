@@ -1,0 +1,102 @@
+.larp-badge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 6px;
+}
+
+.larp-badge-tile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: var(--background-secondary, #2b2d31);
+    color: var(--text-default, var(--text-normal));
+    cursor: pointer;
+    font-size: 13px;
+    text-align: left;
+    opacity: 0.55;
+    transition: opacity 0.15s, border-color 0.15s;
+}
+
+.larp-badge-tile:hover {
+    opacity: 0.85;
+}
+
+.larp-badge-tile-on {
+    opacity: 1;
+    border-color: var(--brand-500, #5865f2);
+}
+
+.larp-badge-tile img {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.larp-custom-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.larp-custom-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    background: var(--background-secondary, #2b2d31);
+}
+
+.larp-custom-item span {
+    flex: 1;
+}
+
+.larp-custom-item img,
+.larp-custom-preview {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.larp-custom-add {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.larp-order-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px;
+    border-radius: 8px;
+    background: var(--background-secondary, #2b2d31);
+    width: fit-content;
+}
+
+.larp-order-item {
+    display: flex;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: grab;
+}
+
+.larp-order-item:hover {
+    background: var(--background-modifier-hover, rgb(255 255 255 / 6%));
+}
+
+.larp-order-item img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.larp-order-dragging {
+    opacity: 0.4;
+}
