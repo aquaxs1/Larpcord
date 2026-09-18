@@ -1,0 +1,73 @@
+.larp-server-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.larp-server {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: var(--background-secondary, #2b2d31);
+}
+
+.larp-server-active {
+    border-color: var(--brand-500, #5865f2);
+}
+
+.larp-server-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1 1 180px;
+    font-weight: 500;
+}
+
+.larp-server-name span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.larp-server-name img,
+.larp-server-acronym {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+}
+
+.larp-server-acronym {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--background-tertiary, #1e1f22);
+    font-size: 12px;
+}
+
+.larp-server-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.larp-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.larp-input-small {
+    min-width: 0;
+    width: 100px;
+    padding: 5px 8px;
+}
