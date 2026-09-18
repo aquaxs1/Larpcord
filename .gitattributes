@@ -1,0 +1,2 @@
+# pnpm hasht Patch-Dateien, daher immer LF (sonst bricht --frozen-lockfile unter Windows)
+*.patch text eol=lf
