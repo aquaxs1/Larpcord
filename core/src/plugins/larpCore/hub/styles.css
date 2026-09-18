@@ -1,0 +1,444 @@
+/* Larpcord-Hub. Farben kommen aus Discords CSS-Variablen, damit Hell/Dunkel-Themes passen. */
+
+.larp-hub {
+    color: var(--text-default, var(--text-normal));
+    font-family: var(--font-primary);
+}
+
+.larp-hub-header h2 {
+    margin: 0 0 4px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--header-primary, var(--text-strong));
+}
+
+.larp-hub-header p,
+.larp-muted {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 0;
+}
+
+.larp-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 16px 0;
+    border-bottom: 1px solid var(--border-subtle, var(--background-modifier-accent));
+}
+
+.larp-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--interactive-normal);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 8px 10px;
+}
+
+.larp-tab:hover {
+    color: var(--interactive-hover);
+}
+
+.larp-tab-active {
+    border-bottom-color: var(--brand-500, #5865f2);
+    color: var(--interactive-active);
+}
+
+.larp-hub-body {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.larp-hub-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.larp-hub-preview {
+    flex: 0 0 300px;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.larp-hub-preview h4 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+@media (width <= 1100px) {
+    .larp-hub-body {
+        flex-direction: column-reverse;
+    }
+
+    .larp-hub-preview {
+        position: static;
+        flex-basis: auto;
+        width: 300px;
+    }
+}
+
+/* Formular */
+
+.larp-section {
+    margin-bottom: 24px;
+}
+
+.larp-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: var(--header-primary, var(--text-strong));
+}
+
+.larp-section-desc {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 0 0 12px;
+}
+
+.larp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle, var(--background-modifier-accent));
+}
+
+.larp-row-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.larp-row-label small {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.larp-row-control {
+    flex-shrink: 0;
+}
+
+.larp-inline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.larp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.larp-input {
+    background: var(--input-background, var(--background-tertiary));
+    border: 1px solid var(--input-border, transparent);
+    border-radius: 6px;
+    color: var(--text-default, var(--text-normal));
+    font-size: 14px;
+    padding: 8px 10px;
+    min-width: 200px;
+    color-scheme: dark;
+}
+
+.larp-input:focus {
+    outline: 2px solid var(--brand-500, #5865f2);
+    outline-offset: -1px;
+}
+
+.larp-input-error {
+    border-color: var(--status-danger, #da373c);
+}
+
+.larp-error {
+    color: var(--text-danger, #fa777c);
+    font-size: 12px;
+}
+
+.larp-color {
+    width: 40px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+}
+
+.larp-swatch {
+    display: inline-block;
+    width: 80px;
+    height: 24px;
+    border-radius: 12px;
+}
+
+.larp-btn {
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 7px 14px;
+    color: #fff;
+    transition: filter 0.15s;
+}
+
+.larp-btn:hover:not(:disabled) {
+    filter: brightness(1.12);
+}
+
+.larp-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.larp-btn-primary {
+    background: var(--brand-500, #5865f2);
+}
+
+.larp-btn-secondary {
+    background: var(--button-secondary-background, #4e5058);
+    color: var(--button-secondary-text, #fff);
+}
+
+.larp-btn-danger {
+    background: var(--button-danger-background, #da373c);
+}
+
+.larp-toggle {
+    position: relative;
+    width: 40px;
+    height: 24px;
+    border: none;
+    border-radius: 12px;
+    background: var(--background-modifier-accent, #4e5058);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.larp-toggle-on {
+    background: var(--status-positive, #23a55a);
+}
+
+.larp-toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s;
+}
+
+.larp-toggle-on .larp-toggle-knob {
+    transform: translateX(16px);
+}
+
+.larp-tag {
+    background: var(--background-modifier-accent, #4e5058);
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+    padding: 1px 6px;
+    text-transform: uppercase;
+}
+
+.larp-tag-active {
+    background: var(--status-positive, #23a55a);
+    color: #fff;
+}
+
+.larp-placeholder {
+    text-align: center;
+    padding: 48px 16px;
+    color: var(--text-muted);
+}
+
+.larp-placeholder-icon {
+    font-size: 48px;
+}
+
+/* Presets */
+
+.larp-preset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.larp-preset {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: var(--background-secondary, #2b2d31);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.larp-preset-active {
+    border-color: var(--status-positive, #23a55a);
+}
+
+.larp-preset-name {
+    font-weight: 600;
+}
+
+/* Vorschau */
+
+.larp-preview {
+    border-radius: 8px;
+    overflow: hidden;
+    color: #fff;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 30%);
+}
+
+.larp-preview-banner {
+    height: 100px;
+    background-size: cover;
+    background-position: center;
+}
+
+.larp-preview-avatar {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: -44px 0 0 16px;
+}
+
+.larp-preview-avatar > img:first-child {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 6px solid rgb(0 0 0 / 35%);
+    box-sizing: border-box;
+}
+
+.larp-preview-decoration {
+    position: absolute;
+    inset: -8px;
+    width: 96px;
+    height: 96px;
+    pointer-events: none;
+}
+
+.larp-preview-body {
+    margin: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    background: rgb(0 0 0 / 45%);
+}
+
+.larp-preview-name {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.larp-preview-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--brand-500, #5865f2);
+    font-size: 10px;
+}
+
+.larp-preview-clan {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0 5px;
+    border-radius: 4px;
+    background: rgb(255 255 255 / 12%);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.larp-preview-clan img {
+    width: 12px;
+    height: 12px;
+}
+
+.larp-preview-username {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.larp-preview-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 8px;
+    padding: 3px;
+    border-radius: 8px;
+    background: rgb(0 0 0 / 25%);
+    width: fit-content;
+}
+
+.larp-preview-badges img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+.larp-preview-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.larp-preview-meta div {
+    display: flex;
+    flex-direction: column;
+}
+
+.larp-preview-meta small {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.7;
+    text-transform: uppercase;
+}
+
+.larp-watermark {
+    margin-top: 12px;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+/* Wasserzeichen im echten Profil (als Badge-Komponente eingehängt) */
+.larp-watermark-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 6px;
+    background: rgb(0 0 0 / 35%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
