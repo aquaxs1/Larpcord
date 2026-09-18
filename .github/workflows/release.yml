@@ -1,0 +1,42 @@
+# Baut bei jedem Tag "v*" die Windows-.exe und hängt sie an ein GitHub-Release.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # postinstall installiert core/ und desktop/ (inkl. Electron-Binary)
+      - name: Abhängigkeiten installieren
+        run: pnpm install --frozen-lockfile
+
+      - name: Version aus dem Tag übernehmen
+        run: node scripts/set-version.mjs ${{ github.ref_name }}
+
+      - name: Larpcord bauen und paketieren
+        run: pnpm package
+        env:
+          VENCORD_HASH: ${{ github.sha }}
+          VENCORD_REMOTE: ${{ github.repository }}
+
+      - name: Release erstellen
+        uses: softprops/action-gh-release@v2
+        with:
+          files: desktop/dist/Larpcord-Setup.exe
+          generate_release_notes: true
