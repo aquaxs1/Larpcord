@@ -80,7 +80,9 @@ const enum SearchStatus {
     DISABLED,
     NEW,
     USER_PLUGINS,
-    API_PLUGINS
+    API_PLUGINS,
+    /** Larpcord: nur Larp-Plugins */
+    LARPCORD
 }
 
 function ExcludedPluginsList({ search }: { search: string; }) {
@@ -164,7 +166,9 @@ function PluginSettings() {
         Object.values(Plugins).sort((a, b) => a.name.localeCompare(b.name)),
         []
     )
-        .toSorted((a, b) => Number(settings.plugins[b.name]?.isFavorite ?? false) - Number(settings.plugins[a.name]?.isFavorite ?? false));
+        .toSorted((a, b) => Number(settings.plugins[b.name]?.isFavorite ?? false) - Number(settings.plugins[a.name]?.isFavorite ?? false))
+        // Larpcord: Larp-Plugins als eigene Kategorie ganz oben
+        .toSorted((a, b) => Number(b.tags?.includes("Larpcord") ?? false) - Number(a.tags?.includes("Larpcord") ?? false));
 
     const hasUserPlugins = useMemo(() => !IS_STANDALONE && Object.values(PluginMeta).some(m => m.userPlugin), []);
 
@@ -194,6 +198,9 @@ function PluginSettings() {
                 break;
             case SearchStatus.API_PLUGINS:
                 if (!plugin.name.endsWith("API")) return false;
+                break;
+            case SearchStatus.LARPCORD:
+                if (!plugin.tags?.includes("Larpcord")) return false;
                 break;
         }
 
@@ -295,6 +302,7 @@ function PluginSettings() {
                     <Select
                         options={[
                             { label: "Show All", value: SearchStatus.ALL, default: true },
+                            { label: "Show Larpcord", value: SearchStatus.LARPCORD },
                             { label: "Show Favorites", value: SearchStatus.FAVORITES },
                             { label: "Show Enabled", value: SearchStatus.ENABLED },
                             { label: "Show Disabled", value: SearchStatus.DISABLED },
