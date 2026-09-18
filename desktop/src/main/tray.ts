@@ -11,7 +11,6 @@ import { AppEvents } from "./events";
 import { Settings } from "./settings";
 import { resolveAssetPath } from "./userAssets";
 import { clearData } from "./utils/clearData";
-import { downloadVencordFiles } from "./utils/vencordLoader";
 
 let tray: Tray;
 let trayVariant: "tray" | "trayUnread" = "tray";
@@ -53,15 +52,7 @@ export async function initTray(win: BrowserWindow, setIsQuitting: (val: boolean)
             click: createAboutWindow
         },
         {
-            label: "Repair Vencord",
-            async click() {
-                await downloadVencordFiles();
-                app.relaunch();
-                app.quit();
-            }
-        },
-        {
-            label: "Reset Vesktop",
+            label: "Reset Larpcord",
             async click() {
                 await clearData(win);
             }
@@ -86,7 +77,7 @@ export async function initTray(win: BrowserWindow, setIsQuitting: (val: boolean)
     ]);
 
     tray = new Tray(await resolveAssetPath(trayVariant));
-    tray.setToolTip("Vesktop");
+    tray.setToolTip("Larpcord");
     tray.setContextMenu(trayMenu);
     tray.on("click", onTrayClick);
 }

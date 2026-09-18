@@ -7,11 +7,11 @@
 import { app } from "electron";
 
 import { CommandLine } from "./cli";
-import { downloadVencordFiles } from "./utils/vencordLoader";
 
 if (CommandLine.values.repair) {
-    console.log("Repairing Vesktop...");
-    downloadVencordFiles().then(() => app.quit());
+    // Larpcord: Der Core ist Teil der App, es gibt nichts herunterzuladen.
+    console.log("Larpcord bringt seinen Core mit. Zum Reparieren bitte neu installieren.");
+    app.quit();
 } else {
     require("./main");
 }
