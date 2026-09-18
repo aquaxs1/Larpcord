@@ -15,6 +15,10 @@ let server: any;
 type InviteCallback = (valid: boolean) => void;
 type LinkCallback = InviteCallback;
 
+// Larpcord: arRPC scannt alle 5 s Prozesse ohne catch. Ein fehlgeschlagener Scan soll nur geloggt werden,
+// statt den Worker (und damit Rich Presence) zu beenden.
+process.on("unhandledRejection", e => console.error("[arRPC] unhandled rejection", e));
+
 const inviteCallbacks = new Map<string, InviteCallback>();
 const linkCallbacks = new Map<string, LinkCallback>();
 

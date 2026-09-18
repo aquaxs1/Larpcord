@@ -32,6 +32,10 @@ export async function initArRPC() {
             transferList: [workerPort]
         });
 
+        // Larpcord: Ohne Listener wird ein Worker-Absturz zur unbehandelten Exception im Hauptprozess,
+        // und Electron blockiert die ganze App mit einem modalen Fehlerdialog.
+        worker.on("error", e => console.error("arRPC worker crashed", e));
+
         hostPort.on("message", async ({ type, nonce, data }: ArRpcEvent) => {
             switch (type) {
                 case "activity": {

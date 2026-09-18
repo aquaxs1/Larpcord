@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
+  arrpc@3.7.0: b9721f8c08fff31a05c697833a8a19017dbf686182c0b6b97f8ab838cc064f9c
   electron-updater: 080505564abb2ebbda932bbf8fe91540c74dd905de994888d52ffce6f882f887
 
 importers:
@@ -13,7 +14,7 @@ importers:
     dependencies:
       arrpc:
         specifier: github:Vencord/arrpc#1dc801e8ea14d96ce8dccff416417614f058afb8
-        version: https://codeload.github.com/Vencord/arrpc/tar.gz/1dc801e8ea14d96ce8dccff416417614f058afb8
+        version: https://codeload.github.com/Vencord/arrpc/tar.gz/1dc801e8ea14d96ce8dccff416417614f058afb8(patch_hash=b9721f8c08fff31a05c697833a8a19017dbf686182c0b6b97f8ab838cc064f9c)
       electron-updater:
         specifier: 6.6.2
         version: 6.6.2(patch_hash=080505564abb2ebbda932bbf8fe91540c74dd905de994888d52ffce6f882f887)(supports-color@7.2.0)
@@ -3513,7 +3514,7 @@ snapshots:
       get-intrinsic: 1.3.0
       is-array-buffer: 3.0.5
 
-  arrpc@https://codeload.github.com/Vencord/arrpc/tar.gz/1dc801e8ea14d96ce8dccff416417614f058afb8:
+  arrpc@https://codeload.github.com/Vencord/arrpc/tar.gz/1dc801e8ea14d96ce8dccff416417614f058afb8(patch_hash=b9721f8c08fff31a05c697833a8a19017dbf686182c0b6b97f8ab838cc064f9c):
     dependencies:
       ws: 8.21.3
     transitivePeerDependencies:

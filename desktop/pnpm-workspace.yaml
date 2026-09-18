@@ -1,4 +1,5 @@
 patchedDependencies:
+  arrpc@3.7.0: patches/arrpc@3.7.0.patch
   electron-updater: patches/electron-updater.patch
 nodeLinker: hoisted
 allowBuilds:

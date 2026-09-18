@@ -1,0 +1,15 @@
+diff --git a/src/process/native/win32.js b/src/process/native/win32.js
+index 271549f2943e5b2101a42619a9fbce68d135059d..0cef1fe2938a0e5e7c0ea459e0d4c50fa598454c 100644
+--- a/src/process/native/win32.js
++++ b/src/process/native/win32.js
+@@ -10,7 +10,9 @@ export async function getProcesses() {
+     'Get-CimInstance Win32_Process | Select-Object ProcessId,ExecutablePath,CommandLine | ConvertTo-Json -Compress'
+   ]);
+
+-  const rows = JSON.parse(stdout);
++  // Larpcord: PowerShell 5.1 escaped Steuerzeichen in Kommandozeilen nicht immer, das bricht JSON.parse
++  const CONTROL_CHARS = new RegExp(`[${String.fromCharCode(0)}-${String.fromCharCode(31)}]`, "g");
++  const rows = JSON.parse(stdout.replace(CONTROL_CHARS, " "));
+   const list = Array.isArray(rows) ? rows : [rows]; // single result isn't wrapped in an array
+
+   return list
