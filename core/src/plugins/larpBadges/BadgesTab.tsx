@@ -16,10 +16,10 @@ function OfficialBadges() {
     const larp = useLarpProfile();
     const active = new Set(larp.badges.builtin);
 
-    const toggle = (id: string) => {
-        const builtin = active.has(id) ? larp.badges.builtin.filter(b => b !== id) : [...larp.badges.builtin, id];
-        LarpStore.update({ badges: { builtin } });
-    };
+    // funktionales Update: liest den aktuellen Store-Stand, nicht den (evtl. veralteten) Render-Stand
+    const toggle = (id: string) => LarpStore.update(p => ({
+        badges: { builtin: p.badges.builtin.includes(id) ? p.badges.builtin.filter(b => b !== id) : [...p.badges.builtin, id] }
+    }));
 
     return (
         <Section title="Offizielle Badges" description="Anklicken zum Ein- und Ausschalten. Die Icons kommen direkt von Discord.">
@@ -53,7 +53,7 @@ function CustomBadges() {
     const add = () => {
         if (!image || !tooltip.trim()) return;
         const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-        LarpStore.update({ badges: { custom: [...larp.badges.custom, { id, imageUrl: image, tooltip: tooltip.trim() }] } });
+        LarpStore.update(p => ({ badges: { custom: [...p.badges.custom, { id, imageUrl: image, tooltip: tooltip.trim() }] } }));
         setImage(undefined);
         setTooltip("");
     };
