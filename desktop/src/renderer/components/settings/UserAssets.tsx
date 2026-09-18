@@ -14,7 +14,7 @@ import { useSettings } from "renderer/settings";
 
 import { SettingsComponent } from "./Settings";
 
-const CUSTOMIZABLE_ASSETS: UserAssetType[] = ["splash", "tray", "trayUnread"];
+const CUSTOMIZABLE_ASSETS: UserAssetType[] = ["splash", "tray", "trayUnread", "appIcon"];
 
 export const UserAssetsButton: SettingsComponent = () => {
     return <Button onClick={() => openAssetsModal()}>Customize App Assets</Button>;
@@ -79,6 +79,20 @@ function Asset({ asset }: { asset: UserAssetType }) {
                             className={Margins.top16}
                             hideBorder
                         />
+                    )}
+                    {isSplash && (
+                        <input
+                            className={`vcd-user-assets-text ${Margins.top16}`}
+                            placeholder="Splash text (Loading Larpcord...)"
+                            maxLength={100}
+                            value={settings.splashText ?? ""}
+                            onChange={e => (settings.splashText = e.currentTarget.value || undefined)}
+                        />
+                    )}
+                    {asset === "appIcon" && (
+                        <BaseText size="sm" className={Margins.top8}>
+                            PNG oder JPG. Gilt für Fenster und Taskleiste (die .exe selbst behält das Standard-Icon).
+                        </BaseText>
                     )}
                 </div>
             </div>

@@ -29,3 +29,14 @@
     width: 7.5em;
     object-fit: contain;
 }
+/* Larpcord: eigener Ladetext */
+.vcd-user-assets-text {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--input-border, var(--border-subtle));
+    border-radius: 8px;
+    background: var(--input-background, var(--background-tertiary));
+    color: var(--text-default, var(--text-normal));
+    font-size: 14px;
+}

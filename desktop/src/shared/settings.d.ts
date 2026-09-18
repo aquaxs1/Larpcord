@@ -37,6 +37,8 @@ export interface Settings {
     splashPixelated: boolean;
     splashColor?: string;
     splashBackground?: string;
+    /** Larpcord: eigener Text im Ladebildschirm */
+    splashText?: string;
 
     spellCheckLanguages?: string[];
 

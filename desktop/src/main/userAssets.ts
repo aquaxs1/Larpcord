@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { app, dialog, net } from "electron";
+import { app, dialog, nativeImage, net } from "electron";
+import { existsSync } from "fs";
 import { copyFile, mkdir, rm } from "fs/promises";
 import { join } from "path";
 import { IpcEvents } from "shared/IpcEvents";
@@ -17,13 +18,15 @@ import { mainWin } from "./mainWindow";
 import { fileExistsAsync } from "./utils/fileExists";
 import { handle } from "./utils/ipcWrappers";
 
-const CUSTOMIZABLE_ASSETS = ["splash", "tray", "trayUnread"] as const;
+// Larpcord: zusätzlich "appIcon" (Fenster-/Taskleisten-Icon)
+const CUSTOMIZABLE_ASSETS = ["splash", "tray", "trayUnread", "appIcon"] as const;
 export type UserAssetType = (typeof CUSTOMIZABLE_ASSETS)[number];
 
 const DEFAULT_ASSETS: Record<UserAssetType, string> = {
     splash: "splash.webp",
     tray: `tray/${process.platform === "darwin" ? "trayTemplate" : "tray"}.png`,
-    trayUnread: "tray/trayUnread.png"
+    trayUnread: "tray/trayUnread.png",
+    appIcon: "icon.png"
 };
 
 const UserAssetFolder = join(DATA_DIR, "userAssets");
@@ -40,6 +43,27 @@ export async function resolveAssetPath(asset: UserAssetType) {
 
     return join(STATIC_DIR, DEFAULT_ASSETS[asset]);
 }
+
+/** Synchrone Variante, z. B. beim Erstellen des Hauptfensters */
+export function resolveAssetPathSync(asset: UserAssetType) {
+    const assetPath = join(UserAssetFolder, asset);
+    return existsSync(assetPath) ? assetPath : join(STATIC_DIR, DEFAULT_ASSETS[asset]);
+}
+
+/** Larpcord: eigenes App-Icon auf ein Fenster anwenden (nur Formate, die Electron lesen kann) */
+export function applyAppIcon(win: Electron.BrowserWindow | undefined) {
+    if (!win || win.isDestroyed()) return;
+    try {
+        const image = nativeImage.createFromPath(resolveAssetPathSync("appIcon"));
+        if (!image.isEmpty()) win.setIcon(image);
+    } catch (e) {
+        console.error("Failed to apply app icon", e);
+    }
+}
+
+AppEvents.on("userAssetChanged", asset => {
+    if (asset === "appIcon") applyAppIcon(mainWin);
+});
 
 export async function handleVesktopAssetsProtocol(path: string, req: Request) {
     const asset = path.slice(1);

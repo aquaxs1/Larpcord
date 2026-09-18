@@ -48,6 +48,7 @@ def icon(size, unread=False):
 os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
 big = icon(512)
 big.save(os.path.join(ROOT, "build", "icon.png"))
+icon(256).save(os.path.join(ROOT, "static", "icon.png"))
 big.save(os.path.join(ROOT, "build", "icon.ico"), sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
 icon(64).save(os.path.join(ROOT, "static", "tray", "tray.png"))
 icon(64).save(os.path.join(ROOT, "static", "tray.png"))

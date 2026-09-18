@@ -24,6 +24,16 @@ export function createSplashWindow(startMinimized = false) {
 
     loadView(splash, "splash.html");
 
+    // Larpcord: eigener Ladetext (als textContent, also kein HTML)
+    const { splashText } = Settings.store;
+    if (splashText) {
+        splash.webContents.once("dom-ready", () => {
+            splash?.webContents
+                .executeJavaScript(`document.getElementById("splash-text").textContent = ${JSON.stringify(splashText.slice(0, 100))}`)
+                .catch(() => {});
+        });
+    }
+
     const { splashBackground, splashColor, splashTheming, splashPixelated } = Settings.store;
 
     if (splashTheming) {
