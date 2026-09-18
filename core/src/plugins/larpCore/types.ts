@@ -50,7 +50,8 @@ export interface LarpProfile {
     nameplate?: string;
     /** Zwischengespeicherte Nameplate-Daten, damit sie auch ohne geladenen Shop-Katalog funktioniert */
     nameplateData?: { asset: string; label?: string; palette?: string; };
-    nameStyle?: { font?: string; gradient?: [string, string]; glow?: boolean; };
+    /** font: Discord-Schrift-Schlüssel (z. B. "BANGERS"), effect: Discord-Effekt (z. B. "NEON") */
+    nameStyle?: { font?: string; gradient?: [string, string]; glow?: boolean; effect?: string; };
     extras: { verifiedCheck: boolean; ownerCrown: boolean; };
     /** guildId → Einstellungen */
     servers: Record<string, ServerLarp>;

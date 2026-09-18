@@ -172,7 +172,13 @@ export function sanitizeProfile(input: unknown): LarpProfile {
 
     if (isObj(input.nameStyle)) {
         const font = str(input.nameStyle.font, 80)?.replace(/[^\w\s-]/g, "");
-        p.nameStyle = { font: font || undefined, gradient: colorPair(input.nameStyle.gradient), glow: bool(input.nameStyle.glow) };
+        const effect = str(input.nameStyle.effect, 20);
+        p.nameStyle = {
+            font: font || undefined,
+            gradient: colorPair(input.nameStyle.gradient),
+            glow: bool(input.nameStyle.glow),
+            effect: effect && /^[A-Z_]+$/.test(effect) ? effect : undefined
+        };
     }
 
     if (isObj(input.extras)) {

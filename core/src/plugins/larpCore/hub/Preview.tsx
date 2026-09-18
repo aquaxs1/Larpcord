@@ -8,6 +8,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { formatDate, getLarpBadges } from "@plugins/larpCore/profileBadges";
 import { useLarpProfile } from "@plugins/larpCore/store";
 import { LarpProfile } from "@plugins/larpCore/types";
+import { NAME_FONTS } from "@plugins/larpName/nameStyles";
 import { UserStore } from "@webpack/common";
 import type { CSSProperties } from "react";
 
@@ -16,7 +17,8 @@ import { cl } from "./components";
 export function nameStyleCss(style: LarpProfile["nameStyle"]): CSSProperties {
     if (!style) return {};
     const css: CSSProperties = {};
-    if (style.font) css.fontFamily = `"${style.font}", var(--font-display)`;
+    const font = style.font ? NAME_FONTS[style.font]?.css ?? style.font : undefined;
+    if (font) css.fontFamily = font.startsWith("var(") ? font : `"${font}", var(--font-display)`;
     if (style.gradient) {
         css.backgroundImage = `linear-gradient(90deg, ${style.gradient[0]}, ${style.gradient[1]})`;
         css.WebkitBackgroundClip = "text";
