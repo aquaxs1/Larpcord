@@ -46,7 +46,10 @@ export interface LarpProfile {
     profile: { themeColors?: [string, string]; bannerUrl?: string; animatedAvatarUrl?: string; };
     decoration?: { asset: string; skuId?: string; };
     profileEffect?: string;
+    /** SKU-ID der Nameplate */
     nameplate?: string;
+    /** Zwischengespeicherte Nameplate-Daten, damit sie auch ohne geladenen Shop-Katalog funktioniert */
+    nameplateData?: { asset: string; label?: string; palette?: string; };
     nameStyle?: { font?: string; gradient?: [string, string]; glow?: boolean; };
     extras: { verifiedCheck: boolean; ownerCrown: boolean; };
     /** guildId → Einstellungen */

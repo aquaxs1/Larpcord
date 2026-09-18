@@ -47,7 +47,11 @@ function deepMerge<T>(target: T, patch: any): T {
     return out as T;
 }
 
+/** Steigt bei jeder Änderung, damit Hooks ihre Ergebnisse cachen können */
+let version = 0;
+
 function emit() {
+    version++;
     for (const fn of listeners) {
         try {
             fn();
@@ -90,6 +94,10 @@ export const LarpStore = {
 
     get isLoaded() {
         return loaded;
+    },
+
+    get version() {
+        return version;
     },
 
     /** Aktuelles Larp-Profil (nicht verändern, stattdessen update() nutzen) */

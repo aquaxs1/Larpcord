@@ -157,7 +157,18 @@ export function sanitizeProfile(input: unknown): LarpProfile {
     const effect = str(input.profileEffect, 25);
     if (effect && ID.test(effect)) p.profileEffect = effect;
     const nameplate = str(input.nameplate, 25);
-    if (nameplate && ID.test(nameplate)) p.nameplate = nameplate;
+    if (nameplate && ID.test(nameplate)) {
+        p.nameplate = nameplate;
+        const data = isObj(input.nameplateData) ? input.nameplateData : undefined;
+        const asset = str(data?.asset, 120);
+        if (asset && /^nameplates\/[\w/-]+$/.test(asset)) {
+            p.nameplateData = {
+                asset,
+                label: str(data?.label, 200),
+                palette: str(data?.palette, 30)?.replace(/\W/g, "") || undefined
+            };
+        }
+    }
 
     if (isObj(input.nameStyle)) {
         const font = str(input.nameStyle.font, 80)?.replace(/[^\w\s-]/g, "");

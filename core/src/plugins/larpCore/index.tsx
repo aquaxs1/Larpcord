@@ -14,6 +14,7 @@ import definePlugin, { IconProps } from "@utils/types";
 import { GuildStore, UserProfileStore, UserStore } from "@webpack/common";
 
 import { Hub } from "./hub/Hub";
+import { overrideProfile } from "./profileOverride";
 import { isSelf, LarpStore, logger } from "./store";
 
 const HUB_KEY = "larpcord_hub";
@@ -67,6 +68,19 @@ export default definePlugin({
     required: true,
 
     userProfileBadge: WatermarkBadge,
+
+    patches: [
+        {
+            // Zentraler Profil-Hook (Nitro, Theme-Farben, Banner, Profileffekt), nur für den eigenen User
+            find: 'displayName="UserProfileStore"',
+            replacement: {
+                match: /(?<=getUserProfile\((\i)\)\{return )(.+?)(?=\})/,
+                replace: "$self.overrideProfile($1,$2)"
+            }
+        }
+    ],
+
+    overrideProfile,
 
     async start() {
         SettingsPlugin.customEntries.push({
