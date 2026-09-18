@@ -38,7 +38,8 @@ Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), m
 - Eigene Sounds, eigener Ladebildschirm, eigenes App-Icon
 
 ### ⚙️ Larpcord-Hub
-Alle Einstellungen an einem Ort, mit Live-Vorschau deines Profils.
+Alle Einstellungen an einem Ort, mit Live-Vorschau deines Profils: **Einstellungen → Larpcord → Larpcord Hub**.
+Ladebildschirm, Tray- und App-Icon findest du unter **Einstellungen → Larpcord → Larpcord Desktop → Customize App Assets**.
 
 ---
 
@@ -61,15 +62,24 @@ Larpcord ist **rein kosmetisch und lokal**. Alles, was Discords Server prüft, b
 
 ### Selbst bauen
 
-Voraussetzungen: [Node.js](https://nodejs.org) 20+, [pnpm](https://pnpm.io), Git
+Voraussetzungen: [Node.js](https://nodejs.org) 22+, [pnpm](https://pnpm.io) 11+, Git
 
 ```bash
 git clone https://github.com/DEIN-NAME/larpcord.git
 cd larpcord
-pnpm install
+pnpm install      # installiert core/ und desktop/
 pnpm build        # baut Core und Desktop
-pnpm package      # erzeugt die .exe in desktop/dist/
+pnpm package      # erzeugt desktop/dist/Larpcord-Setup.exe
 ```
+
+Weitere Befehle:
+
+| Befehl | Zweck |
+|---|---|
+| `pnpm dev` | Dev-Build bauen und Larpcord direkt aus dem Quellcode starten |
+| `pnpm icons` | Platzhalter-Icons neu erzeugen (braucht Python + Pillow) |
+
+Ein Release entsteht automatisch, sobald ein Tag `v*` gepusht wird (siehe `.github/workflows/release.yml`).
 
 ---
 
