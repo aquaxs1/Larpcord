@@ -1,0 +1,52 @@
+.larp-deco-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 8px;
+}
+
+.larp-deco-grid-wide {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.larp-deco-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 6px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: var(--background-secondary, #2b2d31);
+    color: var(--text-default, var(--text-normal));
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.larp-deco-item:hover {
+    background: var(--background-modifier-hover, #35373c);
+}
+
+.larp-deco-item-on {
+    border-color: var(--brand-500, #5865f2);
+}
+
+.larp-deco-item img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+}
+
+.larp-deco-grid-wide .larp-deco-item img {
+    width: 100%;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.larp-deco-item span {
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
