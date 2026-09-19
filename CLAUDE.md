@@ -91,14 +91,19 @@ Nacheinander, nach jeder Phase bauen, starten, testen, kurz zusammenfassen.
 | Phase | Stand |
 |---|---|
 | 0 Basis | fertig |
-| 1 larpCore | fertig, **fehlt:** Namen (`username`, `displayName`) und Layout im Store |
+| 1 larpCore | fertig (inkl. Namen, Layout im Store, Patch-Status im Log) |
 | 2 larpBadges | fertig |
 | 3 larpNitro & larpDecorations | fertig |
-| 4 larpName | Clan-Tag, Häkchen, Krone, Name-Styles fertig. **Fehlt:** Name-Änderer inkl. Option „Larp-Name statt Server-Nicknames“ |
+| 4 larpName | fertig (inkl. Name-Änderer und „Larp-Name statt Server-Nicknames“) |
 | 5 larpServers | fertig |
 | 6 larpThemes | fertig |
-| 7 larpLayout | offen |
-| 8 Feinschliff | Plugin-Kategorie, Release-Workflow und README fertig. Nach larpLayout erneut prüfen |
+| 7 larpLayout | fertig: Stufen A–E und Sicherheitsnetz. Weitere Bereiche siehe `TODO.md` |
+| 8 Feinschliff | fertig: alle Plugins standardmäßig aktiv unter „Larpcord“, Test mit absichtlich kaputten Patches bestanden, Release-Workflow, README |
+
+### Testen
+
+- **Reporter-Build** (`pnpm build --reporter --dev --disable-updater` in `core/`): lädt beim Start alle Lazy-Chunks und meldet jeden Patch, der sein Modul nicht findet („found no module“), nicht greift („had no effect“) oder fehlschlägt („errored“). Vor jedem Commit mit neuen Patches laufen lassen.
+- **Ersetzungen direkt nach `return`** brauchen ein führendes Leerzeichen (`return(0,…)` wird sonst zu `return$self…` → Absturz). Laufzeitfehler in Ersetzungen fängt Vencord nicht ab, deshalb Logik immer in `$self`-Funktionen mit try/catch.
 
 ---
 
