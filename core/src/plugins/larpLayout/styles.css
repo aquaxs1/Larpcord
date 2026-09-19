@@ -1,0 +1,124 @@
+/* Bearbeitungsmodus: keine Textauswahl, Cursor zeigt Verschiebbarkeit */
+html.larp-layout-editing,
+html.larp-layout-editing * {
+    user-select: none !important;
+}
+
+html.larp-layout-editing [data-list-item-id^="guildsnav___"],
+html.larp-layout-editing a[href^="/channels/@me/"] {
+    cursor: grab !important;
+}
+
+#larp-layout-ui {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    pointer-events: none;
+    font-family: var(--font-primary, sans-serif);
+}
+
+.larp-layout-frame {
+    position: fixed;
+    box-sizing: border-box;
+    border: 2px dashed var(--brand-500, #5865f2);
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+.larp-layout-frame-pinned {
+    border-style: solid;
+    border-color: #f0b232;
+}
+
+.larp-layout-frame-hidden {
+    border-color: #ed4245;
+}
+
+.larp-layout-frame-dragging {
+    border-style: solid;
+    background: rgb(88 101 242 / 20%);
+}
+
+.larp-layout-pin {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    font-size: 12px;
+}
+
+.larp-layout-eye {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--background-floating, #111214);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 50%);
+    font-size: 11px;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.larp-layout-indicator {
+    position: fixed;
+    border-radius: 2px;
+    background: #f0b232;
+    box-shadow: 0 0 6px #f0b232;
+    pointer-events: none;
+}
+
+.larp-layout-ghost {
+    position: fixed;
+    max-width: 240px;
+    padding: 4px 10px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--background-floating, #111214);
+    color: var(--text-default, var(--text-normal, #fff));
+    box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    pointer-events: none;
+}
+
+.larp-layout-bar {
+    position: fixed;
+    top: 44px;
+    left: 50%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: calc(100vw - 40px);
+    padding: 10px 14px;
+    transform: translateX(-50%);
+    border: 1px solid var(--brand-500, #5865f2);
+    border-radius: 12px;
+    background: var(--background-floating, #111214);
+    color: var(--text-default, var(--text-normal, #fff));
+    box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+    font-size: 14px;
+    pointer-events: auto;
+}
+
+.larp-layout-hint {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.larp-layout-preset {
+    display: flex;
+    gap: 6px;
+}
+
+.larp-layout-preset input {
+    width: 160px;
+}

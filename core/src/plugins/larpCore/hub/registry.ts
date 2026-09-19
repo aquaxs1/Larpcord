@@ -24,6 +24,7 @@ export const HUB_TABS = [
     { id: "name", title: "Name", plugin: "LarpName" },
     { id: "servers", title: "Server", plugin: "LarpServers" },
     { id: "themes", title: "Themes", plugin: "LarpThemes" },
+    { id: "layout", title: "Layout", plugin: "LarpLayout" },
     { id: "presets", title: "Presets", plugin: "LarpCore" },
 ] as const;
 

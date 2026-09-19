@@ -44,6 +44,31 @@ export interface LarpNames {
     overrideNicknames: boolean;
 }
 
+/** Ein Eintrag der Serverleiste: Guild-ID oder "folder:<folderId>" */
+export type GuildListKey = string;
+
+export interface LarpButtonLayout {
+    /** Reihenfolge der Buttons. Schlüssel = aria-label des Buttons (bzw. seiner Gruppe) */
+    order: string[];
+    /** Ausgeblendete Buttons (Schlüssel) */
+    hidden: string[];
+    /** Alle aria-labels, die zu einem Schlüssel gehören (Umschalter wechseln ihr Label) */
+    labels: Record<string, string[]>;
+}
+
+export interface LarpLayout {
+    /** Eigene Reihenfolge der Serverleiste (oberste Ebene). Neue Server landen am Ende. */
+    guildOrder: GuildListKey[];
+    /** In Larpcord angepinnte DMs (Channel-IDs), in fester Reihenfolge oben */
+    pinnedDms: string[];
+    /** Buttons im User-Panel */
+    userPanel: LarpButtonLayout;
+    /** Buttons im Kanal-Header */
+    channelHeader: LarpButtonLayout;
+    /** User-Panel oben oder unten */
+    userPanelPosition: "bottom" | "top";
+}
+
 export interface LarpProfile {
     badges: { builtin: string[]; custom: CustomBadge[]; };
     /** Reihenfolge aller Badges (builtin-ID oder "custom:<id>"). Fehlende IDs werden hinten angehängt. */
@@ -68,6 +93,8 @@ export interface LarpProfile {
     servers: Record<string, ServerLarp>;
     theme?: LarpTheme;
     sounds?: LarpSounds;
+    /** Eigenes Layout (larpLayout). Fehlt = Discords Standard-Layout */
+    layout?: LarpLayout;
     /** Standard: false */
     watermark: boolean;
 }

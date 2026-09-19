@@ -167,6 +167,8 @@ export const LarpStore = {
         // Server-Einstellungen sind an eigene Server gebunden → beim Preset-Wechsel behalten, falls das Preset keine hat
         const profile = structuredClone(preset.profile);
         if (!Object.keys(profile.servers).length) profile.servers = state.profile.servers;
+        // Genauso das Layout: Presets ohne eigenes Layout lassen das aktuelle stehen
+        if (!profile.layout && state.profile.layout) profile.layout = state.profile.layout;
         this.replace(profile, name);
     },
 

@@ -6,7 +6,7 @@
 
 import { OFFICIAL_BADGE_IDS } from "./badges";
 import { createDefaultProfile } from "./defaults";
-import { CustomBadge, LarpExportFile, LarpPreset, LarpProfile, LarpSounds, LarpTheme, ServerLarp } from "./types";
+import { CustomBadge, LarpButtonLayout, LarpExportFile, LarpLayout, LarpPreset, LarpProfile, LarpSounds, LarpTheme, ServerLarp } from "./types";
 
 /*
  * Bereinigt beliebige (importierte oder gespeicherte) Daten zu einem gültigen LarpProfile.
@@ -111,6 +111,45 @@ function sounds(v: unknown): LarpSounds | undefined {
     return Object.keys(out).length ? out : undefined;
 }
 
+/** aria-labels landen später in CSS-Attributselektoren: nur druckbare Zeichen, begrenzte Länge */
+function label(v: unknown): string | undefined {
+    if (typeof v !== "string") return undefined;
+    const s = v.replace(/[\u0000-\u001f\u007f\u2028\u2029]/g, "").trim();
+    return s ? s.slice(0, 100) : undefined;
+}
+
+function labelList(v: unknown, max: number): string[] {
+    if (!Array.isArray(v)) return [];
+    return [...new Set(v.map(label).filter(Boolean) as string[])].slice(0, max);
+}
+
+function buttonLayout(v: unknown): LarpButtonLayout {
+    const out: LarpButtonLayout = { order: [], hidden: [], labels: {} };
+    if (!isObj(v)) return out;
+    out.order = labelList(v.order, 50);
+    out.hidden = labelList(v.hidden, 50);
+    if (isObj(v.labels)) {
+        for (const [k, list] of Object.entries(v.labels).slice(0, 50)) {
+            const key = label(k);
+            if (key) out.labels[key] = labelList(list, 10);
+        }
+    }
+    return out;
+}
+
+function layout(v: unknown): LarpLayout | undefined {
+    if (!isObj(v)) return undefined;
+    const ids = (list: unknown, re: RegExp, max: number) =>
+        Array.isArray(list) ? [...new Set(list.filter((x): x is string => typeof x === "string" && re.test(x)))].slice(0, max) : [];
+    return {
+        guildOrder: ids(v.guildOrder, /^(\d{15,21}|folder:\d{1,21})$/, 500),
+        pinnedDms: ids(v.pinnedDms, /^\d{15,21}$/, 100),
+        userPanel: buttonLayout(v.userPanel),
+        channelHeader: buttonLayout(v.channelHeader),
+        userPanelPosition: v.userPanelPosition === "top" ? "top" : "bottom"
+    };
+}
+
 const SNOWFLAKE = /^\d{15,21}$/;
 // Discord-Asset-Hashes, z. B. "a_1234abcd…" oder "v2_…"
 const ASSET = /^[\w-]{8,80}$/;
@@ -206,6 +245,9 @@ export function sanitizeProfile(input: unknown): LarpProfile {
             if (s) p.servers[guildId] = s;
         }
     }
+
+    const l = layout(input.layout);
+    if (l) p.layout = l;
 
     const t = theme(input.theme);
     if (t) p.theme = t;

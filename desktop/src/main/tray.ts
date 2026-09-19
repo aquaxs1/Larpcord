@@ -52,6 +52,16 @@ export async function initTray(win: BrowserWindow, setIsQuitting: (val: boolean)
             click: createAboutWindow
         },
         {
+            // Sicherheitsnetz für larpLayout: setzt nur das lokale Layout zurück
+            label: "Layout zurücksetzen",
+            click() {
+                win.show();
+                win.webContents
+                    .executeJavaScript("globalThis.Vencord?.Plugins?.plugins?.LarpLayout?.resetFromTray?.()")
+                    .catch(() => { });
+            }
+        },
+        {
             label: "Reset Larpcord",
             async click() {
                 await clearData(win);
