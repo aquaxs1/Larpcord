@@ -2,7 +2,7 @@
 
 **Der Discord-Client, in dem du alles sein darfst. Zumindest auf deinem eigenen Bildschirm.**
 
-Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), mit dem du dir lokal Badges, Nitro-Optik, Avatar-Dekorationen, Profileffekte und Server-Badges gibst. Alles, was Larpcord verändert, ist **nur auf deinem PC sichtbar**. Niemand sonst sieht es, und dein Account wird nicht verändert.
+Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), mit dem du dir lokal Badges, Nitro-Optik, Avatar-Dekorationen, Profileffekte, Server-Badges, einen anderen Namen und ein eigenes Layout gibst. Alles, was Larpcord verändert, ist **nur auf deinem PC sichtbar**. Niemand sonst sieht es, und dein Account wird nicht verändert.
 
 > Larp (Live Action Role Play): so tun als ob. Genau das macht Larpcord.
 
@@ -27,6 +27,20 @@ Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), m
 - Boost-Level (1 bis 3) und Boost-Anzahl frei einstellbar
 - Einstellbar pro Server
 
+### 🪪 Name-Änderer
+- Username und Anzeigename lokal sofort ändern, ohne Cooldown
+- Gilt überall: Chat, Profil, Mitgliederliste, User-Panel, Erwähnungen, Tooltips
+- Optional: Larp-Name statt Server-Nicknames anzeigen (standardmäßig an)
+- Dein echter Name bleibt bei Discord unverändert. Selbst wenn Discords Konto-Formular den Larp-Namen vorausfüllt, sendet Larpcord ihn nie an Discord.
+
+### 🧩 Eigenes Layout
+- Bearbeitungsmodus im Hub oder per **Strg+Shift+L**: Elemente ziehen, Leiste mit „Fertig“, „Zurücksetzen“ und „Als Preset speichern“
+- Serverleiste frei sortieren (Ordner als Ganzes), neue Server landen automatisch am Ende
+- DMs per Rechtsklick „In Larpcord anpinnen“, angepinnte DMs stehen oben in fester Reihenfolge
+- Buttons im User-Panel und Kanal-Header umsortieren oder ausblenden (der Einstellungen-Button bleibt immer sichtbar)
+- User-Panel oben oder unten
+- Sicherheitsnetz: **Shift beim Start gedrückt halten** oder im Tray-Menü „Layout zurücksetzen“ wählen
+
 ### 🎭 Larp-Extras & Presets
 - Verified-Häkchen und Server-Owner-Krone neben deinem Namen
 - **Larp-Presets**: komplette Setups speichern und per Klick wechseln, z. B. „Discord Staff“, „Nitro-Gönner“, „OG 2015“
@@ -38,7 +52,7 @@ Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), m
 - Eigene Sounds, eigener Ladebildschirm, eigenes App-Icon
 
 ### ⚙️ Larpcord-Hub
-Alle Einstellungen an einem Ort, mit Live-Vorschau deines Profils: **Einstellungen → Larpcord → Larpcord Hub**.
+Alle Einstellungen an einem Ort, mit Live-Vorschau deines Profils: **Einstellungen → Larpcord → Larpcord Hub** (Unter-Tabs Badges, Nitro, Dekorationen, Name, Server, Themes, Layout, Presets).
 Ladebildschirm, Tray- und App-Icon findest du unter **Einstellungen → Larpcord → Larpcord Desktop → Customize App Assets**.
 
 ---
@@ -48,7 +62,9 @@ Ladebildschirm, Tray- und App-Icon findest du unter **Einstellungen → Larpcord
 Larpcord ist **rein kosmetisch und lokal**. Alles, was Discords Server prüft, bleibt so, wie es ist:
 
 - Keine größeren Uploads, kein echtes HD-Streaming, keine echten Server-Boosts
-- Andere Nutzer sehen deine Larp-Badges und -Dekorationen **nicht**
+- Andere Nutzer sehen deine Larp-Badges, -Dekorationen und deinen Larp-Namen **nicht**
+- Dein echter Name bleibt: Andere sehen weiterhin deinen echten Username und Anzeigenamen
+- Deine echte Server-Reihenfolge bleibt: Das Layout ist nur in Larpcord sichtbar, im normalen Discord (und auf dem Handy) ist alles wie vorher
 - Dein Account, deine Server und deine Rollen werden nicht verändert
 
 ---
