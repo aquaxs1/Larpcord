@@ -14,6 +14,7 @@ import definePlugin, { IconProps } from "@utils/types";
 import { GuildStore, UserProfileStore, UserStore } from "@webpack/common";
 
 import { Hub } from "./hub/Hub";
+import { cancelPatchHealthCheck, schedulePatchHealthCheck } from "./patchHealth";
 import { overrideProfile } from "./profileOverride";
 import { isSelf, LarpStore, logger } from "./store";
 
@@ -93,10 +94,12 @@ export default definePlugin({
         });
 
         unsubscribe = LarpStore.subscribe(refreshDiscordUi);
+        schedulePatchHealthCheck();
         await LarpStore.init();
     },
 
     stop() {
+        cancelPatchHealthCheck();
         removeFromArray(SettingsPlugin.customEntries, e => e.key === HUB_KEY);
         unsubscribe?.();
     }

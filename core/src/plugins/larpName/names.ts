@@ -64,9 +64,13 @@ export function getGlobalName(user: NamedUser, real: string | null | undefined) 
 
 /** Echter Wert eines Namensfelds, auch wenn der Getter gerade den Larp-Namen liefert */
 export function realName(user: NamedUser | null | undefined, key: "username" | "globalName") {
-    if (user == null) return user;
-    const backing = key === "username" ? "_larpUN" : "_larpGN";
-    return backing in user ? user[backing] : user[key];
+    try {
+        if (user == null || typeof user !== "object") return user?.[key];
+        const backing = key === "username" ? "_larpUN" : "_larpGN";
+        return backing in user ? user[backing] : user[key];
+    } catch {
+        return undefined;
+    }
 }
 
 /** Sicht auf einen User mit echten Namen (für Serialisierung an Dritte) */
