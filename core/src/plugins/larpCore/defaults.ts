@@ -12,6 +12,7 @@ export function createDefaultProfile(): LarpProfile {
         nitro: { enabled: false },
         profile: {},
         extras: { verifiedCheck: false, ownerCrown: false },
+        names: { overrideNicknames: true },
         servers: {},
         watermark: false
     };

@@ -35,6 +35,15 @@ export interface LarpSounds {
     call?: string;
 }
 
+export interface LarpNames {
+    /** Lokaler Username (ohne @), leer = echter Username */
+    username?: string;
+    /** Lokaler Anzeigename, leer = echter Anzeigename */
+    displayName?: string;
+    /** Larp-Name statt Server-Nicknames anzeigen. Standard: an */
+    overrideNicknames: boolean;
+}
+
 export interface LarpProfile {
     badges: { builtin: string[]; custom: CustomBadge[]; };
     /** Reihenfolge aller Badges (builtin-ID oder "custom:<id>"). Fehlende IDs werden hinten angehängt. */
@@ -53,6 +62,8 @@ export interface LarpProfile {
     /** font: Discord-Schrift-Schlüssel (z. B. "BANGERS"), effect: Discord-Effekt (z. B. "NEON") */
     nameStyle?: { font?: string; gradient?: [string, string]; glow?: boolean; effect?: string; };
     extras: { verifiedCheck: boolean; ownerCrown: boolean; };
+    /** Name-Änderer (nur lokal) */
+    names: LarpNames;
     /** guildId → Einstellungen */
     servers: Record<string, ServerLarp>;
     theme?: LarpTheme;

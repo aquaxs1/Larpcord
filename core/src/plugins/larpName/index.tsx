@@ -13,6 +13,7 @@ import { isSelf, LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
+import { getGlobalName, getUsername, guardAccountBody, overrideMember, realName, realUserView, refreshOwnUser, resetSelfIdCache } from "./names";
 import { toDisplayNameStyles } from "./nameStyles";
 import { NameTab } from "./NameTab";
 
@@ -21,6 +22,8 @@ import { NameTab } from "./NameTab";
  *   Discord rendert den Stil dann selbst überall (Chat, Mitgliederliste, DMs, Profil).
  * - Clan-Tag, Verified-Häkchen, Owner-Krone: über Vencords Decoration-APIs (Chat, Mitgliederliste)
  *   und die Badge-API (Profil). Keine erfundenen Server-Daten, keine Requests.
+ * - Name-Änderer: Getter für username/globalName am User-Modell (siehe names.ts), dadurch
+ *   überall gleich: Chat, Profil, Mitgliederliste, User-Panel, Erwähnungen, Tooltips.
  */
 
 export function NameExtras({ className }: { className?: string; }) {
@@ -70,10 +73,11 @@ const ProfileExtrasBadge: ProfileBadge = {
 };
 
 let stylesCache: { key: string; value: unknown; } | undefined;
+let unsubscribeNames: (() => void) | undefined;
 
 export default definePlugin({
     name: "LarpName",
-    description: "Clan-Tag, Verified-Häkchen, Owner-Krone und Namens-Stile (Schrift, Verlauf, Glow) für deinen eigenen Namen. Nur lokal sichtbar.",
+    description: "Name-Änderer, Clan-Tag, Verified-Häkchen, Owner-Krone und Namens-Stile (Schrift, Verlauf, Glow) für deinen eigenen Namen. Nur lokal sichtbar.",
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     enabledByDefault: true,
@@ -100,8 +104,78 @@ export default definePlugin({
                     replace: "$1$2.displayNameStyles??$2._larpDNS??"
                 }
             ]
+        },
+        {
+            // Name-Änderer: username/globalName werden zu Gettern, der echte Wert liegt in _larpUN/_larpGN.
+            // Klone per {...this} tragen nur die Backing-Felder weiter, der Konstruktor liest sie als Fallback.
+            find: "get avatarDecoration(){",
+            group: true,
+            replacement: [
+                {
+                    match: /(?<=;)username;/,
+                    replace: "_larpUN=null;get username(){return $self.getUsername(this,this._larpUN)}set username(e){this._larpUN=e}"
+                },
+                {
+                    match: /(?<=;)globalName;/,
+                    replace: "_larpGN=null;get globalName(){return $self.getGlobalName(this,this._larpGN)}set globalName(e){this._larpGN=e}"
+                },
+                {
+                    match: /(this\.username=(\i)\.username)\?\?""/,
+                    replace: '$1??$2._larpUN??""'
+                },
+                {
+                    match: /(this\.globalName=(\i)\.global_name\?\?\i\.globalName)(?=[,;])/,
+                    replace: "$1??$2._larpGN"
+                }
+            ]
+        },
+        {
+            // "Larp-Name statt Server-Nicknames": der eigene Nick wird nur beim Lesen ausgeblendet,
+            // im Store bleibt der echte Nick (getTrueMember und interne Updates sind unberührt).
+            find: 'displayName="GuildMemberStore"',
+            replacement: {
+                match: /(?<=\})getMember\((\i),(\i)\)\{/,
+                replace: "getMember($1,$2){return $self.overrideMember(this.__larpGetMember($1,$2),$2)}__larpGetMember($1,$2){"
+            }
+        },
+        {
+            // Regel 1: Ein mit dem Larp-Namen vorausgefülltes Konto-Formular darf ihn nie an Discord senden
+            // (das Server-Profil nutzt dieselbe Aktion, aber mit guildId dahinter)
+            find: 'type:"USER_PROFILE_SETTINGS_SUBMIT"})',
+            replacement: {
+                match: /(\.patch\(\{url:\i\.\i\.ME,oldFormErrors:!0,body:)(\i)/,
+                replace: "$1$self.guardAccountBody($2)"
+            }
+        },
+        {
+            // Eingebettete Aktivitäten (Apps im Sprachkanal) bekommen immer den echten Namen
+            find: /user_id:\i\.userId,username:\i\.username,global_name:/,
+            replacement: {
+                match: /(?<=user_id:\i\.userId,)username:(\i)\.username,global_name:\1\.globalName/,
+                replace: 'username:$self.realName($1,"username"),global_name:$self.realName($1,"globalName")'
+            }
+        },
+        {
+            // RPC-Serialisierung (Spiele, Overlays) ebenfalls mit echtem Namen
+            find: /global_name:\i,avatar:\i,avatar_decoration_data:/,
+            replacement: {
+                match: /(?<=premiumType:\i\}=)(\i)(?=;return\{id:)/,
+                replace: "$self.realUserView($1)"
+            }
         }
     ],
+
+    getUsername,
+    getGlobalName,
+    overrideMember,
+    guardAccountBody,
+    realName,
+    realUserView,
+
+    flux: {
+        CONNECTION_OPEN: resetSelfIdCache,
+        LOGOUT: resetSelfIdCache
+    },
 
     getDisplayNameStyles(user: { id: string; }, original: unknown) {
         try {
@@ -117,9 +191,20 @@ export default definePlugin({
 
     start() {
         registerHubTab({ id: "name", title: "Name", Component: NameTab });
+
+        // Bei geänderten Namen das eigene User-Objekt austauschen, damit Discord sofort neu rendert
+        let lastNames = JSON.stringify(LarpStore.get().names);
+        unsubscribeNames = LarpStore.subscribe(() => {
+            const names = JSON.stringify(LarpStore.get().names);
+            if (names === lastNames) return;
+            lastNames = names;
+            refreshOwnUser();
+        });
     },
 
     stop() {
         unregisterHubTab("name");
+        unsubscribeNames?.();
+        refreshOwnUser();
     }
 });

@@ -7,6 +7,7 @@
 import { Btn, cl, ColorPairField, ImageField, Row, Section, TextField, Toggle } from "@plugins/larpCore/hub/components";
 import { LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 
+import { getRealNames } from "./names";
 import { NAME_EFFECTS, NAME_FONTS, resolveEffect } from "./nameStyles";
 
 function Select({ value, options, onChange }: { value: string; options: [string, string][]; onChange(v: string): void; }) {
@@ -22,8 +23,44 @@ export function NameTab() {
     const style = larp.nameStyle ?? {};
     const effect = resolveEffect(larp.nameStyle) ?? "";
 
+    const real = getRealNames();
+    const { names } = larp;
+
     return (
         <>
+            <Section
+                title="Name-Änderer"
+                description={<><strong>Nur lokal sichtbar.</strong> Dein echter Name bei Discord bleibt unverändert, andere sehen weiterhin deinen echten Namen. Änderungen gelten sofort und ohne Cooldown.</>}
+            >
+                <Row label="Anzeigename" hint={`Echt: ${real.globalName || real.username || "–"}`}>
+                    <TextField
+                        value={names.displayName}
+                        maxLength={32}
+                        placeholder={real.globalName || real.username || "Anzeigename"}
+                        onCommit={displayName => LarpStore.update({ names: { displayName } })}
+                    />
+                </Row>
+                <Row label="Username" hint={`Echt: @${real.username || "–"}`}>
+                    <TextField
+                        value={names.username}
+                        maxLength={32}
+                        placeholder={real.username || "username"}
+                        onCommit={username => LarpStore.update({ names: { username: username?.replace(/^@/, "") || undefined } })}
+                    />
+                </Row>
+                <Toggle
+                    label="Larp-Name statt Server-Nicknames anzeigen"
+                    hint="Blendet deine Server-Nicknames aus, damit überall der Larp-Name erscheint"
+                    value={names.overrideNicknames}
+                    onChange={overrideNicknames => LarpStore.update({ names: { overrideNicknames } })}
+                />
+                {(names.username || names.displayName) && (
+                    <Btn variant="danger" style={{ marginTop: 12 }} onClick={() => LarpStore.update({ names: { username: undefined, displayName: undefined } })}>
+                        Echten Namen wiederherstellen
+                    </Btn>
+                )}
+            </Section>
+
             <Section title="Neben deinem Namen" description="Erscheint im Chat, in der Mitgliederliste und in deinem Profil.">
                 <Row label="Clan-Tag" hint="Max. 4 Zeichen, leer = aus">
                     <TextField

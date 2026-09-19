@@ -55,6 +55,12 @@ export function safeDate(v: unknown): string | undefined {
     return d.toISOString();
 }
 
+/** Namen: wie bei Discord max. 32 Zeichen, ohne Steuerzeichen und Zeilenumbrüche */
+function name(v: unknown): string | undefined {
+    if (typeof v !== "string") return undefined;
+    return str(v.replace(/[\u0000-\u001f\u007f\u2028\u2029]/g, ""), 32);
+}
+
 function colorPair(v: unknown): [string, string] | undefined {
     if (!Array.isArray(v) || v.length !== 2) return undefined;
     const a = safeColor(v[0]), b = safeColor(v[1]);
@@ -183,6 +189,14 @@ export function sanitizeProfile(input: unknown): LarpProfile {
 
     if (isObj(input.extras)) {
         p.extras = { verifiedCheck: bool(input.extras.verifiedCheck), ownerCrown: bool(input.extras.ownerCrown) };
+    }
+
+    if (isObj(input.names)) {
+        p.names = {
+            username: name(input.names.username),
+            displayName: name(input.names.displayName),
+            overrideNicknames: bool(input.names.overrideNicknames, true)
+        };
     }
 
     if (isObj(input.servers)) {
