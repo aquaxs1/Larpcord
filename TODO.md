@@ -32,8 +32,8 @@ Neue Erkenntnisse, Probleme und verschobene Punkte unten unter „Offen / Späte
 - [x] Einstellungen im Hub: Auto-Update an/aus, Kanal „Stabil“ / „Beta“ (Beta = GitHub-Prereleases), Button „Jetzt nach Updates suchen“, aktuelle Version anzeigen
 - [x] Fehler (kein Internet, Rate-Limit, kaputter Download) still loggen, nie den Client blockieren
 - [x] GitHub Action anpassen: bei Tag `v*` bauen und mit `latest.yml` veröffentlichen (`--publish always`, `GH_TOKEN`), Tags mit `-beta` als Prerelease
-- [ ] In README dokumentieren: ohne Code-Signing zeigt Windows SmartScreen eine Warnung, Updates funktionieren trotzdem
-- [ ] Test: Version `0.0.1` installieren, `0.0.2` releasen → Update wird erkannt, geladen und installiert
+- [x] In README dokumentieren: ohne Code-Signing zeigt Windows SmartScreen eine Warnung, Updates funktionieren trotzdem
+- [x] Test: Version `0.0.1` installieren, `0.0.2` releasen → Update wird erkannt, geladen und installiert
 
 **Fertig, wenn:** Der Testlauf oben vollständig klappt.
 
@@ -45,9 +45,9 @@ Wichtig: Muss mit `electron-updater` kompatibel bleiben, also NSIS-Target behalt
 
 - [x] NSIS `oneClick` mit Installation pro Benutzer: keine altmodischen Wizard-Seiten, nur kurzer Fortschritt
 - [x] Eigene Icons für Installer, Uninstaller und Header, dunkles Farbschema
-- [ ] Optional prüfen: randloses Splash-Fenster mit Animation während der Installation über ein NSIS-Plugin. Nur umsetzen, wenn es stabil ist, sonst in „Offen / Später“ notieren
-- [ ] Nach der Installation startet Larpcord direkt in einen modernen Splash-Screen („Larpcord wird eingerichtet…“) im Discord-Look: dunkler Hintergrund, abgerundete Ecken, animiertes Larpcord-Logo, Fortschrittstext
-- [ ] Onboarding beim ersten Start (eigenes Fenster, Discord-Style, 3 bis 4 Schritte): Willkommen, Hinweis „Alles nur lokal sichtbar“ plus Nutzungsbedingungen-Hinweis, Start-Preset wählen, Wasserzeichen an/aus
+- [x] Optional geprüft: randloses Splash-Fenster während der Installation → nach „Offen / Später“ verschoben (siehe unten)
+- [x] Nach der Installation startet Larpcord direkt in einen modernen Splash-Screen („Larpcord wird eingerichtet…“) im Discord-Look: dunkler Hintergrund, abgerundete Ecken, animiertes Larpcord-Logo, Fortschrittstext
+- [x] Onboarding beim ersten Start (eigenes Fenster, Discord-Style, 3 bis 4 Schritte): Willkommen, Hinweis „Alles nur lokal sichtbar“ plus Nutzungsbedingungen-Hinweis, Start-Preset wählen, Wasserzeichen an/aus
 - [x] Uninstaller fragt: „Einstellungen und Presets behalten?“
 - [x] Installer-Texte auf Deutsch und Englisch (NSIS-Mehrsprachigkeit, nach Systemsprache)
 - [x] Eigenes Larpcord-Logo verwenden, **kein** Discord-Logo und kein Discord-Schriftzug. Discord-ähnliche Farben und Formen sind okay
@@ -148,6 +148,12 @@ _(Hier landen Punkte, die nicht stabil umsetzbar waren, mit kurzer Begründung.)
 - Titelleiste (Posteingang, Hilfe) und Chat-Eingabe-Buttons (Geschenk, GIF, Sticker, Emoji) umsortieren/ausblenden.
 - Server innerhalb von Ordnern lokal umsortieren (bewusst weggelassen: Ordner werden nur als Ganzes verschoben, damit Discords Ordnerstruktur unangetastet bleibt).
 - Umschalter, deren Label je nach Zustand wechselt und die Discord nicht als Paar übersetzt (z. B. Mitgliederliste ein/aus), rutschen nach dem Umschalten ans Ende der Reihenfolge.
+
+### Installer: bewusst weggelassen
+- **Animiertes Splash-Fenster während der NSIS-Installation** (`nsisSplash`/`newadvsplash`): bräuchte ein zusätzliches
+  NSIS-Plugin im Build und läuft nur wenige Sekunden, während der oneClick-Installer ohnehin schon einen Fortschritt zeigt.
+  Der Splash direkt nach der Installation („Larpcord wird eingerichtet …“) deckt den sichtbaren Teil ab.
+- **Dunkles Farbschema im Deinstallations-Fenster:** MUI definiert `un.onGUIInit` selbst; nur der Installer wird eingefärbt.
 
 ### Offene Ideen
 - Clan-Tag, Häkchen und Krone im Profil direkt neben dem Namen statt in der Badge-Zeile (braucht einen zusätzlichen Profil-Patch).
