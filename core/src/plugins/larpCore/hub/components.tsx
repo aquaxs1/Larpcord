@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { formatLarpNumber, t, tNode } from "@plugins/larpCore/i18n";
 import { safeUrl } from "@plugins/larpCore/validate";
+
+import { LARPCORD_LOGO } from "../logo";
 import { classNameFactory } from "@utils/css";
 import { chooseFile } from "@utils/web";
 import { useEffect, useState } from "@webpack/common";
@@ -176,9 +179,9 @@ export function ColorPairField({ value, onCommit, defaults = ["#5865f2", "#eb459
 export function Placeholder({ title, plugin }: { title: string; plugin: string; }) {
     return (
         <div className={cl("placeholder")}>
-            <div className={cl("placeholder-icon")}>🎭</div>
+            <img className={cl("placeholder-icon")} src={LARPCORD_LOGO} alt="" draggable={false} />
             <h3>{title}</h3>
-            <p>Das Plugin <code>{plugin}</code> ist nicht aktiv. Aktiviere es unter Einstellungen → Plugins.</p>
+            <p>{tNode("core.hub.pluginDisabled", { plugin: <code>{plugin}</code> })}</p>
         </div>
     );
 }

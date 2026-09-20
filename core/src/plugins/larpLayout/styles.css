@@ -122,3 +122,11 @@ html.larp-layout-editing a[href^="/channels/@me/"] {
 .larp-layout-preset input {
     width: 160px;
 }
+
+.larp-edit-logo {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    vertical-align: -3px;
+    object-fit: contain;
+}

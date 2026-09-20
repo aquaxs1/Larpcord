@@ -6,13 +6,15 @@
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Btn } from "@plugins/larpCore/hub/components";
+import { errorText, t, useLarpLocale } from "@plugins/larpCore/i18n";
+import { LARPCORD_LOGO } from "@plugins/larpCore/logo";
 import { LarpStore, logger, useLarpProfile } from "@plugins/larpCore/store";
 import { ChannelStore, createRoot, FluxDispatcher, GuildStore, SelectedChannelStore, showToast, Toasts, useEffect, useReducer, UserStore, useState } from "@webpack/common";
 import type { Root } from "react-dom/client";
 
 import {
-    ButtonBar, canonicalKey, containerSelector, cssString, getLabels, getLayout, guildKey, isProtected, matchLabels,
-    orderGuildRoots, resetLayout, SortedGuildStore, updateLayout
+    ButtonBar, buttonName, containerSelector, cssString, getLabels, getLayout, guildKey, isProtected, matchLabels,
+    orderGuildRoots, resetLayout, SortedGuildStore, stableKey, updateLayout
 } from "./layout";
 
 /*
@@ -390,34 +392,34 @@ function Toolbar() {
     const savePreset = () => {
         try {
             LarpStore.savePreset(presetName ?? "");
-            showToast(`Preset „${presetName!.trim()}“ gespeichert`, Toasts.Type.SUCCESS);
+            showToast(t("layout.edit.presetSaved", { name: presetName!.trim() }), Toasts.Type.SUCCESS);
             setPresetName(null);
         } catch (e) {
-            showToast(String((e as Error).message ?? e), Toasts.Type.FAILURE);
+            showToast(errorText(e), Toasts.Type.FAILURE);
         }
     };
 
     return (
         <div className="larp-layout-bar">
-            <strong>🎭 Layout bearbeiten</strong>
-            <span className="larp-layout-hint">Ziehen zum Verschieben · 👁 blendet Buttons aus · Esc beendet</span>
+            <strong><img className="larp-edit-logo" src={LARPCORD_LOGO} alt="" draggable={false} /> {t("layout.edit.title")}</strong>
+            <span className="larp-layout-hint">{t("layout.edit.hint")}</span>
             <Btn variant="secondary" onClick={() => updateLayout(l => { l.userPanelPosition = top ? "bottom" : "top"; })}>
-                User-Panel {top ? "nach unten" : "nach oben"}
+                {top ? t("layout.edit.panelDown") : t("layout.edit.panelUp")}
             </Btn>
             <Btn variant="danger" onClick={async () => {
                 await resetLayout("Bearbeitungsmodus");
-                showToast("Layout zurückgesetzt. Im Hub unter Layout lässt es sich wiederherstellen.", Toasts.Type.MESSAGE);
+                showToast(t("layout.toast.resetEditMode"), Toasts.Type.MESSAGE);
             }}>
-                Zurücksetzen
+                {t("common.reset")}
             </Btn>
             {presetName == null
-                ? <Btn variant="secondary" onClick={() => setPresetName("")}>Als Preset speichern</Btn>
+                ? <Btn variant="secondary" onClick={() => setPresetName("")}>{t("layout.edit.saveAsPreset")}</Btn>
                 : (
                     <span className="larp-layout-preset">
                         <input
                             autoFocus
                             className="larp-input"
-                            placeholder="Name des Presets"
+                            placeholder={t("layout.edit.presetName")}
                             value={presetName}
                             maxLength={60}
                             onChange={e => setPresetName(e.currentTarget.value)}

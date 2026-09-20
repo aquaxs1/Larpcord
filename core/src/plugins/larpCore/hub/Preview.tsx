@@ -5,12 +5,14 @@
  */
 
 import ErrorBoundary from "@components/ErrorBoundary";
+import { t, useLarpLocale } from "@plugins/larpCore/i18n";
 import { formatDate, getLarpBadges } from "@plugins/larpCore/profileBadges";
 import { useLarpProfile } from "@plugins/larpCore/store";
 import { LarpProfile } from "@plugins/larpCore/types";
 import { NAME_FONTS } from "@plugins/larpName/nameStyles";
 import { UserStore } from "@webpack/common";
 import type { CSSProperties } from "react";
+import { LARPCORD_LOGO } from "../logo";
 
 import { cl } from "./components";
 
@@ -80,21 +82,28 @@ function PreviewCard() {
 
                 <div className={cl("preview-meta")}>
                     <div>
-                        <small>Mitglied seit</small>
+                        <small>{t("core.preview.memberSince")}</small>
                         <span>{formatDate(larp.memberSince ?? new Date(Number((BigInt(user.id) >> 22n) + 1420070400000n)).toISOString())}</span>
                     </div>
                     {larp.nitro.enabled && larp.nitro.since && (
                         <div>
-                            <small>Nitro seit</small>
+                            <small>{t("core.preview.nitroSince")}</small>
                             <span>{formatDate(larp.nitro.since)}</span>
                         </div>
                     )}
                 </div>
 
-                {larp.watermark && <div className={cl("watermark")}>🎭 Larpcord</div>}
+                {larp.watermark && <div className={cl("watermark")}><img src={LARPCORD_LOGO} alt="" draggable={false} /> Larpcord</div>}
             </div>
         </div>
     );
 }
 
-export const Preview = ErrorBoundary.wrap(PreviewCard, { message: "Vorschau konnte nicht gerendert werden." });
+/** Fehlermeldung erst beim Rendern übersetzen (ErrorBoundary.wrap würde sie beim Laden des Moduls einfrieren) */
+export function Preview() {
+    return (
+        <ErrorBoundary message={t("core.preview.error")}>
+            <PreviewCard />
+        </ErrorBoundary>
+    );
+}
