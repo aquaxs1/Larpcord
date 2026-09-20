@@ -24,12 +24,16 @@ export function createSplashWindow(startMinimized = false) {
 
     loadView(splash, "splash.html");
 
-    // Larpcord: eigener Ladetext (als textContent, also kein HTML)
+    // Larpcord: eigener Ladetext (als textContent, also kein HTML). Ohne eigenen Text zeigt splash.html
+    // den übersetzten Standardtext (data-i18n="desktop.splash.loading"). Beim eigenen Text wird data-i18n
+    // entfernt, damit ein Sprachwechsel ihn nicht überschreibt.
     const { splashText } = Settings.store;
     if (splashText) {
         splash.webContents.once("dom-ready", () => {
             splash?.webContents
-                .executeJavaScript(`document.getElementById("splash-text").textContent = ${JSON.stringify(splashText.slice(0, 100))}`)
+                .executeJavaScript(
+                    `(() => { const el = document.getElementById("splash-text"); el.removeAttribute("data-i18n"); el.textContent = ${JSON.stringify(splashText.slice(0, 100))}; })()`
+                )
                 .catch(() => {});
         });
     }

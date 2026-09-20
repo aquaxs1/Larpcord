@@ -99,11 +99,17 @@ export interface LarpProfile {
     watermark: boolean;
 }
 
+/** Stabile IDs der mitgelieferten Presets (Anzeigename über den Schlüssel preset.builtin.<id>) */
+export type BuiltinPresetId = "staff" | "nitro" | "og2015";
+
 export interface LarpPreset {
+    /** Eigene Presets: frei gewählter Name. Mitgelieferte: Anzeigename in der aktuellen Sprache (Getter) */
     name: string;
     profile: LarpProfile;
     /** Mitgelieferte Presets lassen sich nicht löschen/umbenennen, nur laden */
     builtin?: boolean;
+    /** Nur bei mitgelieferten Presets: stabile ID, über die das Preset gefunden wird */
+    builtinId?: BuiltinPresetId;
 }
 
 export interface LarpExportFile {

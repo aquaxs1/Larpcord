@@ -6,6 +6,7 @@
 
 import { Heading, Margins, Paragraph } from "@vencord/types/components";
 import { Select } from "@vencord/types/webpack/common";
+import { t } from "renderer/i18n";
 
 import { SimpleErrorBoundary } from "../SimpleErrorBoundary";
 import { SettingsComponent } from "./Settings";
@@ -14,22 +15,22 @@ export const WebRTCIPHandlingPolicyPicker: SettingsComponent = ({ settings }) =>
     return (
         <SimpleErrorBoundary>
             <div>
-                <Heading tag="h5">WebRTC IP Handling Policy</Heading>
-                <Paragraph className={Margins.bottom8}>
-                    Changing this may help with voice connection issues on some networks, most notably VPNs like
-                    Tailscale.
-                </Paragraph>
+                <Heading tag="h5">{t("desktop.settings.webRTC.title")}</Heading>
+                <Paragraph className={Margins.bottom8}>{t("desktop.settings.webRTC.description")}</Paragraph>
                 <Select
-                    placeholder="Default"
+                    placeholder={t("common.default")}
                     options={[
-                        { label: "Default", value: "default", default: true },
-                        { label: "Default Public Interface Only", value: "default_public_interface_only" },
+                        { label: t("common.default"), value: "default", default: true },
+                        {
+                            label: t("desktop.settings.webRTC.publicOnly"),
+                            value: "default_public_interface_only"
+                        },
 
                         {
-                            label: "Default Public And Private Interfaces",
+                            label: t("desktop.settings.webRTC.publicAndPrivate"),
                             value: "default_public_and_private_interfaces"
                         },
-                        { label: "Disable Non-Proxied UDP", value: "disable_non_proxied_udp" }
+                        { label: t("desktop.settings.webRTC.disableNonProxiedUdp"), value: "disable_non_proxied_udp" }
                     ]}
                     closeOnSelect={true}
                     select={v => (settings.webRTCIPHandlingPolicy = v)}

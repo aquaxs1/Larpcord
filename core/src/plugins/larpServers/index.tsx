@@ -5,6 +5,7 @@
  */
 
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
+import { t } from "@plugins/larpCore/i18n";
 import { LarpStore, logger } from "@plugins/larpCore/store";
 import { ServerLarp } from "@plugins/larpCore/types";
 import { Devs } from "@utils/constants";
@@ -41,7 +42,9 @@ function displayFeatureSet(guild: GuildLike, larp: ServerLarp) {
 
 export default definePlugin({
     name: "LarpServers",
-    description: "Partner-/Verified-Abzeichen sowie Boost-Stufe und -Anzahl pro Server, rein als lokale Anzeige.",
+    get description() {
+        return t("plugin.LarpServers.description");
+    },
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     enabledByDefault: true,

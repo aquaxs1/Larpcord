@@ -7,6 +7,7 @@
 import "./styles.css";
 
 import { Btn, cl, Section } from "@plugins/larpCore/hub/components";
+import { t, useLarpLocale } from "@plugins/larpCore/i18n";
 import { LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 import { ServerLarp } from "@plugins/larpCore/types";
 import { GuildStore, IconUtils, useState } from "@webpack/common";
@@ -39,35 +40,35 @@ function ServerRow({ guild, larp }: { guild: any; larp: ServerLarp | undefined; 
             <div className={cl("server-controls")}>
                 <label className={cl("check")}>
                     <input type="checkbox" checked={!!s.partner} onChange={e => setServer(guild.id, { partner: e.currentTarget.checked })} />
-                    Partner
+                    {t("servers.partner")}
                 </label>
                 <label className={cl("check")}>
                     <input type="checkbox" checked={!!s.verified} onChange={e => setServer(guild.id, { verified: e.currentTarget.checked })} />
-                    Verifiziert
+                    {t("servers.verified")}
                 </label>
                 <select
                     className={cl("input", "input-small")}
                     value={s.boostLevel ?? ""}
-                    title="Boost-Stufe"
+                    title={t("servers.boostLevel")}
                     onChange={e => setServer(guild.id, { boostLevel: e.currentTarget.value === "" ? undefined : Number(e.currentTarget.value) as ServerLarp["boostLevel"] })}
                 >
-                    <option value="">Stufe: echt</option>
-                    {[0, 1, 2, 3].map(l => <option key={l} value={l}>Stufe {l}</option>)}
+                    <option value="">{t("servers.boostLevelReal")}</option>
+                    {[0, 1, 2, 3].map(l => <option key={l} value={l}>{t("servers.boostLevelOption", { level: l })}</option>)}
                 </select>
                 <input
                     className={cl("input", "input-small")}
                     type="number"
                     min={0}
                     max={999999}
-                    placeholder="Boosts"
-                    title="Anzahl Boosts"
+                    placeholder={t("servers.boostCountPlaceholder")}
+                    title={t("servers.boostCount")}
                     value={s.boostCount ?? ""}
                     onChange={e => {
                         const v = e.currentTarget.value;
                         setServer(guild.id, { boostCount: v === "" ? undefined : Math.max(0, Math.min(999_999, Math.floor(Number(v)))) });
                     }}
                 />
-                {larp && <Btn variant="danger" title="Zurücksetzen" onClick={() => setServer(guild.id, { partner: undefined, verified: undefined, boostLevel: undefined, boostCount: undefined })}>✕</Btn>}
+                {larp && <Btn variant="danger" title={t("common.reset")} aria-label={t("common.reset")} onClick={() => setServer(guild.id, { partner: undefined, verified: undefined, boostLevel: undefined, boostCount: undefined })}>✕</Btn>}
             </div>
         </div>
     );
@@ -75,6 +76,7 @@ function ServerRow({ guild, larp }: { guild: any; larp: ServerLarp | undefined; 
 
 export function ServersTab() {
     const larp = useLarpProfile();
+    useLarpLocale();
     const [query, setQuery] = useState("");
     const guilds = Object.values(GuildStore.getGuilds()) as any[];
     const q = query.trim().toLowerCase();
@@ -83,8 +85,8 @@ export function ServersTab() {
         .sort((a, b) => Number(!!larp.servers[b.id]) - Number(!!larp.servers[a.id]) || a.name.localeCompare(b.name));
 
     return (
-        <Section title="Server" description="Abzeichen und Boost-Anzeige pro Server. Nur Anzeige: Funktionen des Servers ändern sich nicht.">
-            <input className={cl("input")} placeholder={`${guilds.length} Server durchsuchen …`} value={query} onChange={e => setQuery(e.currentTarget.value)} style={{ marginBottom: 12 }} />
+        <Section title={t("servers.title")} description={t("servers.description")}>
+            <input className={cl("input")} placeholder={t("servers.search", { count: guilds.length })} value={query} onChange={e => setQuery(e.currentTarget.value)} style={{ marginBottom: 12 }} />
             <div className={cl("server-list")}>
                 {filtered.map(g => <ServerRow key={g.id} guild={g} larp={larp.servers[g.id]} />)}
             </div>

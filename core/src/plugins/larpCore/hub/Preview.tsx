@@ -40,6 +40,7 @@ export function decorationUrl(asset: string, size = 160) {
 
 function PreviewCard() {
     const larp = useLarpProfile();
+    useLarpLocale();
     const user = UserStore.getCurrentUser();
     if (!user) return null;
 
@@ -63,8 +64,8 @@ function PreviewCard() {
             <div className={cl("preview-body")}>
                 <div className={cl("preview-name")}>
                     <span style={nameStyleCss(larp.nameStyle)}>{displayName}</span>
-                    {larp.extras.verifiedCheck && <span className={cl("preview-check")} title="Verifiziert">✔</span>}
-                    {larp.extras.ownerCrown && <span title="Server-Eigentümer">👑</span>}
+                    {larp.extras.verifiedCheck && <span className={cl("preview-check")} title={t("core.preview.verified")}>✔</span>}
+                    {larp.extras.ownerCrown && <span title={t("core.preview.serverOwner")}>👑</span>}
                     {larp.clanTag && (
                         <span className={cl("preview-clan")}>
                             {larp.clanTag.iconUrl && <img src={larp.clanTag.iconUrl} alt="" />}

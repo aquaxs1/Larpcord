@@ -33,6 +33,7 @@ import {
 } from "@vencord/types/webpack/common";
 import { Node } from "@vencord/venmic";
 import type { Dispatch, SetStateAction } from "react";
+import { t, tNode, useLarpLocale } from "renderer/i18n";
 import { addPatch } from "renderer/patches/shared";
 import { State, useSettings, useVesktopState } from "renderer/settings";
 import { isLinux, isWindows } from "renderer/utils";
@@ -53,7 +54,10 @@ type AudioSource = SpecialSource | Node;
 type AudioSources = SpecialSource | Node[];
 
 interface AudioItem {
+    /** Stabiler Wert für Vergleiche und Sonderfälle ("None"/"Entire System"), nie übersetzt */
     name: string;
+    /** Angezeigter Text (bei Sonderquellen übersetzt) */
+    label: string;
     value: AudioSource;
 }
 
@@ -217,69 +221,64 @@ function AudioSettingsModal({
     setAudioSources: (s: AudioSources) => void;
 }) {
     const Settings = useSettings();
+    // Eigenes Fenster, rendert bei Sprachwechsel nicht automatisch neu
+    useLarpLocale();
 
     return (
         <Modal
             {...modalProps}
             size="lg"
-            title="Audio Settings"
-            actions={[{ text: "Back", variant: "secondary", onClick: close }]}
+            title={t("desktop.screenShare.audioSettings")}
+            actions={[{ text: t("desktop.screenShare.back"), variant: "secondary", onClick: close }]}
         >
             <div className={cl("venmic-settings")}>
                 <FormSwitch
-                    title="Initial Mute"
-                    description="Fix an initial audio spike caused by chromium."
+                    title={t("desktop.screenShare.audio.initialMute.title")}
+                    description={t("desktop.screenShare.audio.initialMute.description")}
                     hideBorder
                     onChange={v => (Settings.audio = { ...Settings.audio, mute: v })}
                     value={Settings.audio?.mute ?? true}
                 />
                 <FormSwitch
-                    title="Microphone Workaround"
-                    description="Work around an issue that causes the microphone to be shared instead of the correct audio. Only enable if you're experiencing this issue."
+                    title={t("desktop.screenShare.audio.micWorkaround.title")}
+                    description={t("desktop.screenShare.audio.micWorkaround.description")}
                     hideBorder
                     onChange={v => (Settings.audio = { ...Settings.audio, workaround: v })}
                     value={Settings.audio?.workaround ?? false}
                 />
                 <FormSwitch
-                    title="Only Speakers"
-                    description={
-                        'When sharing entire desktop audio, only share apps that play to a speaker. You may want to disable this when using "mix bussing".'
-                    }
+                    title={t("desktop.screenShare.audio.onlySpeakers.title")}
+                    description={t("desktop.screenShare.audio.onlySpeakers.description")}
                     hideBorder
                     onChange={v => (Settings.audio = { ...Settings.audio, onlySpeakers: v })}
                     value={Settings.audio?.onlySpeakers ?? true}
                 />
                 <FormSwitch
-                    title="Only Default Speakers"
-                    description={
-                        <>
-                            When sharing entire desktop audio, only share apps that play to the <b>default</b> speakers.
-                            You may want to disable this when using "mix bussing".
-                        </>
-                    }
+                    title={t("desktop.screenShare.audio.onlyDefaultSpeakers.title")}
+                    description={tNode("desktop.screenShare.audio.onlyDefaultSpeakers.description", {
+                        default: <b>{t("desktop.screenShare.audio.defaultWord")}</b>
+                    })}
                     hideBorder
                     onChange={v => (Settings.audio = { ...Settings.audio, onlyDefaultSpeakers: v })}
                     value={Settings.audio?.onlyDefaultSpeakers ?? true}
                 />
                 <FormSwitch
-                    title="Ignore Inputs"
-                    description="Exclude nodes that are intended to capture audio."
+                    title={t("desktop.screenShare.audio.ignoreInputs.title")}
+                    description={t("desktop.screenShare.audio.ignoreInputs.description")}
                     hideBorder
                     onChange={v => (Settings.audio = { ...Settings.audio, ignoreInputMedia: v })}
                     value={Settings.audio?.ignoreInputMedia ?? true}
                 />
                 <FormSwitch
-                    title="Ignore Virtual"
-                    description={
-                        'Exclude virtual nodes, such as nodes belonging to loopbacks. This might be useful when using "mix bussing".'
-                    }
+                    title={t("desktop.screenShare.audio.ignoreVirtual.title")}
+                    description={t("desktop.screenShare.audio.ignoreVirtual.description")}
                     hideBorder
                     onChange={v => (Settings.audio = { ...Settings.audio, ignoreVirtual: v })}
                     value={Settings.audio?.ignoreVirtual ?? false}
                 />
                 <FormSwitch
-                    title="Ignore Devices"
-                    description="Exclude device nodes, such as nodes belonging to microphones or speakers."
+                    title={t("desktop.screenShare.audio.ignoreDevices.title")}
+                    description={t("desktop.screenShare.audio.ignoreDevices.description")}
                     hideBorder
                     onChange={v =>
                         (Settings.audio = {
@@ -291,8 +290,8 @@ function AudioSettingsModal({
                     value={Settings.audio?.ignoreDevices ?? true}
                 />
                 <FormSwitch
-                    title="Granular Selection"
-                    description="Allow to select applications more granularly."
+                    title={t("desktop.screenShare.audio.granularSelect.title")}
+                    description={t("desktop.screenShare.audio.granularSelect.description")}
                     hideBorder
                     onChange={value => {
                         Settings.audio = { ...Settings.audio, granularSelect: value };
@@ -301,13 +300,10 @@ function AudioSettingsModal({
                     value={Settings.audio?.granularSelect ?? false}
                 />
                 <FormSwitch
-                    title="Device Selection"
-                    description={
-                        <>
-                            Allow to select devices such as microphones. Requires <b>Ignore Devices</b> to be turned
-                            off.
-                        </>
-                    }
+                    title={t("desktop.screenShare.audio.deviceSelect.title")}
+                    description={tNode("desktop.screenShare.audio.deviceSelect.description", {
+                        ignoreDevices: <b>{t("desktop.screenShare.audio.ignoreDevices.title")}</b>
+                    })}
                     hideBorder
                     onChange={value => {
                         Settings.audio = { ...Settings.audio, deviceSelect: value };
@@ -385,18 +381,18 @@ function StreamSettingsUi({
 
     return (
         <div>
-            <HeadingTertiary className={Margins.bottom8}>What you're streaming</HeadingTertiary>
+            <HeadingTertiary className={Margins.bottom8}>{t("desktop.screenShare.whatYouStream")}</HeadingTertiary>
             <Card className={cl("card", "preview")}>
                 <img src={thumb} alt="" className={cl(isLinux ? "preview-img-linux" : "preview-img")} />
                 <Paragraph>{source.name}</Paragraph>
             </Card>
 
-            <HeadingTertiary className={Margins.bottom8}>Stream Settings</HeadingTertiary>
+            <HeadingTertiary className={Margins.bottom8}>{t("desktop.screenShare.streamSettings")}</HeadingTertiary>
 
             <Card className={cl("card")}>
                 <div className={cl("quality")}>
                     <section className={cl("quality-section")}>
-                        <Heading tag="h5">Resolution</Heading>
+                        <Heading tag="h5">{t("desktop.screenShare.resolution")}</Heading>
                         <OptionRadio
                             options={StreamResolutions}
                             settings={qualitySettings}
@@ -406,7 +402,7 @@ function StreamSettingsUi({
                     </section>
 
                     <section className={cl("quality-section")}>
-                        <Heading tag="h5">Frame Rate</Heading>
+                        <Heading tag="h5">{t("desktop.screenShare.frameRate")}</Heading>
                         <OptionRadio
                             options={StreamFps}
                             settings={qualitySettings}
@@ -417,24 +413,28 @@ function StreamSettingsUi({
                 </div>
                 <div className={cl("quality")}>
                     <section className={cl("quality-section")}>
-                        <Heading tag="h5">Content Type</Heading>
+                        <Heading tag="h5">{t("desktop.screenShare.contentType")}</Heading>
                         <div>
                             <OptionRadio
                                 options={["motion", "detail"]}
-                                labels={["Prefer Smoothness", "Prefer Clarity"]}
+                                labels={[
+                                    t("desktop.screenShare.preferSmoothness"),
+                                    t("desktop.screenShare.preferClarity")
+                                ]}
                                 settings={settings}
                                 settingsKey="contentHint"
                                 onChange={option => setSettings(s => ({ ...s, contentHint: option }))}
                             />
 
                             <Paragraph className={Margins.top8}>
-                                Choosing "Prefer Clarity" will result in a significantly lower framerate in exchange for
-                                a much sharper and clearer image.
+                                {t("desktop.screenShare.contentTypeHint", {
+                                    clarity: t("desktop.screenShare.preferClarity")
+                                })}
                             </Paragraph>
                         </div>
                         {isWindows && (
                             <FormSwitch
-                                title="Stream With Audio"
+                                title={t("desktop.screenShare.streamWithAudio")}
                                 hideBorder
                                 value={settings.audio}
                                 onChange={checked => setSettings(s => ({ ...s, audio: checked }))}
@@ -464,9 +464,14 @@ function isSpecialSource(value?: AudioSource | AudioSources): value is SpecialSo
     return typeof value === "string";
 }
 
+/** Anzeigetext der Sonderquellen. Die Werte "None"/"Entire System" bleiben als Logik-Werte unübersetzt. */
+function specialSourceLabel(source: SpecialSource) {
+    return source === "None" ? t("common.none") : t("desktop.screenShare.entireSystem");
+}
+
 function mapToAudioItem(node: AudioSource, granularSelect?: boolean, deviceSelect?: boolean): AudioItem[] {
     if (isSpecialSource(node)) {
-        return [{ name: node, value: node }];
+        return [{ name: node, label: specialSourceLabel(node), value: node }];
     }
 
     const mediaClass = node["media.class"];
@@ -487,7 +492,7 @@ function mapToAudioItem(node: AudioSource, granularSelect?: boolean, deviceSelec
     }
 
     const name = node[prop]!;
-    const items: AudioItem[] = [{ name: name, value: { [prop]: name } }];
+    const items: AudioItem[] = [{ name: name, label: name, value: { [prop]: name } }];
 
     if (!granularSelect) {
         return items;
@@ -511,7 +516,7 @@ function mapToAudioItem(node: AudioSource, granularSelect?: boolean, deviceSelec
     append("application.process.binary", "()");
     append("media.name", "[]");
 
-    items.push({ name: granularName, value: granularProps });
+    items.push({ name: granularName, label: granularName, value: granularProps });
 
     return items;
 }
@@ -585,19 +590,22 @@ function AudioSourcePickerLinux({
     if (!sources.ok && sources.isGlibCxxOutdated) {
         return (
             <Paragraph>
-                Failed to retrieve Audio Sources because your C++ library is too old to run
-                <a href="https://github.com/Vencord/venmic" target="_blank" rel="noreferrer">
-                    venmic
-                </a>
-                . See{" "}
-                <a
-                    href="https://gist.github.com/Vendicated/b655044ffbb16b2716095a448c6d827a"
-                    target="_blank"
-                    rel="noreferrer"
-                >
-                    this guide
-                </a>{" "}
-                for possible solutions.
+                {tNode("desktop.screenShare.venmicOutdated", {
+                    venmic: (
+                        <a href="https://github.com/Vencord/venmic" target="_blank" rel="noreferrer">
+                            venmic
+                        </a>
+                    ),
+                    guide: (
+                        <a
+                            href="https://gist.github.com/Vendicated/b655044ffbb16b2716095a448c6d827a"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            {t("desktop.screenShare.thisGuide")}
+                        </a>
+                    )
+                })}
             </Paragraph>
         );
     }
@@ -605,18 +613,24 @@ function AudioSourcePickerLinux({
     if (!hasPipewirePulse && !ignorePulseWarning) {
         return (
             <Paragraph>
-                Could not find pipewire-pulse. See{" "}
-                <a
-                    href="https://gist.github.com/the-spyke/2de98b22ff4f978ebf0650c90e82027e#install"
-                    target="_blank"
-                    rel="noreferrer"
-                >
-                    this guide
-                </a>{" "}
-                on how to switch to pipewire. <br />
-                You can still continue, however, please{" "}
-                <b>beware that you can only share audio of apps that are running under pipewire</b>.{" "}
-                <a onClick={() => setIgnorePulseWarning(true)}>I know what I'm doing!</a>
+                {tNode("desktop.screenShare.noPipewire", {
+                    guide: (
+                        <a
+                            href="https://gist.github.com/the-spyke/2de98b22ff4f978ebf0650c90e82027e#install"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            {t("desktop.screenShare.thisGuide")}
+                        </a>
+                    )
+                })}
+                <br />
+                {tNode("desktop.screenShare.pipewireWarning", {
+                    warning: <b>{t("desktop.screenShare.pipewireWarningBold")}</b>,
+                    confirm: (
+                        <a onClick={() => setIgnorePulseWarning(true)}>{t("desktop.screenShare.iKnowWhatImDoing")}</a>
+                    )
+                })}
             </Paragraph>
         );
     }
@@ -637,11 +651,13 @@ function AudioSourcePickerLinux({
         <>
             <div className={cl("audio-sources")}>
                 <section>
-                    <Heading tag="h5">{loading ? "Loading Sources..." : "Audio Sources"}</Heading>
+                    <Heading tag="h5">
+                        {loading ? t("desktop.screenShare.loadingSources") : t("desktop.screenShare.audioSources")}
+                    </Heading>
                     <SimpleErrorBoundary>
                         <Select
-                            options={allSources.map(({ name, value }) => ({
-                                label: name,
+                            options={allSources.map(({ name, label, value }) => ({
+                                label: label,
                                 value: value,
                                 default: name === "None"
                             }))}
@@ -656,13 +672,13 @@ function AudioSourcePickerLinux({
                 </section>
                 {includeSources === "Entire System" && (
                     <section>
-                        <Heading tag="h5">Exclude Sources</Heading>
+                        <Heading tag="h5">{t("desktop.screenShare.excludeSources")}</Heading>
                         <SimpleErrorBoundary>
                             <Select
                                 options={allSources
                                     .filter(x => x.name !== "Entire System")
-                                    .map(({ name, value }) => ({
-                                        label: name,
+                                    .map(({ name, label, value }) => ({
+                                        label: label,
                                         value: value,
                                         default: name === "None"
                                     }))}
@@ -680,11 +696,11 @@ function AudioSourcePickerLinux({
             <div className={cl("settings-buttons")}>
                 <Button variant="secondary" onClick={refreshAudioSources} className={cl("settings-button")}>
                     <RestartIcon className={cl("settings-button-icon")} />
-                    Refresh Audio Sources
+                    {t("desktop.screenShare.refreshAudioSources")}
                 </Button>
                 <Button variant="secondary" onClick={openSettings} className={cl("settings-button")}>
                     <CogWheel className={cl("settings-button-icon")} />
-                    Open Audio Settings
+                    {t("desktop.screenShare.openAudioSettings")}
                 </Button>
             </div>
         </>
@@ -704,6 +720,8 @@ function ModalComponent({
     close: () => void;
     skipPicker: boolean;
 }) {
+    // Eigenes Fenster, rendert bei Sprachwechsel nicht automatisch neu
+    useLarpLocale();
     const [selected, setSelected] = useState<string | undefined>(skipPicker ? screens[0].id : void 0);
     const [settings, setSettings] = useState<StreamSettings>({
         contentHint: "motion",
@@ -776,15 +794,15 @@ function ModalComponent({
         <Modal
             {...modalProps}
             size="lg"
-            title="Screen Share Picker"
+            title={t("desktop.screenShare.title")}
             actions={[
                 {
-                    text: showGoBack ? "Back" : "Cancel",
+                    text: showGoBack ? t("desktop.screenShare.back") : t("common.cancel"),
                     variant: "secondary",
                     onClick: () => (showGoBack ? setSelected(void 0) : close())
                 },
                 {
-                    text: "Go Live",
+                    text: t("desktop.screenShare.goLive"),
                     disabled: !selected,
                     onClick: handleGoLive
                 }

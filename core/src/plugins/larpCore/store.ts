@@ -8,7 +8,8 @@ import * as DataStore from "@api/DataStore";
 import { Logger } from "@utils/Logger";
 import { useEffect, useReducer, UserStore } from "@webpack/common";
 
-import { BUILTIN_PRESETS, createDefaultProfile } from "./defaults";
+import { BUILTIN_PRESETS, createDefaultProfile, findBuiltinPreset, isReservedPresetName, LEGACY_BUILTIN_NAMES } from "./defaults";
+import { LarpError } from "./i18n";
 import { DeepPartial, LarpPreset, LarpProfile } from "./types";
 import { sanitizePreset, sanitizeProfile } from "./validate";
 
@@ -20,15 +21,33 @@ import { sanitizePreset, sanitizeProfile } from "./validate";
 const STORE_KEY = "Larpcord_state";
 export const logger = new Logger("Larpcord", "#eb459e");
 
+/**
+ * Stabile Identität eines Presets: "builtin:<id>" für mitgelieferte, "user:<name>" für eigene.
+ * Anzeigenamen der mitgelieferten Presets hängen von der Sprache ab und taugen deshalb nicht als Schlüssel.
+ */
+export type PresetKey = string;
+
+export function userPresetKey(name: string): PresetKey {
+    return `user:${name}`;
+}
+
+export function presetKey(p: Pick<LarpPreset, "name" | "builtinId">): PresetKey {
+    return p.builtinId ? `builtin:${p.builtinId}` : userPresetKey(p.name);
+}
+
+/**
+ * Interner Speicherstand (nicht das Import/Export-Format).
+ * Version 2: activePreset ist ein PresetKey. Version 1 speicherte dort den Namen (auch bei mitgelieferten).
+ */
 interface PersistedState {
-    version: 1;
+    version: 2;
     profile: LarpProfile;
     /** nur eigene Presets, die mitgelieferten kommen aus BUILTIN_PRESETS */
     presets: LarpPreset[];
-    activePreset?: string;
+    activePreset?: PresetKey;
 }
 
-let state: PersistedState = { version: 1, profile: createDefaultProfile(), presets: [] };
+let state: PersistedState = { version: 2, profile: createDefaultProfile(), presets: [] };
 let loaded = false;
 let loadPromise: Promise<void> | undefined;
 const listeners = new Set<() => void>();
@@ -49,6 +68,18 @@ function deepMerge<T>(target: T, patch: any): T {
 
 /** Steigt bei jeder Änderung, damit Hooks ihre Ergebnisse cachen können */
 let version = 0;
+
+/** Aktives Preset aus älteren Speicherständen (Version 1: Name) in einen PresetKey umwandeln */
+function migrateActivePreset(value: unknown, savedVersion: unknown, presets: LarpPreset[]): PresetKey | undefined {
+    if (typeof value !== "string" || !value) return undefined;
+    let key: PresetKey = value;
+    if (savedVersion !== 2) {
+        const builtinId = LEGACY_BUILTIN_NAMES[value];
+        key = builtinId ? `builtin:${builtinId}` : userPresetKey(value);
+    }
+    // Nur behalten, wenn es das Preset noch gibt
+    return [...BUILTIN_PRESETS, ...presets].some(p => presetKey(p) === key) ? key : undefined;
+}
 
 function emit() {
     version++;
@@ -77,11 +108,12 @@ export const LarpStore = {
             try {
                 const saved = await DataStore.get<PersistedState>(STORE_KEY);
                 if (saved) {
+                    const presets = (Array.isArray(saved.presets) ? saved.presets : []).map(sanitizePreset).filter(Boolean) as LarpPreset[];
                     state = {
-                        version: 1,
+                        version: 2,
                         profile: sanitizeProfile(saved.profile),
-                        presets: (Array.isArray(saved.presets) ? saved.presets : []).map(sanitizePreset).filter(Boolean) as LarpPreset[],
-                        activePreset: typeof saved.activePreset === "string" ? saved.activePreset : undefined
+                        presets,
+                        activePreset: migrateActivePreset(saved.activePreset, (saved as { version?: unknown; }).version, presets)
                     };
                 }
             } catch (e) {
@@ -114,7 +146,7 @@ export const LarpStore = {
     },
 
     /** Profil komplett ersetzen */
-    replace(profile: LarpProfile, activePreset?: string) {
+    replace(profile: LarpProfile, activePreset?: PresetKey) {
         state = { ...state, profile: sanitizeProfile(profile), activePreset };
         persist();
         emit();
@@ -130,8 +162,11 @@ export const LarpStore = {
     },
 
     // ---- Presets ----
+    // Fehler werden als LarpError geworfen und erst in der Oberfläche übersetzt (errorText).
+    // i18n-keys: core.presets.errorNameRequired, core.presets.errorBuiltinOverwrite, core.presets.errorNotFound, core.presets.errorExists (LarpError)
 
-    get activePreset() {
+    /** PresetKey des aktiven Presets (siehe presetKey()) */
+    get activePreset(): PresetKey | undefined {
         return state.activePreset;
     },
 
@@ -143,53 +178,70 @@ export const LarpStore = {
         return state.presets;
     },
 
-    findPreset(name: string) {
-        return this.getPresets().find(p => p.name === name);
+    /**
+     * Sucht ein Preset über seinen PresetKey ("builtin:<id>" / "user:<name>").
+     * Aus Kompatibilität geht auch ein bloßer Name (eigenes Preset oder früherer Name eines mitgelieferten).
+     */
+    findPreset(key: PresetKey): LarpPreset | undefined {
+        if (key.startsWith("builtin:")) return findBuiltinPreset(key.slice("builtin:".length));
+        if (key.startsWith("user:")) {
+            const name = key.slice("user:".length);
+            const found = state.presets.find(p => p.name === name);
+            if (found) return found;
+        }
+        const legacy = LEGACY_BUILTIN_NAMES[key];
+        if (legacy) return findBuiltinPreset(legacy);
+        return state.presets.find(p => p.name === key);
     },
 
-    /** Speichert das aktuelle Profil als Preset (überschreibt ein eigenes Preset gleichen Namens) */
+    /** Speichert das aktuelle Profil als eigenes Preset (überschreibt ein eigenes Preset gleichen Namens) */
     savePreset(name: string) {
         name = name.trim().slice(0, 60);
-        if (!name) throw new Error("Bitte einen Namen angeben.");
-        if (BUILTIN_PRESETS.some(p => p.name === name)) throw new Error("Mitgelieferte Presets können nicht überschrieben werden.");
+        if (!name) throw new LarpError("core.presets.errorNameRequired");
+        if (isReservedPresetName(name)) throw new LarpError("core.presets.errorBuiltinOverwrite");
 
         const preset: LarpPreset = { name, profile: structuredClone(state.profile) };
         const presets = state.presets.filter(p => p.name !== name);
         presets.push(preset);
-        state = { ...state, presets, activePreset: name };
+        state = { ...state, presets, activePreset: userPresetKey(name) };
         persist();
         emit();
     },
 
-    loadPreset(name: string) {
-        const preset = this.findPreset(name);
-        if (!preset) throw new Error(`Preset „${name}“ nicht gefunden.`);
+    /** Lädt ein Preset über seinen PresetKey */
+    loadPreset(key: PresetKey) {
+        const preset = this.findPreset(key);
+        if (!preset) throw new LarpError("core.presets.errorNotFound", { name: key.replace(/^(builtin|user):/, "") });
         // Server-Einstellungen sind an eigene Server gebunden → beim Preset-Wechsel behalten, falls das Preset keine hat
         const profile = structuredClone(preset.profile);
         if (!Object.keys(profile.servers).length) profile.servers = state.profile.servers;
         // Genauso das Layout: Presets ohne eigenes Layout lassen das aktuelle stehen
         if (!profile.layout && state.profile.layout) profile.layout = state.profile.layout;
-        this.replace(profile, name);
+        this.replace(profile, presetKey(preset));
     },
 
+    /** Löscht ein eigenes Preset (mitgelieferte lassen sich nicht löschen) */
     deletePreset(name: string) {
         state = {
             ...state,
             presets: state.presets.filter(p => p.name !== name),
-            activePreset: state.activePreset === name ? undefined : state.activePreset
+            activePreset: state.activePreset === userPresetKey(name) ? undefined : state.activePreset
         };
         persist();
         emit();
     },
 
+    /** Benennt ein eigenes Preset um */
     renamePreset(oldName: string, newName: string) {
         newName = newName.trim().slice(0, 60);
-        if (!newName) throw new Error("Bitte einen Namen angeben.");
-        if (this.getPresets().some(p => p.name === newName)) throw new Error(`„${newName}“ existiert bereits.`);
+        if (!newName) throw new LarpError("core.presets.errorNameRequired");
+        if (newName === oldName) return;
+        if (isReservedPresetName(newName) || state.presets.some(p => p.name === newName))
+            throw new LarpError("core.presets.errorExists", { name: newName });
         state = {
             ...state,
             presets: state.presets.map(p => p.name === oldName ? { ...p, name: newName } : p),
-            activePreset: state.activePreset === oldName ? newName : state.activePreset
+            activePreset: state.activePreset === userPresetKey(oldName) ? userPresetKey(newName) : state.activePreset
         };
         persist();
         emit();
@@ -197,11 +249,12 @@ export const LarpStore = {
 
     /** Fügt importierte Presets hinzu. Namenskonflikte bekommen ein Suffix. Gibt die Anzahl zurück. */
     importPresets(presets: LarpPreset[]) {
-        const existing = new Set(this.getPresets().map(p => p.name));
+        const existing = new Set(state.presets.map(p => p.name));
         const added: LarpPreset[] = [];
         for (const p of presets) {
             let { name } = p, i = 2;
-            while (existing.has(name)) name = `${p.name} (${i++})`;
+            // Konflikte mit eigenen Presets und mit Namen mitgelieferter Presets (in jeder Sprache)
+            while (existing.has(name) || isReservedPresetName(name)) name = `${p.name} (${i++})`;
             existing.add(name);
             added.push({ name, profile: sanitizeProfile(p.profile) });
         }

@@ -10,7 +10,8 @@
         "build:dev": "node scripts/build.mjs --dev",
         "dev": "node scripts/build.mjs --dev && pnpm -C desktop exec electron .",
         "package": "node scripts/build.mjs && pnpm -C desktop exec electron-builder --publish never",
-        "icons": "python scripts/generate-icons.py"
+        "icons": "python scripts/generate-icons.py",
+        "i18n:check": "node scripts/i18n/check.mjs"
     },
     "engines": {
         "node": ">=22",

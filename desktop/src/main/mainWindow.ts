@@ -26,15 +26,16 @@ import { initArRPC } from "./arrpc";
 import { CommandLine } from "./cli";
 import { BrowserUserAgent, DEFAULT_HEIGHT, DEFAULT_WIDTH, MIN_HEIGHT, MIN_WIDTH } from "./constants";
 import { AppEvents } from "./events";
+import { onMainLocaleChange, t } from "./i18n";
 import { sendRendererCommand } from "./ipcCommands";
 import { darwinURL } from "./main";
 import { Settings, State, VencordSettings } from "./settings";
 import { createSplashWindow, updateSplashMessage } from "./splash";
 import { destroyTray, initTray } from "./tray";
+import { applyAppIcon } from "./userAssets";
 import { clearData } from "./utils/clearData";
 import { makeLinksOpenExternally } from "./utils/makeLinksOpenExternally";
 import { applyDeckKeyboardFix, askToApplySteamLayout, isDeckGameMode } from "./utils/steamOS";
-import { applyAppIcon } from "./userAssets";
 import { ensureVencordFiles } from "./utils/vencordLoader";
 import { VENCORD_FILES_DIR } from "./vencordFilesDir";
 
@@ -71,6 +72,13 @@ const [addVencordSettingsListener, removeVencordSettingsListeners] = makeSetting
 
 type MenuItemList = Array<MenuItemConstructorOptions | false>;
 
+type MenuRole = NonNullable<MenuItemConstructorOptions["role"]>;
+
+/** Rollen-Einträge mit übersetztem Label (Electrons Standardlabels sind immer Englisch) */
+function roleItems(roles: Array<[MenuRole, string] | "separator" | false>): MenuItemConstructorOptions[] {
+    return roles.filter(isTruthy).map(r => (r === "separator" ? { type: "separator" } : { role: r[0], label: r[1] }));
+}
+
 function initMenuBar(win: BrowserWindow) {
     const isWindows = process.platform === "win32";
     const isDarwin = process.platform === "darwin";
@@ -78,18 +86,18 @@ function initMenuBar(win: BrowserWindow) {
 
     const subMenu = [
         {
-            label: "About Larpcord",
+            label: t("desktop.menu.about"),
             click: createAboutWindow
         },
         {
-            label: "Reset Larpcord",
+            label: t("desktop.menu.resetLarpcord"),
             async click() {
                 await clearData(win);
             },
-            toolTip: "Larpcord will automatically restart after this operation"
+            toolTip: t("desktop.menu.resetLarpcordHint")
         },
         {
-            label: "Relaunch",
+            label: t("desktop.menu.restart"),
             accelerator: "CmdOrCtrl+Shift+R",
             click() {
                 app.relaunch();
@@ -103,7 +111,7 @@ function initMenuBar(win: BrowserWindow) {
                       type: "separator"
                   },
                   {
-                      label: "Settings",
+                      label: t("desktop.menu.settings"),
                       accelerator: "CmdOrCtrl+,",
                       async click() {
                           sendRendererCommand(IpcCommands.NAVIGATE_SETTINGS);
@@ -113,20 +121,23 @@ function initMenuBar(win: BrowserWindow) {
                       type: "separator"
                   },
                   {
-                      role: "hide"
+                      role: "hide",
+                      label: t("desktop.menu.hide")
                   },
                   {
-                      role: "hideOthers"
+                      role: "hideOthers",
+                      label: t("desktop.menu.hideOthers")
                   },
                   {
-                      role: "unhide"
+                      role: "unhide",
+                      label: t("desktop.menu.showAll")
                   },
                   {
                       type: "separator"
                   }
               ] satisfies MenuItemList)),
         {
-            label: "Quit",
+            label: t("desktop.menu.quit"),
             accelerator: wantCtrlQ ? "CmdOrCtrl+Q" : void 0,
             visible: !isWindows,
             role: "quit",
@@ -135,7 +146,7 @@ function initMenuBar(win: BrowserWindow) {
             }
         },
         isWindows && {
-            label: "Quit",
+            label: t("desktop.menu.quit"),
             accelerator: "Alt+F4",
             role: "quit",
             click() {
@@ -143,6 +154,7 @@ function initMenuBar(win: BrowserWindow) {
             }
         },
         // See https://github.com/electron/electron/issues/14742 and https://github.com/electron/electron/issues/5256
+        // Unsichtbare Einträge (nur für die Tastenkürzel), Labels werden nie angezeigt
         {
             label: "Zoom in (hidden, hack for Qwertz and others)",
             accelerator: "CmdOrCtrl+=",
@@ -170,16 +182,57 @@ function initMenuBar(win: BrowserWindow) {
         }
     ] satisfies MenuItemList;
 
+    // Larpcord: Datei/Bearbeiten/Ansicht/Fenster wie Electrons Standardmenüs, aber mit übersetzten Labels
     const menuItems = [
         {
+            // Markenname, nicht übersetzt
             label: "Larpcord",
             role: "appMenu",
             submenu: subMenu.filter(isTruthy)
         },
-        { role: "fileMenu" },
-        { role: "editMenu" },
-        { role: "viewMenu" },
-        isDarwin && { role: "windowMenu" }
+        {
+            label: t("desktop.menu.file"),
+            submenu: roleItems([isDarwin ? ["close", t("desktop.menu.closeWindow")] : ["quit", t("desktop.menu.quit")]])
+        },
+        {
+            label: t("desktop.menu.edit"),
+            submenu: roleItems([
+                ["undo", t("desktop.menu.undo")],
+                ["redo", t("desktop.menu.redo")],
+                "separator",
+                ["cut", t("desktop.menu.cut")],
+                ["copy", t("desktop.menu.copy")],
+                ["paste", t("desktop.menu.paste")],
+                isDarwin && ["pasteAndMatchStyle", t("desktop.menu.pasteAndMatchStyle")],
+                ["delete", t("common.delete")],
+                "separator",
+                ["selectAll", t("desktop.menu.selectAll")]
+            ])
+        },
+        {
+            label: t("desktop.menu.view"),
+            submenu: roleItems([
+                ["reload", t("desktop.menu.reload")],
+                ["forceReload", t("desktop.menu.forceReload")],
+                ["toggleDevTools", t("desktop.menu.toggleDevTools")],
+                "separator",
+                ["resetZoom", t("desktop.menu.actualSize")],
+                ["zoomIn", t("desktop.menu.zoomIn")],
+                ["zoomOut", t("desktop.menu.zoomOut")],
+                "separator",
+                ["togglefullscreen", t("desktop.menu.toggleFullScreen")]
+            ])
+        },
+        isDarwin && {
+            label: t("desktop.menu.window"),
+            role: "windowMenu",
+            submenu: roleItems([
+                ["minimize", t("desktop.menu.minimize")],
+                ["zoom", t("desktop.menu.zoom")],
+                "separator",
+                ["front", t("desktop.menu.bringAllToFront")]
+            ])
+        }
     ] satisfies MenuItemList;
 
     const menu = Menu.buildFromTemplate(menuItems.filter(isTruthy));
@@ -390,6 +443,8 @@ function buildBrowserWindowOptions(): BrowserWindowConstructorOptions {
     return options;
 }
 
+let unsubscribeMenuLocale: (() => void) | undefined;
+
 function createMainWindow() {
     // Clear up previous settings listeners
     removeSettingsListeners();
@@ -422,6 +477,11 @@ function createMainWindow() {
         initTray(win, q => (isQuitting = q));
 
     initMenuBar(win);
+    // Larpcord: App-Menü bei Sprachwechsel (Discord-Sprache) neu aufbauen
+    unsubscribeMenuLocale?.();
+    unsubscribeMenuLocale = onMainLocaleChange(() => {
+        if (!win.isDestroyed()) initMenuBar(win);
+    });
     makeLinksOpenExternally(win);
     initSettingsListeners(win);
     initSpellCheck(win);
@@ -454,7 +514,7 @@ export function loadUrl(uri: string | undefined) {
 const retryDelay = 1000;
 function retryUrl(url: string, description: string) {
     console.log(`retrying in ${retryDelay}ms`);
-    updateSplashMessage(`Failed to load Discord: ${description}`);
+    updateSplashMessage(t("desktop.splash.loadFailed", { error: description }));
     setTimeout(() => loadUrl(url), retryDelay);
 }
 

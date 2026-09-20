@@ -2,9 +2,24 @@
 <meta charset="utf-8" />
 
 <head>
-    <title>About Larpcord</title>
+    <title data-i18n="desktop.menu.about">About Larpcord</title>
 
     <link rel="stylesheet" href="./common.css" type="text/css" />
+
+    <script>
+        // Larpcord: Das About-Fenster hat keinen Preload. Die Übersetzungen (desktop.*) kommen deshalb
+        // als JSON im Query-Parameter I18N (siehe src/main/about.ts) und werden hier für i18n.js bereitgestellt.
+        (() => {
+            let strings = null;
+            try {
+                strings = JSON.parse(new URLSearchParams(location.search).get("I18N") || "null");
+            } catch (e) {
+                console.error("[Larpcord] Übersetzungen konnten nicht gelesen werden", e);
+            }
+            window.LarpcordViewI18n = { get: () => strings, onChange() {} };
+        })();
+    </script>
+    <script src="./i18n.js"></script>
 
     <style>
         body {
@@ -25,57 +40,61 @@
 
 <body>
     <h1 id="title">🎭 Larpcord v{{APP_VERSION}}</h1>
-    <p>Larpcord is a standalone Discord client for purely local, cosmetic larping. Nothing it changes is visible to anyone else.</p>
-    <p>Larpcord is based on <a href="https://github.com/Vencord/Vesktop" target="_blank">Vesktop</a> and <a href="https://github.com/Vendicated/Vencord" target="_blank">Vencord</a>. It is not affiliated with Discord Inc., Vesktop or Vencord.</p>
+    <p data-i18n="desktop.about.intro"></p>
+    <!-- data-i18n-links: Text mit {platzhaltern}, die durch die Kind-Elemente mit passendem data-slot ersetzt werden -->
+    <p data-i18n-links="desktop.about.basedOn">
+        <a data-slot="vesktop" href="https://github.com/Vencord/Vesktop" target="_blank">Vesktop</a>
+        <a data-slot="vencord" href="https://github.com/Vendicated/Vencord" target="_blank">Vencord</a>
+    </p>
 
     <section>
-        <h2>Links</h2>
+        <h2 data-i18n="desktop.about.links"></h2>
         <ul>
             <li>
-                <a href="https://github.com/Vencord/Vesktop" target="_blank">Vesktop Source Code</a>
+                <a href="https://github.com/Vencord/Vesktop" target="_blank" data-i18n="desktop.about.sourceCode"
+                    data-i18n-vars='{"name":"Vesktop"}'></a>
             </li>
             <li>
-                <a href="https://github.com/Vendicated/Vencord" target="_blank">Vencord Source Code</a>
+                <a href="https://github.com/Vendicated/Vencord" target="_blank" data-i18n="desktop.about.sourceCode"
+                    data-i18n-vars='{"name":"Vencord"}'></a>
             </li>
         </ul>
     </section>
 
     <section>
-        <h2>License</h2>
+        <h2 data-i18n="desktop.about.license"></h2>
         <p>
-            Larpcord (like Vesktop and Vencord) is licensed under the
-            <a href="https://www.gnu.org/licenses/gpl-3.0.txt" target="_blank">GNU General Public License v3.0</a>.
+            <span data-i18n-links="desktop.about.licenseText">
+                <a data-slot="license" href="https://www.gnu.org/licenses/gpl-3.0.txt" target="_blank">GNU General Public License v3.0</a>
+            </span>
             <br />
-            This is free software, and you are welcome to redistribute it under certain conditions; see the license for
-            details.
+            <span data-i18n="desktop.about.freeSoftware"></span>
         </p>
     </section>
 
     <section>
-        <h2>Acknowledgements</h2>
-        <p>These awesome projects empower Larpcord</p>
+        <h2 data-i18n="desktop.about.acknowledgements"></h2>
+        <p data-i18n="desktop.about.poweredBy"></p>
         <ul>
             <li>
                 <a href="https://github.com/electron/electron" target="_blank">Electron</a>
-                - Build cross-platform desktop apps with JavaScript, HTML, and CSS
+                - <span data-i18n="desktop.about.electron"></span>
             </li>
             <li>
                 <a href="https://github.com/electron-userland/electron-builder" target="_blank">Electron Builder</a>
-                - A complete solution to package and build a ready for distribution Electron app with "auto update"
-                support out of the box
+                - <span data-i18n="desktop.about.electronBuilder"></span>
             </li>
             <li>
                 <a href="https://github.com/OpenAsar/arrpc" target="_blank">arrpc</a>
-                - An open implementation of Discord's Rich Presence server
+                - <span data-i18n="desktop.about.arrpc"></span>
             </li>
             <li>
                 <a href="https://github.com/Soundux/rohrkabel" target="_blank">rohrkabel</a>
-                - A C++ RAII Pipewire-API Wrapper
+                - <span data-i18n="desktop.about.rohrkabel"></span>
             </li>
-            <li>
-                And many
-                <a href="https://github.com/Vencord/Vesktop/blob/main/pnpm-lock.yaml" target="_blank">more open source
-                    libraries</a>
+            <li data-i18n-links="desktop.about.moreLibraries">
+                <a data-slot="more" href="https://github.com/Vencord/Vesktop/blob/main/pnpm-lock.yaml" target="_blank"
+                    data-i18n="desktop.about.moreLibrariesLink"></a>
             </li>
         </ul>
     </section>
@@ -101,4 +120,21 @@
     }
 
     walk(document.body);
+
+    // Larpcord: Texte mit eingebetteten Links. Die Links bleiben dieselben Elemente, nur der Text drumherum
+    // kommt aus der Übersetzung ("… {vesktop} und {vencord} …").
+    const slots = new Map();
+    function fillLinks() {
+        for (const el of document.querySelectorAll("[data-i18n-links]")) {
+            if (!slots.has(el)) {
+                slots.set(el, Object.fromEntries([...el.querySelectorAll("[data-slot]")].map(s => [s.dataset.slot, s])));
+            }
+            const elements = slots.get(el);
+            const parts = LarpcordI18n.t(el.dataset.i18nLinks).split(/\{(\w+)\}/);
+            el.replaceChildren(...parts.map((part, i) => (i % 2 === 0 ? part : elements[part] ?? `{${part}}`)));
+        }
+    }
+
+    fillLinks();
+    LarpcordI18n.onChange(fillLinks);
 </script>

@@ -8,6 +8,7 @@ import { app, BrowserWindow, Menu, Tray } from "electron";
 
 import { createAboutWindow } from "./about";
 import { AppEvents } from "./events";
+import { onMainLocaleChange, t } from "./i18n";
 import { Settings } from "./settings";
 import { resolveAssetPath } from "./userAssets";
 import { clearData } from "./utils/clearData";
@@ -31,38 +32,36 @@ AppEvents.on("setTrayVariant", async variant => {
 });
 
 export function destroyTray() {
+    unsubscribeLocale?.();
+    unsubscribeLocale = undefined;
     tray?.destroy();
 }
 
-export async function initTray(win: BrowserWindow, setIsQuitting: (val: boolean) => void) {
-    const onTrayClick = () => {
-        if (Settings.store.clickTrayToShowHide && win.isVisible()) win.hide();
-        else win.show();
-    };
-
-    const trayMenu = Menu.buildFromTemplate([
+/** Tray-Menü in der aktuellen Sprache (wird bei Sprachwechsel neu gebaut) */
+function buildTrayMenu(win: BrowserWindow, setIsQuitting: (val: boolean) => void) {
+    return Menu.buildFromTemplate([
         {
-            label: "Open",
+            label: t("desktop.menu.open"),
             click() {
                 win.show();
             }
         },
         {
-            label: "About",
+            label: t("desktop.menu.about"),
             click: createAboutWindow
         },
         {
             // Sicherheitsnetz für larpLayout: setzt nur das lokale Layout zurück
-            label: "Layout zurücksetzen",
+            label: t("desktop.menu.resetLayout"),
             click() {
                 win.show();
                 win.webContents
                     .executeJavaScript("globalThis.Vencord?.Plugins?.plugins?.LarpLayout?.resetFromTray?.()")
-                    .catch(() => { });
+                    .catch(() => {});
             }
         },
         {
-            label: "Reset Larpcord",
+            label: t("desktop.menu.resetLarpcord"),
             async click() {
                 await clearData(win);
             }
@@ -71,23 +70,40 @@ export async function initTray(win: BrowserWindow, setIsQuitting: (val: boolean)
             type: "separator"
         },
         {
-            label: "Restart",
+            label: t("desktop.menu.restart"),
             click() {
                 app.relaunch();
                 app.quit();
             }
         },
         {
-            label: "Quit",
+            label: t("desktop.menu.quit"),
             click() {
                 setIsQuitting(true);
                 app.quit();
             }
         }
     ]);
+}
+
+let unsubscribeLocale: (() => void) | undefined;
+
+export async function initTray(win: BrowserWindow, setIsQuitting: (val: boolean) => void) {
+    const onTrayClick = () => {
+        if (Settings.store.clickTrayToShowHide && win.isVisible()) win.hide();
+        else win.show();
+    };
 
     tray = new Tray(await resolveAssetPath(trayVariant));
+    // Markenname, nicht übersetzt
     tray.setToolTip("Larpcord");
-    tray.setContextMenu(trayMenu);
+    tray.setContextMenu(buildTrayMenu(win, setIsQuitting));
     tray.on("click", onTrayClick);
+
+    // Larpcord: Menü bei Sprachwechsel (Discord-Sprache) neu aufbauen
+    unsubscribeLocale?.();
+    unsubscribeLocale = onMainLocaleChange(() => {
+        if (!tray || tray.isDestroyed() || win.isDestroyed()) return;
+        tray.setContextMenu(buildTrayMenu(win, setIsQuitting));
+    });
 }

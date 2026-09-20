@@ -8,3 +8,9 @@ declare module "__patches__" {
     const never: never;
     export default never;
 }
+
+// Larpcord: alle Sprachdateien aus core/src/plugins/larpCore/i18n/locales (scripts/i18n/locales-plugin.mjs)
+declare module "~larpcord-locales" {
+    const locales: Record<string, Record<string, string>>;
+    export default locales;
+}

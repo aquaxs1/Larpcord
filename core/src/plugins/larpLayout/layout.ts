@@ -5,10 +5,12 @@
  */
 
 import * as DataStore from "@api/DataStore";
+import { getIntlLocale } from "@plugins/larpCore/i18n";
 import { LarpStore, logger } from "@plugins/larpCore/store";
 import { LarpButtonLayout, LarpLayout } from "@plugins/larpCore/types";
-import { getIntlMessage, getIntlMessageFromHash } from "@utils/discord";
+import { runtimeHashMessageKey } from "@utils/intlHash";
 import { findStoreLazy } from "@webpack";
+import { i18n } from "@webpack/common";
 
 /*
  * Layout-Logik ohne UI. Grundsätze:
@@ -17,6 +19,9 @@ import { findStoreLazy } from "@webpack";
  * - Elemente werden über stabile IDs erkannt: Guild-/Folder-IDs (data-list-item-id), Channel-IDs
  *   (href) und aria-labels. Container-Labels kommen aus Discords Übersetzungen, damit das Layout
  *   in jeder Sprache greift. Nie über Positionen oder minifizierte Klassen.
+ * - Buttons mit bekanntem Discord-Übersetzungsschlüssel werden unter einer sprachunabhängigen ID
+ *   ("intl:<SCHLÜSSEL>") gespeichert, alle anderen unter ihrem aria-label (sprachabhängig).
+ * - Sprachwechsel: index.tsx ruft invalidateLabels() auf und erzeugt das CSS neu.
  */
 
 export const SortedGuildStore = findStoreLazy("SortedGuildStore");
@@ -70,22 +75,44 @@ export async function restoreLayoutBackup() {
 
 // ---- Übersetzte Labels (Discords eigene Texte, dadurch sprachunabhängig) ----
 
-function intl(key: string) {
+/**
+ * Discord-Text zu einem gehashten Übersetzungsschlüssel in der aktuellen Discord-Sprache.
+ * Wie getIntlMessageFromHash aus @utils/discord, aber ohne Fehler-Log: unbekannte Schlüssel
+ * (z. B. nach einem Discord-Update) ergeben einfach undefined.
+ */
+function intlHash(hash: string) {
     try {
-        const s = getIntlMessage(key);
-        return typeof s === "string" && s && s !== key ? s : undefined;
+        const message = i18n.t[hash];
+        if (message == null) return undefined;
+        const s = i18n.intl.string(message);
+        return typeof s === "string" && s && s !== hash ? s : undefined;
     } catch {
         return undefined;
     }
 }
 
-function intlHash(hash: string) {
+function intl(key: string) {
     try {
-        const s = getIntlMessageFromHash(hash);
-        return typeof s === "string" && s && s !== hash ? s : undefined;
+        const s = intlHash(runtimeHashMessageKey(key));
+        return s !== key ? s : undefined;
     } catch {
         return undefined;
     }
+}
+
+/*
+ * Caches gelten pro Discord-Sprache und Generation. Discord lädt die Texte einer neuen Sprache
+ * asynchron nach, deshalb verwirft index.tsx die Caches nach einem Sprachwechsel mehrmals.
+ */
+let generation = 0;
+
+function cacheToken() {
+    return `${getIntlLocale()}#${generation}`;
+}
+
+/** Nach einem Sprachwechsel aufrufen: Labels werden beim nächsten Zugriff neu gelesen */
+export function invalidateLabels() {
+    generation++;
 }
 
 export interface Labels {
@@ -101,11 +128,12 @@ export interface Labels {
     privateChannels?: string;
 }
 
-let labelCache: { locale: string; labels: Labels; } | undefined;
+let labelCache: { token: string; labels: Labels; } | undefined;
+let lastMissing = "";
 
 export function getLabels(): Labels {
-    const locale = document.documentElement.lang || "";
-    if (labelCache?.locale === locale) return labelCache.labels;
+    const token = cacheToken();
+    if (labelCache?.token === token) return labelCache.labels;
     const labels: Labels = {
         panel: intlHash("vTl6Lk"),
         settings: intl("USER_SETTINGS"),
@@ -114,32 +142,95 @@ export function getLabels(): Labels {
         privateChannels: intl("PRIVATE_CHANNELS_A11Y_LABEL")
     };
     const missing = Object.entries(labels).filter(([, v]) => !v).map(([k]) => k);
-    if (missing.length) logger.warn("Layout: Labels nicht gefunden, zugehörige Bereiche sind deaktiviert:", missing);
-    labelCache = { locale, labels };
+    if (missing.join() !== lastMissing && missing.length) logger.warn("Layout: Labels nicht gefunden, zugehörige Bereiche sind deaktiviert:", missing);
+    lastMissing = missing.join();
+    labelCache = { token, labels };
     return labels;
 }
 
-/** Umschalter wechseln ihr aria-label je nach Zustand. Diese Paare gelten als derselbe Button. */
-const TOGGLE_PAIRS = [["MUTE", "UNMUTE"], ["DEAFEN", "UNDEAFEN"], ["SHOW_USER_PROFILE", "HIDE_USER_PROFILE"]];
+// ---- Buttons sprachunabhängig erkennen ----
 
-let aliasCache: { locale: string; map: Map<string, string[]>; } | undefined;
+/** Präfix für Button-Schlüssel, die auf einen Discord-Übersetzungsschlüssel zeigen */
+const INTL_KEY = "intl:";
+/** Einstellungen-Button (nie ausblendbar) */
+const SETTINGS_KEY = INTL_KEY + "USER_SETTINGS";
 
-function aliasesOf(label: string): string[] {
-    const locale = document.documentElement.lang || "";
-    if (aliasCache?.locale !== locale) {
-        const map = new Map<string, string[]>();
-        for (const pair of TOGGLE_PAIRS) {
-            const texts = pair.map(intl).filter(Boolean) as string[];
-            for (const t of texts) map.set(t, texts);
-        }
-        aliasCache = { locale, map };
-    }
-    return aliasCache.map.get(label) ?? [label];
+/**
+ * Buttons, deren aria-label aus einem bekannten Discord-Übersetzungsschlüssel stammt. Eine Gruppe ist
+ * ein Button, Umschalter wechseln ihr Label (z. B. Stummschalten/Stummschaltung aufheben).
+ * Gespeichert wird "intl:<erster Schlüssel>", in jeder Sprache wird daraus der aktuelle Text.
+ * Unbekannte Schlüssel (z. B. nach einem Discord-Update) schaden nicht: Der Button wird dann wie
+ * bisher über sein aria-label erkannt.
+ */
+const KNOWN_BUTTONS = [
+    // User-Panel
+    ["MUTE", "UNMUTE"],
+    ["DEAFEN", "UNDEAFEN"],
+    ["USER_SETTINGS"],
+    // Kanal-Header
+    ["THREADS"],
+    ["NOTIFICATION_SETTINGS"],
+    ["PINNED_MESSAGES"],
+    ["SHOW_MEMBER_LIST", "HIDE_MEMBER_LIST", "MEMBER_LIST"],
+    ["SHOW_USER_PROFILE", "HIDE_USER_PROFILE"],
+    ["START_VOICE_CALL"],
+    ["START_VIDEO_CALL"],
+    ["ADD_FRIENDS_TO_DM"],
+    ["SEARCH"],
+    ["INBOX"],
+    ["HELP"]
+];
+
+interface KnownIndex {
+    /** aktueller Text → stabile ID */
+    byText: Map<string, string>;
+    /** stabile ID → alle aktuellen Texte */
+    texts: Map<string, string[]>;
 }
 
-/** Kanonischer Schlüssel: bei Umschaltern immer das erste Label des Paars */
+let knownCache: { token: string; index: KnownIndex; } | undefined;
+
+function knownIndex(): KnownIndex {
+    const token = cacheToken();
+    if (knownCache?.token === token) return knownCache.index;
+    const index: KnownIndex = { byText: new Map(), texts: new Map() };
+    for (const group of KNOWN_BUTTONS) {
+        const id = INTL_KEY + group[0];
+        const texts = [...new Set(group.map(intl).filter(Boolean) as string[])];
+        index.texts.set(id, texts);
+        for (const t of texts) if (!index.byText.has(t)) index.byText.set(t, id);
+    }
+    knownCache = { token, index };
+    return index;
+}
+
+/** Alle aktuellen Texte zu einem Label oder einer stabilen ID (Umschalter liefern beide Zustände) */
+function aliasesOf(label: string): string[] {
+    const { byText, texts } = knownIndex();
+    if (label.startsWith(INTL_KEY)) return texts.get(label) ?? [];
+    const id = byText.get(label);
+    return id ? [label, ...(texts.get(id) ?? [])] : [label];
+}
+
+/** Stabile ID für ein aria-label, sonst das Label selbst */
 export function canonicalKey(label: string) {
-    return aliasesOf(label)[0];
+    return knownIndex().byText.get(label) ?? label;
+}
+
+/** Schlüssel für einen Button mit diesen aria-labels: bekannte Discord-Texte zuerst, sonst das erste Label */
+export function stableKey(labels: string[]) {
+    const { byText } = knownIndex();
+    for (const l of labels) {
+        const id = byText.get(l);
+        if (id) return id;
+    }
+    return canonicalKey(labels[0]);
+}
+
+/** Anzeigename eines gespeicherten Buttons in der aktuellen Discord-Sprache */
+export function buttonName(key: string) {
+    if (!key.startsWith(INTL_KEY)) return key;
+    return knownIndex().texts.get(key)?.[0] ?? key.slice(INTL_KEY.length);
 }
 
 /** Alle Labels, an denen ein gespeicherter Button erkannt wird */
@@ -147,6 +238,46 @@ export function matchLabels(key: string, bar: LarpButtonLayout): string[] {
     const out = new Set<string>();
     for (const l of [key, ...(bar.labels[key] ?? [])]) for (const a of aliasesOf(l)) out.add(a);
     return [...out];
+}
+
+/**
+ * Ältere Layouts speichern Buttons unter ihrem aria-label, also in der Sprache beim Speichern.
+ * Bekannte Buttons werden auf stabile IDs umgestellt. Das klappt nur, solange Discord in derselben
+ * Sprache läuft, daher wird es bei jedem Anwenden des Layouts erneut versucht (idempotent).
+ */
+function migrateBar(bar: LarpButtonLayout): LarpButtonLayout | undefined {
+    const { byText } = knownIndex();
+    const rename = new Map<string, string>();
+    for (const key of new Set([...bar.order, ...bar.hidden, ...Object.keys(bar.labels)])) {
+        if (key.startsWith(INTL_KEY)) continue;
+        const id = [key, ...(bar.labels[key] ?? [])].map(l => byText.get(l)).find(Boolean);
+        if (id) rename.set(key, id);
+    }
+    if (!rename.size) return undefined;
+
+    const r = (k: string) => rename.get(k) ?? k;
+    const labels: Record<string, string[]> = {};
+    for (const [k, list] of Object.entries(bar.labels)) {
+        const nk = r(k);
+        labels[nk] = [...new Set([...(labels[nk] ?? []), ...list])].slice(0, 10);
+    }
+    return { order: [...new Set(bar.order.map(r))], hidden: [...new Set(bar.hidden.map(r))], labels };
+}
+
+/** Stellt alte Button-Schlüssel im gespeicherten Layout um. Gibt true zurück, wenn gespeichert wurde. */
+export function migrateStoredLayout(): boolean {
+    const profile = LarpStore.get();
+    const { layout } = profile;
+    if (!layout) return false;
+    const userPanel = migrateBar(layout.userPanel);
+    const channelHeader = migrateBar(layout.channelHeader);
+    if (!userPanel && !channelHeader) return false;
+    LarpStore.replace({
+        ...profile,
+        layout: { ...layout, userPanel: userPanel ?? layout.userPanel, channelHeader: channelHeader ?? layout.channelHeader }
+    }, LarpStore.activePreset);
+    logger.info("Layout: Button-Schlüssel auf sprachunabhängige IDs umgestellt");
+    return true;
 }
 
 // ---- Selektoren ----
@@ -243,11 +374,15 @@ function barCss(bar: ButtonBar, layout: LarpButtonLayout): string[] {
     if (layout.order.length) {
         // Unbekannte (z. B. neue) Buttons ans Ende
         css.push(`${container} > * { order: 1000; }`);
-        layout.order.forEach((key, i) => css.push(`${container} > ${itemSelector(matchLabels(key, layout))} { order: ${i}; }`));
+        layout.order.forEach((key, i) => {
+            const labels = matchLabels(key, layout);
+            // Stabile ID ohne Text in der aktuellen Sprache: nichts erzeugen (leeres :is() wäre ungültig)
+            if (labels.length) css.push(`${container} > ${itemSelector(labels)} { order: ${i}; }`);
+        });
     }
     for (const key of layout.hidden) {
         const labels = matchLabels(key, layout);
-        if (isProtected(bar, labels)) continue;
+        if (!labels.length || key === SETTINGS_KEY || isProtected(bar, labels)) continue;
         const sel = `${container} > ${itemSelector(labels)}`;
         css.push(`html:not(.larp-layout-editing) ${sel} { display: none !important; }`);
         css.push(`html.larp-layout-editing ${sel} { opacity: 0.35; }`);

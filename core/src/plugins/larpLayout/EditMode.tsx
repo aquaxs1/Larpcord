@@ -104,7 +104,9 @@ function guildItems(): Item[] {
     for (const node of guildRoots()) {
         const el = document.querySelector(`[data-list-item-id="guildsnav___${node.id}"]`);
         if (!visible(el)) continue;
-        const name = node.type === "folder" ? (node.name || "Ordner") : GuildStore.getGuild(String(node.id))?.name ?? "Server";
+        const name = node.type === "folder"
+            ? (node.name || t("layout.edit.folderFallback"))
+            : GuildStore.getGuild(String(node.id))?.name ?? t("layout.edit.serverFallback");
         items.push({ list: "guilds", key: guildKey(node), el, rect: el.getBoundingClientRect(), name });
     }
     return items;
@@ -122,7 +124,8 @@ function dmItems(): Item[] {
         const key = a.getAttribute("href")!.split("/").pop()!;
         const el = (a.closest("li") ?? a) as HTMLElement;
         if (!/^\d+$/.test(key) || !visible(el)) continue;
-        items.push({ list: "dms", key, el, rect: el.getBoundingClientRect(), name: a.getAttribute("aria-label") ?? "DM", pinned: pinned.has(key) });
+        // aria-label ist Discords eigener Text (bereits in Discords Sprache)
+        items.push({ list: "dms", key, el, rect: el.getBoundingClientRect(), name: a.getAttribute("aria-label") ?? t("layout.edit.dmFallback"), pinned: pinned.has(key) });
     }
     return items;
 }
@@ -170,9 +173,10 @@ function barItems(bar: ButtonBar): Item[] {
         if (!visible(el)) continue;
         const labels = labelsOf(el);
         if (!labels.length) continue;
-        const key = known.find(k => matchLabels(k, layout).some(l => labels.includes(l))) ?? canonicalKey(labels[0]);
+        // Gespeicherte Schlüssel zuerst (auch alte, sprachabhängige), sonst stabile ID bzw. aria-label
+        const key = known.find(k => matchLabels(k, layout).some(l => labels.includes(l))) ?? stableKey(labels);
         items.push({
-            list: bar, key, el, rect: el.getBoundingClientRect(), name: key, labels,
+            list: bar, key, el, rect: el.getBoundingClientRect(), name: buttonName(key), labels,
             hidden: layout.hidden.includes(key), protected: isProtected(bar, labels)
         });
     }
@@ -357,11 +361,11 @@ function Frame({ item, dragging }: { item: Item; dragging: boolean; }) {
             data-larp-key={`${item.list}:${item.key}`}
             style={{ left: r.left - 2, top: r.top - 2, width: r.width + 4, height: r.height + 4 }}
         >
-            {item.pinned && <span className="larp-layout-pin" title="In Larpcord angepinnt">📌</span>}
+            {item.pinned && <span className="larp-layout-pin" title={t("layout.edit.pinned")}>📌</span>}
             {isHorizontal(item.list) && !item.protected && (
                 <button
                     className="larp-layout-eye"
-                    title={item.hidden ? "Einblenden" : "Ausblenden"}
+                    title={item.hidden ? t("layout.buttons.show") : t("layout.buttons.hide")}
                     onClick={() => toggleHidden(item)}
                 >
                     {item.hidden ? "🚫" : "👁"}
@@ -429,15 +433,17 @@ function Toolbar() {
                                 e.stopPropagation();
                             }}
                         />
-                        <Btn onClick={savePreset}>Speichern</Btn>
+                        <Btn onClick={savePreset}>{t("common.save")}</Btn>
                     </span>
                 )}
-            <Btn onClick={() => setEditing(false)}>Fertig</Btn>
+            <Btn onClick={() => setEditing(false)}>{t("common.done")}</Btn>
         </div>
     );
 }
 
 function Overlay() {
+    // Eigenes React-Root außerhalb des Hubs: bei Sprachwechsel selbst neu rendern
+    useLarpLocale();
     const [, force] = useReducer(x => x + 1, 0);
     useEffect(() => {
         listeners.add(force);

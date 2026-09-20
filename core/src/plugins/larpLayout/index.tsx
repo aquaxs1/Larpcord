@@ -8,13 +8,17 @@ import "./styles.css";
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
+import { onLocaleChange, t } from "@plugins/larpCore/i18n";
 import { LarpStore, logger } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { Menu, showToast, Toasts } from "@webpack/common";
 
 import { setEditing, toggleEditing } from "./EditMode";
-import { buildLayoutCss, hasLayout, isDmPinned, orderDmIds, orderGuildRoots, PrivateChannelSortStore, resetLayout, setDmPinned, SortedGuildStore } from "./layout";
+import {
+    buildLayoutCss, hasLayout, invalidateLabels, isDmPinned, migrateStoredLayout, orderDmIds, orderGuildRoots,
+    PrivateChannelSortStore, resetLayout, setDmPinned, SortedGuildStore
+} from "./layout";
 import { LayoutTab } from "./LayoutTab";
 import { clearShiftCallback, onShiftAtStartup } from "./safety";
 
@@ -24,12 +28,36 @@ import { clearShiftCallback, onShiftAtStartup } from "./safety";
  *   bleibt unberührt, natives Drag & Drop funktioniert weiter).
  * - Buttons in User-Panel und Kanal-Header per CSS order/display, User-Panel oben/unten per CSS.
  * - Bearbeitungsmodus über den Hub oder Strg+Shift+L.
+ * - Sprachwechsel: Die CSS-Selektoren nutzen Discords übersetzte aria-labels und werden deshalb
+ *   nach jedem Wechsel neu erzeugt (mehrmals, weil Discord die Texte asynchron nachlädt).
  */
 
 let layoutVersion = 0;
 let styleEl: HTMLStyleElement | undefined;
 let unsubscribe: (() => void) | undefined;
+let unsubscribeLocale: (() => void) | undefined;
 let lastLayout = "";
+let refreshTimers: ReturnType<typeof setTimeout>[] = [];
+let migrateTimer: ReturnType<typeof setTimeout> | undefined;
+
+/** CSS neu erzeugen, nur schreiben, wenn es sich geändert hat */
+function refreshCss() {
+    if (!styleEl) return;
+    const css = buildLayoutCss(LarpStore.get().layout);
+    if (styleEl.textContent !== css) styleEl.textContent = css;
+}
+
+/** Alte, sprachabhängige Button-Schlüssel umstellen. Verzögert, weil applyLayout ein Store-Listener ist. */
+function scheduleMigration() {
+    clearTimeout(migrateTimer);
+    migrateTimer = setTimeout(() => {
+        try {
+            migrateStoredLayout();
+        } catch (e) {
+            logger.error("Layout: Umstellung der Button-Schlüssel fehlgeschlagen", e);
+        }
+    }, 0);
+}
 
 function applyLayout() {
     const { layout } = LarpStore.get();
@@ -38,7 +66,8 @@ function applyLayout() {
     lastLayout = json;
     layoutVersion++;
 
-    if (styleEl) styleEl.textContent = buildLayoutCss(layout);
+    refreshCss();
+    if (layout) scheduleMigration();
     // Nur lokale Stores anstoßen, damit Serverleiste und DM-Liste neu sortiert rendern
     for (const store of [SortedGuildStore, PrivateChannelSortStore]) {
         try {
@@ -48,6 +77,23 @@ function applyLayout() {
         }
     }
 }
+
+/** Discords Texte neu lesen und CSS neu erzeugen, sofort und nach kurzen Pausen */
+function refreshLabelsSoon(delays: number[]) {
+    for (const timer of refreshTimers) clearTimeout(timer);
+    const run = () => {
+        try {
+            invalidateLabels();
+            refreshCss();
+            if (hasLayout()) scheduleMigration();
+        } catch (e) {
+            logger.error("Layout: Aktualisierung nach Sprachwechsel fehlgeschlagen", e);
+        }
+    };
+    refreshTimers = delays.map(ms => setTimeout(run, ms));
+}
+
+const onLocale = () => refreshLabelsSoon([0, 500, 2000, 5000]);
 
 function onKeyDown(e: KeyboardEvent) {
     if (e.ctrlKey && e.shiftKey && !e.altKey && e.code === "KeyL") {
@@ -64,7 +110,7 @@ const DmContextMenu: NavContextMenuPatchCallback = (children, props) => {
     const item = (
         <Menu.MenuItem
             id="larp-pin-dm"
-            label={pinned ? "Von Larpcord lösen" : "In Larpcord anpinnen"}
+            label={pinned ? t("layout.dmMenu.unpin") : t("layout.dmMenu.pin")}
             action={() => setDmPinned(channel.id, !pinned)}
         />
     );
@@ -75,7 +121,9 @@ const DmContextMenu: NavContextMenuPatchCallback = (children, props) => {
 
 export default definePlugin({
     name: "LarpLayout",
-    description: "Eigenes Layout: Server und DMs verschieben, Buttons umsortieren oder ausblenden, User-Panel oben oder unten. Nur lokal, Discords echte Reihenfolge bleibt unverändert.",
+    get description() {
+        return t("plugin.LarpLayout.description");
+    },
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     enabledByDefault: true,
@@ -115,7 +163,7 @@ export default definePlugin({
     async resetFromTray() {
         setEditing(false);
         await resetLayout("Tray");
-        showToast("Layout zurückgesetzt (Tray). Im Hub unter Layout lässt es sich wiederherstellen.", Toasts.Type.MESSAGE);
+        showToast(t("layout.toast.resetTray"), Toasts.Type.MESSAGE);
     },
 
     start() {
@@ -127,6 +175,9 @@ export default definePlugin({
         lastLayout = "";
         applyLayout();
         unsubscribe = LarpStore.subscribe(applyLayout);
+        unsubscribeLocale = onLocaleChange(onLocale);
+        // Beim Start sind Discords Übersetzungen evtl. noch nicht geladen: später noch einmal lesen
+        refreshLabelsSoon([2000, 6000]);
 
         window.addEventListener("keydown", onKeyDown, true);
 
@@ -135,7 +186,7 @@ export default definePlugin({
             if (!hasLayout()) return;
             setEditing(false);
             await resetLayout("Shift beim Start");
-            showToast("Layout zurückgesetzt (Shift beim Start). Im Hub unter Layout lässt es sich wiederherstellen.", Toasts.Type.MESSAGE);
+            showToast(t("layout.toast.resetShift"), Toasts.Type.MESSAGE);
         });
     },
 
@@ -143,6 +194,11 @@ export default definePlugin({
         unregisterHubTab("layout");
         setEditing(false);
         unsubscribe?.();
+        unsubscribeLocale?.();
+        unsubscribeLocale = undefined;
+        for (const timer of refreshTimers) clearTimeout(timer);
+        refreshTimers = [];
+        clearTimeout(migrateTimer);
         window.removeEventListener("keydown", onKeyDown, true);
         clearShiftCallback();
         styleEl?.remove();

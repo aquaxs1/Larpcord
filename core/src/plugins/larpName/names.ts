@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@plugins/larpCore/i18n";
 import { getSelfId, LarpStore, logger } from "@plugins/larpCore/store";
 import { GuildMemberStore, showToast, Toasts, UserStore } from "@webpack/common";
 
@@ -134,16 +135,19 @@ export function guardAccountBody<T extends Record<string, any>>(body: T): T {
         const removed: string[] = [];
         if (names.username && out.username === names.username && out.username !== real.username) {
             delete out.username;
-            removed.push("Username");
+            removed.push("username");
         }
         if (names.displayName && out.global_name === names.displayName && out.global_name !== real.globalName) {
             delete out.global_name;
-            removed.push("Anzeigename");
+            removed.push("global_name");
         }
         if (!removed.length) return body;
 
         logger.warn("Larp-Namen aus Konto-Update entfernt:", removed);
-        showToast(`Larpcord: ${removed.join(" und ")} ist nur ein lokaler Larp-Name und wurde nicht an Discord gesendet.`, Toasts.Type.MESSAGE);
+        // Ganze Sätze übersetzen statt Teile zusammenzusetzen (Satzbau ist je Sprache anders)
+        const text = removed.length > 1 ? t("name.guard.both")
+            : removed[0] === "username" ? t("name.guard.username") : t("name.guard.displayName");
+        showToast(text, Toasts.Type.MESSAGE);
         return out as T;
     } catch (e) {
         logger.error("guardAccountBody", e);

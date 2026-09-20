@@ -9,6 +9,7 @@ import "./styles.css";
 import { BadgePosition, ProfileBadge } from "@api/Badges";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
+import { t, useLarpLocale } from "@plugins/larpCore/i18n";
 import { isSelf, LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -28,13 +29,14 @@ import { NameTab } from "./NameTab";
 
 export function NameExtras({ className }: { className?: string; }) {
     const larp = useLarpProfile();
+    useLarpLocale();
     const { clanTag, extras } = larp;
     if (!clanTag && !extras.verifiedCheck && !extras.ownerCrown) return null;
 
     return (
         <span className={["larp-name-extras", className].filter(Boolean).join(" ")}>
             {extras.verifiedCheck && (
-                <span className="larp-verified" title="Verifiziert" aria-label="Verifiziert">
+                <span className="larp-verified" title={t("name.badge.verified")} aria-label={t("name.badge.verified")}>
                     <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden>
                         <path fill="var(--brand-500, #5865f2)" d="M8 0.8 9.9 2.3l2.4-.2.7 2.3 2.1 1.2-.8 2.3.8 2.3-2.1 1.2-.7 2.3-2.4-.2L8 15.2l-1.9-1.5-2.4.2-.7-2.3-2.1-1.2.8-2.3-.8-2.3 2.1-1.2.7-2.3 2.4.2Z" />
                         <path fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" d="m5 8.2 2 2 4-4.3" />
@@ -42,14 +44,14 @@ export function NameExtras({ className }: { className?: string; }) {
                 </span>
             )}
             {extras.ownerCrown && (
-                <span className="larp-crown" title="Server-Eigentümer" aria-label="Server-Eigentümer">
+                <span className="larp-crown" title={t("name.badge.owner")} aria-label={t("name.badge.owner")}>
                     <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden>
                         <path fill="#f0b232" d="M2 12h12l1-7-4 3-3-5-3 5-4-3 1 7Zm0 1.2h12V14H2v-.8Z" />
                     </svg>
                 </span>
             )}
             {clanTag && (
-                <span className="larp-clan-tag" title={`Clan-Tag ${clanTag.tag}`}>
+                <span className="larp-clan-tag" title={t("name.badge.clanTag", { tag: clanTag.tag })}>
                     {clanTag.iconUrl && <img src={clanTag.iconUrl} alt="" />}
                     {clanTag.tag}
                 </span>
@@ -77,7 +79,9 @@ let unsubscribeNames: (() => void) | undefined;
 
 export default definePlugin({
     name: "LarpName",
-    description: "Name-Änderer, Clan-Tag, Verified-Häkchen, Owner-Krone und Namens-Stile (Schrift, Verlauf, Glow) für deinen eigenen Namen. Nur lokal sichtbar.",
+    get description() {
+        return t("plugin.LarpName.description");
+    },
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     enabledByDefault: true,

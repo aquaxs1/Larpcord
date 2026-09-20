@@ -5,6 +5,7 @@
  */
 
 import "./cli";
+import "./i18n";
 import "./updater";
 import "./ipc";
 import "./userAssets";

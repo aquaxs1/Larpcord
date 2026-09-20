@@ -37,6 +37,12 @@ declare module "~git-remote" {
     export default remote;
 }
 
+// Larpcord: alle Sprachdateien aus plugins/larpCore/i18n/locales (scripts/i18n/locales-plugin.mjs)
+declare module "~larpcord-locales" {
+    const locales: Record<string, Record<string, string>>;
+    export default locales;
+}
+
 declare module "file://*" {
     const content: string;
     export default content;

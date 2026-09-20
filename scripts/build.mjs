@@ -24,7 +24,7 @@ const env = {
     ...process.env,
     // core/ hat kein eigenes .git mehr, daher Hash und Remote explizit setzen
     VENCORD_HASH: process.env.VENCORD_HASH || gitHash(),
-    VENCORD_REMOTE: process.env.VENCORD_REMOTE || "larpcord/larpcord"
+    VENCORD_REMOTE: process.env.VENCORD_REMOTE || "aquaxs1/Larpcord"
 };
 
 const run = (cmd, cwd) => {

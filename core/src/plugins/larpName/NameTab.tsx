@@ -5,10 +5,11 @@
  */
 
 import { Btn, cl, ColorPairField, ImageField, Row, Section, TextField, Toggle } from "@plugins/larpCore/hub/components";
+import { t, tNode, useLarpLocale } from "@plugins/larpCore/i18n";
 import { LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 
 import { getRealNames } from "./names";
-import { NAME_EFFECTS, NAME_FONTS, resolveEffect } from "./nameStyles";
+import { effectLabel, fontLabel, NAME_EFFECTS, NAME_FONTS, resolveEffect } from "./nameStyles";
 
 function Select({ value, options, onChange }: { value: string; options: [string, string][]; onChange(v: string): void; }) {
     return (
@@ -20,6 +21,7 @@ function Select({ value, options, onChange }: { value: string; options: [string,
 
 export function NameTab() {
     const larp = useLarpProfile();
+    useLarpLocale();
     const style = larp.nameStyle ?? {};
     const effect = resolveEffect(larp.nameStyle) ?? "";
 
@@ -29,72 +31,72 @@ export function NameTab() {
     return (
         <>
             <Section
-                title="Name-Änderer"
-                description={<><strong>Nur lokal sichtbar.</strong> Dein echter Name bei Discord bleibt unverändert, andere sehen weiterhin deinen echten Namen. Änderungen gelten sofort und ohne Cooldown.</>}
+                title={t("name.changer.title")}
+                description={tNode("name.changer.description", { localOnly: <strong>{t("common.localOnly")}</strong> })}
             >
-                <Row label="Anzeigename" hint={`Echt: ${real.globalName || real.username || "–"}`}>
+                <Row label={t("name.changer.displayName")} hint={t("name.changer.real", { name: real.globalName || real.username || "–" })}>
                     <TextField
                         value={names.displayName}
                         maxLength={32}
-                        placeholder={real.globalName || real.username || "Anzeigename"}
+                        placeholder={real.globalName || real.username || t("name.changer.displayName")}
                         onCommit={displayName => LarpStore.update({ names: { displayName } })}
                     />
                 </Row>
-                <Row label="Username" hint={`Echt: @${real.username || "–"}`}>
+                <Row label={t("name.changer.username")} hint={t("name.changer.real", { name: `@${real.username || "–"}` })}>
                     <TextField
                         value={names.username}
                         maxLength={32}
-                        placeholder={real.username || "username"}
+                        placeholder={real.username || t("name.changer.usernamePlaceholder")}
                         onCommit={username => LarpStore.update({ names: { username: username?.replace(/^@/, "") || undefined } })}
                     />
                 </Row>
                 <Toggle
-                    label="Larp-Name statt Server-Nicknames anzeigen"
-                    hint="Blendet deine Server-Nicknames aus, damit überall der Larp-Name erscheint"
+                    label={t("name.changer.overrideNicknames")}
+                    hint={t("name.changer.overrideNicknamesHint")}
                     value={names.overrideNicknames}
                     onChange={overrideNicknames => LarpStore.update({ names: { overrideNicknames } })}
                 />
                 {(names.username || names.displayName) && (
                     <Btn variant="danger" style={{ marginTop: 12 }} onClick={() => LarpStore.update({ names: { username: undefined, displayName: undefined } })}>
-                        Echten Namen wiederherstellen
+                        {t("name.changer.restore")}
                     </Btn>
                 )}
             </Section>
 
-            <Section title="Neben deinem Namen" description="Erscheint im Chat, in der Mitgliederliste und in deinem Profil.">
-                <Row label="Clan-Tag" hint="Max. 4 Zeichen, leer = aus">
+            <Section title={t("name.extras.title")} description={t("name.extras.description")}>
+                <Row label={t("name.extras.clanTag")} hint={t("name.extras.clanTagHint")}>
                     <TextField
                         value={larp.clanTag?.tag}
                         maxLength={4}
-                        placeholder="z. B. OG"
+                        placeholder={t("name.extras.clanTagPlaceholder")}
                         onCommit={tag => LarpStore.update({ clanTag: tag ? { tag, iconUrl: larp.clanTag?.iconUrl } : undefined })}
                     />
                 </Row>
                 {larp.clanTag && (
-                    <Row label="Clan-Icon" hint="Kleines Bild vor dem Tag (optional)">
+                    <Row label={t("name.extras.clanIcon")} hint={t("name.extras.clanIconHint")}>
                         <ImageField value={larp.clanTag.iconUrl} maxBytes={256_000} onCommit={iconUrl => LarpStore.update({ clanTag: { tag: larp.clanTag!.tag, iconUrl } })} />
                     </Row>
                 )}
-                <Toggle label="Verified-Häkchen" value={larp.extras.verifiedCheck} onChange={verifiedCheck => LarpStore.update({ extras: { verifiedCheck } })} />
-                <Toggle label="Owner-Krone" value={larp.extras.ownerCrown} onChange={ownerCrown => LarpStore.update({ extras: { ownerCrown } })} />
+                <Toggle label={t("name.extras.verifiedCheck")} value={larp.extras.verifiedCheck} onChange={verifiedCheck => LarpStore.update({ extras: { verifiedCheck } })} />
+                <Toggle label={t("name.extras.ownerCrown")} value={larp.extras.ownerCrown} onChange={ownerCrown => LarpStore.update({ extras: { ownerCrown } })} />
             </Section>
 
-            <Section title="Namens-Stil" description="Nutzt Discords eigene Anzeigenamen-Stile, damit er überall gleich aussieht.">
-                <Row label="Schriftart">
+            <Section title={t("name.style.title")} description={t("name.style.description")}>
+                <Row label={t("name.style.font")}>
                     <Select
                         value={style.font && NAME_FONTS[style.font] ? style.font : "DEFAULT"}
-                        options={Object.entries(NAME_FONTS).map(([k, f]) => [k, f.label])}
+                        options={Object.keys(NAME_FONTS).map(k => [k, fontLabel(k)])}
                         onChange={font => LarpStore.update({ nameStyle: { ...style, font: font === "DEFAULT" ? undefined : font } })}
                     />
                 </Row>
-                <Row label="Effekt">
+                <Row label={t("name.style.effect")}>
                     <Select
                         value={effect}
-                        options={[["", "Keiner"], ...Object.entries(NAME_EFFECTS).map(([k, e]) => [k, e.label] as [string, string])]}
+                        options={[["", t("name.style.noEffect")], ...Object.keys(NAME_EFFECTS).map(k => [k, effectLabel(k)] as [string, string])]}
                         onChange={e => LarpStore.update({ nameStyle: { ...style, effect: e || undefined, glow: e === "GLOW" } })}
                     />
                 </Row>
-                <Row label="Farben" hint="Erste Farbe für Einfarbig/Glow, beide für Verläufe">
+                <Row label={t("name.style.colors")} hint={t("name.style.colorsHint")}>
                     <ColorPairField
                         value={style.gradient}
                         defaults={["#ff73fa", "#5865f2"]}
@@ -102,11 +104,11 @@ export function NameTab() {
                     />
                 </Row>
                 <Toggle
-                    label="Glow"
+                    label={effectLabel("GLOW")}
                     value={!!style.glow || effect === "GLOW"}
                     onChange={glow => LarpStore.update({ nameStyle: { ...style, glow, effect: glow ? "GLOW" : style.effect === "GLOW" ? undefined : style.effect } })}
                 />
-                {larp.nameStyle && <Btn variant="danger" style={{ marginTop: 12 }} onClick={() => LarpStore.update({ nameStyle: undefined })}>Stil zurücksetzen</Btn>}
+                {larp.nameStyle && <Btn variant="danger" style={{ marginTop: 12 }} onClick={() => LarpStore.update({ nameStyle: undefined })}>{t("name.style.reset")}</Btn>}
             </Section>
         </>
     );

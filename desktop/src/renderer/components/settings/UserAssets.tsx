@@ -7,9 +7,10 @@
 import "./UserAssets.css";
 
 import { BaseText, Button, FormSwitch } from "@vencord/types/components";
-import { Margins, wordsFromCamel, wordsToTitle } from "@vencord/types/utils";
+import { Margins } from "@vencord/types/utils";
 import { Modal, openModal, showToast, useState } from "@vencord/types/webpack/common";
 import { UserAssetType } from "main/userAssets";
+import { t, useLarpLocale } from "renderer/i18n";
 import { useSettings } from "renderer/settings";
 
 import { SettingsComponent } from "./Settings";
@@ -17,19 +18,26 @@ import { SettingsComponent } from "./Settings";
 const CUSTOMIZABLE_ASSETS: UserAssetType[] = ["splash", "tray", "trayUnread", "appIcon"];
 
 export const UserAssetsButton: SettingsComponent = () => {
-    return <Button onClick={() => openAssetsModal()}>Customize App Assets</Button>;
+    return <Button onClick={() => openAssetsModal()}>{t("desktop.userAssets.button")}</Button>;
 };
 
 function openAssetsModal() {
-    openModal(props => (
-        <Modal {...props} size="lg" title="User Assets">
+    openModal(props => <UserAssetsModal {...props} />);
+}
+
+function UserAssetsModal(props: any) {
+    // Eigenes Fenster, rendert bei Sprachwechsel nicht automatisch neu
+    useLarpLocale();
+
+    return (
+        <Modal {...props} size="lg" title={t("desktop.userAssets.modalTitle")}>
             <div className="vcd-user-assets">
                 {CUSTOMIZABLE_ASSETS.map(asset => (
                     <Asset key={asset} asset={asset} />
                 ))}
             </div>
         </Modal>
-    ));
+    );
 }
 
 function Asset({ asset }: { asset: UserAssetType }) {
@@ -48,14 +56,15 @@ function Asset({ asset }: { asset: UserAssetType }) {
                 settings.splashPixelated = false;
             }
         } else if (res === "failed") {
-            showToast("Something went wrong. Please try again");
+            showToast(t("desktop.userAssets.failed"));
         }
     };
 
     return (
         <section>
             <BaseText size="md" weight="medium" tag="h3">
-                {wordsToTitle(wordsFromCamel(asset))}
+                {/* i18n-keys: desktop.userAssets.asset.* */}
+                {t(`desktop.userAssets.asset.${asset}`)}
             </BaseText>
             <div className="vcd-user-assets-asset">
                 <img
@@ -66,14 +75,14 @@ function Asset({ asset }: { asset: UserAssetType }) {
                 />
                 <div className="vcd-user-assets-actions">
                     <div className="vcd-user-assets-buttons">
-                        <Button onClick={onChooseAsset()}>Customize</Button>
+                        <Button onClick={onChooseAsset()}>{t("desktop.userAssets.customize")}</Button>
                         <Button variant="secondary" onClick={onChooseAsset(null)}>
-                            Reset to default
+                            {t("desktop.userAssets.resetToDefault")}
                         </Button>
                     </div>
                     {isSplash && (
                         <FormSwitch
-                            title="Nearest-Neighbor Scaling (for pixel art)"
+                            title={t("desktop.userAssets.pixelated")}
                             value={settings.splashPixelated}
                             onChange={val => (settings.splashPixelated = val)}
                             className={Margins.top16}
@@ -83,7 +92,7 @@ function Asset({ asset }: { asset: UserAssetType }) {
                     {isSplash && (
                         <input
                             className={`vcd-user-assets-text ${Margins.top16}`}
-                            placeholder="Splash text (Loading Larpcord...)"
+                            placeholder={t("desktop.userAssets.splashText", { text: t("desktop.splash.loading") })}
                             maxLength={100}
                             value={settings.splashText ?? ""}
                             onChange={e => (settings.splashText = e.currentTarget.value || undefined)}
@@ -91,7 +100,7 @@ function Asset({ asset }: { asset: UserAssetType }) {
                     )}
                     {asset === "appIcon" && (
                         <BaseText size="sm" className={Margins.top8}>
-                            PNG oder JPG. Gilt für Fenster und Taskleiste (die .exe selbst behält das Standard-Icon).
+                            {t("desktop.userAssets.appIconHint")}
                         </BaseText>
                     )}
                 </div>

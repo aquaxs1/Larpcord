@@ -5,6 +5,7 @@
  */
 
 import { setBadge } from "renderer/appBadge";
+import { t } from "renderer/i18n";
 
 import { SettingsComponent } from "./Settings";
 import { VesktopSettingsSwitch } from "./VesktopSettingsSwitch";
@@ -12,8 +13,8 @@ import { VesktopSettingsSwitch } from "./VesktopSettingsSwitch";
 export const NotificationBadgeToggle: SettingsComponent = ({ settings }) => {
     return (
         <VesktopSettingsSwitch
-            title="Notification Badge"
-            description="Show mention badge on the app icon"
+            title={t("desktop.settings.notificationBadge.title")}
+            description={t("desktop.settings.notificationBadge.description")}
             value={settings.appBadge}
             onChange={v => {
                 settings.appBadge = v;

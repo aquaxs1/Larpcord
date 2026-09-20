@@ -6,6 +6,7 @@
 
 import { OFFICIAL_BADGE_IDS } from "./badges";
 import { createDefaultProfile } from "./defaults";
+import { LarpError } from "./i18n";
 import { CustomBadge, LarpButtonLayout, LarpExportFile, LarpLayout, LarpPreset, LarpProfile, LarpSounds, LarpTheme, ServerLarp } from "./types";
 
 /*
@@ -259,6 +260,7 @@ export function sanitizeProfile(input: unknown): LarpProfile {
     return stripUndefined(p);
 }
 
+/** Nur name und profile werden übernommen (auch kein builtin/builtinId): Importe sind immer eigene Presets */
 export function sanitizePreset(input: unknown): LarpPreset | undefined {
     if (!isObj(input)) return undefined;
     const name = str(input.name, 60);
@@ -267,18 +269,20 @@ export function sanitizePreset(input: unknown): LarpPreset | undefined {
 }
 
 /** Prüft eine *.larp.json-Datei. Wirft bei ungültigem Format, verwirft einzelne kaputte Presets. */
+// Texte laufen über LarpError, deshalb für den i18n-Check:
+// i18n-keys: core.import.errorInvalidJson, core.import.errorNotLarpFile, core.import.errorNoPresets (LarpError)
 export function parseExportFile(json: string): LarpExportFile {
     let data: unknown;
     try {
         data = JSON.parse(json);
     } catch (e) {
-        throw new Error("Die Datei ist kein gültiges JSON.");
+        throw new LarpError("core.import.errorInvalidJson");
     }
     if (!isObj(data) || data.version !== 1 || !Array.isArray(data.presets))
-        throw new Error("Keine Larpcord-Datei (erwartet: { version: 1, presets: [...] }).");
+        throw new LarpError("core.import.errorNotLarpFile");
 
     const presets = data.presets.slice(0, MAX_PRESETS).map(sanitizePreset).filter(Boolean) as LarpPreset[];
-    if (!presets.length) throw new Error("Die Datei enthält keine gültigen Presets.");
+    if (!presets.length) throw new LarpError("core.import.errorNoPresets");
     return { version: 1, presets };
 }
 

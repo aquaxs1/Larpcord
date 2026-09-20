@@ -7,6 +7,7 @@
 import { Card, ErrorBoundary, HeadingTertiary, Paragraph, TextButton } from "@vencord/types/components";
 import { FluxDispatcher, InviteActions } from "@vencord/types/webpack/common";
 import type { PropsWithChildren } from "react";
+import { t, tNode } from "renderer/i18n";
 
 async function openSupportChannel() {
     const code = "YVbdG2ZRG4";
@@ -30,12 +31,15 @@ async function openSupportChannel() {
 function Fallback() {
     return (
         <Card variant="danger">
-            <HeadingTertiary>Something went wrong.</HeadingTertiary>
+            <HeadingTertiary>{t("desktop.errorBoundary.title")}</HeadingTertiary>
             <Paragraph>
-                Please make sure Larpcord is fully up to date. You can get help in the Vencord{" "}
-                <TextButton variant="link" onClick={openSupportChannel}>
-                    Support Channel
-                </TextButton>
+                {tNode("desktop.errorBoundary.description", {
+                    link: (
+                        <TextButton variant="link" onClick={openSupportChannel}>
+                            {t("desktop.errorBoundary.supportChannel")}
+                        </TextButton>
+                    )
+                })}
             </Paragraph>
         </Card>
     );

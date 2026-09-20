@@ -7,6 +7,7 @@
 import { Heading, Paragraph } from "@vencord/types/components";
 import { Margins } from "@vencord/types/utils";
 import { Select } from "@vencord/types/webpack/common";
+import { t } from "renderer/i18n";
 
 import { SimpleErrorBoundary } from "../SimpleErrorBoundary";
 import { SettingsComponent } from "./Settings";
@@ -16,27 +17,25 @@ export const WindowsTransparencyControls: SettingsComponent = ({ settings }) => 
 
     return (
         <div>
-            <Heading tag="h5">Transparency Options</Heading>
-            <Paragraph className={Margins.bottom8}>
-                Requires a full restart. You will need a theme that supports transparency for this to work.
-            </Paragraph>
+            <Heading tag="h5">{t("desktop.settings.transparency.title")}</Heading>
+            <Paragraph className={Margins.bottom8}>{t("desktop.settings.transparency.description")}</Paragraph>
 
             <SimpleErrorBoundary>
                 <Select
-                    placeholder="None"
+                    placeholder={t("common.none")}
                     options={[
                         {
-                            label: "None",
+                            label: t("common.none"),
                             value: "none",
                             default: true
                         },
                         {
-                            label: "Mica (incorporates system theme + desktop wallpaper to paint the background)",
+                            label: t("desktop.settings.transparency.mica"),
                             value: "mica"
                         },
-                        { label: "Tabbed (variant of Mica with stronger background tinting)", value: "tabbed" },
+                        { label: t("desktop.settings.transparency.tabbed"), value: "tabbed" },
                         {
-                            label: "Acrylic (blurs the window behind Larpcord for a translucent background)",
+                            label: t("desktop.settings.transparency.acrylic"),
                             value: "acrylic"
                         }
                     ]}

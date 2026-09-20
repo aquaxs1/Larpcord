@@ -9,6 +9,7 @@ import { writeFile } from "fs/promises";
 import { join } from "path";
 
 import { MessageBoxChoice } from "../constants";
+import { t } from "../i18n";
 import { State } from "../settings";
 
 // Bump this to re-show the prompt
@@ -78,13 +79,9 @@ export async function askToApplySteamLayout(win: BrowserWindow) {
 
     // Touch screen breaks in some menus when native touch mode is enabled on latest SteamOS beta, remove most of the update specific text once that's fixed.
     const { response } = await dialog.showMessageBox(win, {
-        message: `${update ? "Update" : "Apply"} Vesktop Steam Input Layout?`,
-        detail: `Would you like to ${update ? "Update" : "Apply"} Vesktop's recommended Steam Deck controller settings?
-${update ? "Click yes using the touchpad" : "Tap yes"}, then press the X button or tap Apply Layout to confirm.${
-            update ? " Doing so will undo any customizations you have made." : ""
-        }
-${update ? "Click" : "Tap"} no to keep your current layout.`,
-        buttons: ["Yes", "No"],
+        message: update ? t("desktop.steamLayout.updateTitle") : t("desktop.steamLayout.applyTitle"),
+        detail: update ? t("desktop.steamLayout.updateDetail") : t("desktop.steamLayout.applyDetail"),
+        buttons: [t("common.yes"), t("common.no")],
         cancelId: MessageBoxChoice.Cancel,
         defaultId: MessageBoxChoice.Default,
         type: "question"

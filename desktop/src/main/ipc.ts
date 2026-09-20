@@ -26,6 +26,7 @@ import { join } from "path";
 import { IpcEvents } from "../shared/IpcEvents";
 import { setBadgeCount } from "./appBadge";
 import { autoStart } from "./autoStart";
+import { t } from "./i18n";
 import { enableHardwareAcceleration } from "./main";
 import { mainWin } from "./mainWindow";
 import { Settings, State } from "./settings";
@@ -144,6 +145,7 @@ handle(IpcEvents.SELECT_VENCORD_DIR, async (_e, value?: null) => {
     }
 
     const res = await dialog.showOpenDialog(mainWin!, {
+        title: t("desktop.devOptions.selectCoreDirTitle"),
         properties: ["openDirectory"]
     });
     if (!res.filePaths.length) return "cancelled";

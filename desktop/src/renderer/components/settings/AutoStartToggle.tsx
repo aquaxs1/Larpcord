@@ -5,6 +5,7 @@
  */
 
 import { useState } from "@vencord/types/webpack/common";
+import { t } from "renderer/i18n";
 
 import { SettingsComponent } from "./Settings";
 import { VesktopSettingsSwitch } from "./VesktopSettingsSwitch";
@@ -15,8 +16,8 @@ export const AutoStartToggle: SettingsComponent = ({ settings }) => {
     return (
         <>
             <VesktopSettingsSwitch
-                title="Start With System"
-                description="Automatically start Larpcord on computer start-up"
+                title={t("desktop.settings.autoStart.title")}
+                description={t("desktop.settings.autoStart.description")}
                 value={autoStartEnabled}
                 onChange={async v => {
                     await VesktopNative.autostart[v ? "enable" : "disable"]();
@@ -25,8 +26,8 @@ export const AutoStartToggle: SettingsComponent = ({ settings }) => {
             />
 
             <VesktopSettingsSwitch
-                title="Auto Start Minimized"
-                description={"Start Larpcord minimized when starting with system"}
+                title={t("desktop.settings.autoStartMinimized.title")}
+                description={t("desktop.settings.autoStartMinimized.description")}
                 value={settings.autoStartMinimized}
                 onChange={v => (settings.autoStartMinimized = v)}
                 disabled={!autoStartEnabled}

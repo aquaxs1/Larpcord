@@ -68,10 +68,23 @@ export function refreshDiscordUi() {
 }
 
 let unsubscribe: (() => void) | undefined;
+let unsubscribeLocale: (() => void) | undefined;
+let unsubscribeUpdates: (() => void) | undefined;
+
+/** Discord-Sprache an den Desktop-Teil melden (Tray, Dialoge, Splash). Ohne Desktop (Web) passiert nichts. */
+function reportLocaleToDesktop() {
+    try {
+        if (IS_VESKTOP) VesktopNative?.larpcord?.setLocale?.(i18n.getIntlLocale())?.catch?.(() => { });
+    } catch (e) {
+        logger.warn("Sprache konnte nicht an den Desktop-Teil gemeldet werden", e);
+    }
+}
 
 export default definePlugin({
     name: "LarpCore",
-    description: "Larpcord-Fundament: Einstellungs-Hub, Presets, Import/Export und Wasserzeichen. Alles bleibt lokal.",
+    get description() {
+        return i18n.t("plugin.LarpCore.description");
+    },
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     required: true,

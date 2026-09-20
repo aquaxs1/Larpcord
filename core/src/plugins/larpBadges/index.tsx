@@ -7,6 +7,7 @@
 import { BadgePosition, ProfileBadge } from "@api/Badges";
 import { isPluginEnabled } from "@api/PluginManager";
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
+import { t } from "@plugins/larpCore/i18n";
 import { getLarpBadges } from "@plugins/larpCore/profileBadges";
 import { isSelf, LarpStore, logger } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
@@ -50,7 +51,9 @@ const LarpBadges: ProfileBadge = {
 
 export default definePlugin({
     name: "LarpBadges",
-    description: "Offizielle und eigene Badges sowie ein frei wählbares „Mitglied seit“-Datum für dein eigenes Profil. Nur lokal sichtbar.",
+    get description() {
+        return t("plugin.LarpBadges.description");
+    },
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     enabledByDefault: true,
@@ -74,8 +77,8 @@ export default definePlugin({
         try {
             if (!isSelf(userId)) return original;
             const { memberSince } = LarpStore.get();
-            const t = memberSince ? Date.parse(memberSince) : NaN;
-            return isNaN(t) ? original : t;
+            const ts = memberSince ? Date.parse(memberSince) : NaN;
+            return isNaN(ts) ? original : ts;
         } catch {
             return original;
         }

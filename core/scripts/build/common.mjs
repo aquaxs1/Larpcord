@@ -33,6 +33,9 @@ import { promisify } from "util";
 import { getPluginTarget } from "../utils.mjs";
 import { builtinModules } from "module";
 
+// Larpcord: Sprachdateien als virtuelles Modul "~larpcord-locales"
+import { larpLocalesPlugin } from "./larpLocales.mjs";
+
 /** @type {import("../../package.json")} */
 const PackageJSON = JSON.parse(readFileSync("package.json", "utf-8"));
 
@@ -355,8 +358,8 @@ export const commonOpts = {
     sourcemap: watch ? "inline" : "external",
     legalComments: "linked",
     banner,
-    plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin],
-    external: ["~plugins", "~git-hash", "~git-remote", "/assets/*"],
+    plugins: [fileUrlPlugin, gitHashPlugin, gitRemotePlugin, stylePlugin, larpLocalesPlugin],
+    external: ["~plugins", "~git-hash", "~git-remote", "~larpcord-locales", "/assets/*"],
     inject: ["./scripts/build/inject/react.mjs"],
     jsx: "transform",
     jsxFactory: "VencordCreateElement",

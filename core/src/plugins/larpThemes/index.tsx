@@ -6,6 +6,7 @@
 
 import { userStyleRootNode } from "@api/Styles";
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
+import { t } from "@plugins/larpCore/i18n";
 import { LarpStore, logger } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -50,7 +51,9 @@ function soundKind(name: string): "message" | "call" | undefined {
 
 export default definePlugin({
     name: "LarpThemes",
-    description: "Theme-Editor (Farben, Schrift, Rundungen) und eigene Sounds für Nachrichten und Anrufe.",
+    get description() {
+        return t("plugin.LarpThemes.description");
+    },
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     enabledByDefault: true,

@@ -10,6 +10,7 @@ import { classNameFactory } from "@vencord/types/api/Styles";
 import { BaseText, Divider, ErrorBoundary } from "@vencord/types/components";
 import { ComponentType } from "react";
 import { WebRTCIPHandlingPolicyPicker } from "renderer/components/settings/WebRTCIPHandlingPolicyPicker";
+import { t, useLarpLocale } from "renderer/i18n";
 import { getValueAndOnChange, Settings, useSettings } from "renderer/settings";
 import { isMac } from "renderer/utils";
 
@@ -34,143 +35,168 @@ export const cl = classNameFactory("vcd-settings-");
 
 export type SettingsComponent = ComponentType<{ settings: typeof Settings.store }>;
 
-const SettingsOptions: Record<string, Array<BooleanSetting | SettingsComponent>> = {
-    "Discord Branch": [DiscordBranchPicker],
-    "System Startup & Performance": [
-        AutoStartToggle,
-        {
-            key: "hardwareAcceleration",
-            title: "Hardware Acceleration",
-            description: "Enable hardware acceleration"
-        },
-        {
-            key: "hardwareVideoAcceleration",
-            title: "Video Hardware Acceleration",
-            description:
-                "Enable hardware video acceleration. This can improve performance of screenshare and video playback, but may cause graphical glitches and infinitely loading streams.",
-            disabled: () => !Settings.store.hardwareAcceleration
-        }
-    ],
-    "User Interface": [
-        {
-            key: "nativeTitleBar",
-            title: "Native Titlebar",
-            description: "Enable the system titlebar in addition to Discord's custom one. Requires a full restart."
-        },
-        {
-            key: "staticTitle",
-            title: "Static Title",
-            description: 'Makes the window title "Larpcord" instead of changing to the current page'
-        },
-        {
-            key: "enableMenu",
-            title: "Enable Menu Bar",
-            description: "Enables the application menu bar. Press ALT to toggle visibility.",
-            disabled: () => !Settings.store.nativeTitleBar
-        },
-        {
-            key: "enableShadow",
-            title: "Enable Window Shadow",
-            description: "Enables the window shadow. Requires a full restart.",
-            disabled: () => Settings.store.nativeTitleBar
-        },
-        {
-            key: "enableRoundedCorners",
-            title: "Enable Rounded Corners",
-            description: "Enables rounded corners. Requires a full restart.",
-            disabled: () => Settings.store.nativeTitleBar
-        },
-        {
-            key: "enableSplashScreen",
-            title: "Enable Splash Screen",
-            description:
-                "Shows a small splash screen while Larpcord is loading. Disabling this option will show the main window earlier while it's still loading."
-        },
-        {
-            key: "splashTheming",
-            title: "Splash theming",
-            description: "Adapt the splash window colors to your custom theme"
-        },
-        WindowsTransparencyControls,
-        UserAssetsButton
-    ],
-    Behaviour: [
-        {
-            key: "tray",
-            title: "Tray Icon",
-            description: "Add a tray icon for Larpcord",
-            invisible: () => isMac
-        },
-        {
-            key: "minimizeToTray",
-            title: "Minimize to tray",
-            description: "Hitting X will make Larpcord minimize to the tray instead of closing",
-            invisible: () => isMac,
-            disabled: () => !Settings.store.tray
-        },
-        {
-            key: "clickTrayToShowHide",
-            title: "Hide/Show on tray click",
-            description: "Left clicking tray icon will toggle the vesktop window visibility."
-        },
-        {
-            key: "disableMinSize",
-            title: "Disable minimum window size",
-            description: "Allows you to make the window as small as your heart desires"
-        },
-        {
-            key: "disableSmoothScroll",
-            title: "Disable smooth scrolling",
-            description: "Disables smooth scrolling"
-        }
-    ],
-    Notifications: [
-        NotificationBadgeToggle,
-        {
-            key: "enableTaskbarFlashing",
-            title: "Enable Taskbar Flashing",
-            description: "Flashes the app in your taskbar when you have new notifications."
-        }
-    ],
-    Miscellaneous: [
-        {
-            key: "arRPC",
-            title: "Rich Presence",
-            description: "Enables Rich Presence via arRPC"
-        },
+interface SettingsCategory {
+    /** Stabile ID (React-Key), unabhängig von der Sprache */
+    id: string;
+    titleKey: string;
+    settings: Array<BooleanSetting | SettingsComponent>;
+}
 
-        {
-            key: "openLinksWithElectron",
-            title: "Open Links in app (experimental)",
-            description: "Opens links in a new Larpcord window instead of your web browser"
-        },
+const SettingsOptions: SettingsCategory[] = [
+    { id: "discordBranch", titleKey: "desktop.settings.category.discordBranch", settings: [DiscordBranchPicker] },
+    {
+        id: "startup",
+        titleKey: "desktop.settings.category.startup",
+        settings: [
+            AutoStartToggle,
+            {
+                key: "hardwareAcceleration",
+                titleKey: "desktop.settings.hardwareAcceleration.title",
+                descriptionKey: "desktop.settings.hardwareAcceleration.description"
+            },
+            {
+                key: "hardwareVideoAcceleration",
+                titleKey: "desktop.settings.hardwareVideoAcceleration.title",
+                descriptionKey: "desktop.settings.hardwareVideoAcceleration.description",
+                disabled: () => !Settings.store.hardwareAcceleration
+            }
+        ]
+    },
+    {
+        id: "ui",
+        titleKey: "desktop.settings.category.ui",
+        settings: [
+            {
+                key: "nativeTitleBar",
+                titleKey: "desktop.settings.nativeTitleBar.title",
+                descriptionKey: "desktop.settings.nativeTitleBar.description"
+            },
+            {
+                key: "staticTitle",
+                titleKey: "desktop.settings.staticTitle.title",
+                descriptionKey: "desktop.settings.staticTitle.description"
+            },
+            {
+                key: "enableMenu",
+                titleKey: "desktop.settings.enableMenu.title",
+                descriptionKey: "desktop.settings.enableMenu.description",
+                disabled: () => !Settings.store.nativeTitleBar
+            },
+            {
+                key: "enableShadow",
+                titleKey: "desktop.settings.enableShadow.title",
+                descriptionKey: "desktop.settings.enableShadow.description",
+                disabled: () => Settings.store.nativeTitleBar
+            },
+            {
+                key: "enableRoundedCorners",
+                titleKey: "desktop.settings.enableRoundedCorners.title",
+                descriptionKey: "desktop.settings.enableRoundedCorners.description",
+                disabled: () => Settings.store.nativeTitleBar
+            },
+            {
+                key: "enableSplashScreen",
+                titleKey: "desktop.settings.enableSplashScreen.title",
+                descriptionKey: "desktop.settings.enableSplashScreen.description"
+            },
+            {
+                key: "splashTheming",
+                titleKey: "desktop.settings.splashTheming.title",
+                descriptionKey: "desktop.settings.splashTheming.description"
+            },
+            WindowsTransparencyControls,
+            UserAssetsButton
+        ]
+    },
+    {
+        id: "behaviour",
+        titleKey: "desktop.settings.category.behaviour",
+        settings: [
+            {
+                key: "tray",
+                titleKey: "desktop.settings.tray.title",
+                descriptionKey: "desktop.settings.tray.description",
+                invisible: () => isMac
+            },
+            {
+                key: "minimizeToTray",
+                titleKey: "desktop.settings.minimizeToTray.title",
+                descriptionKey: "desktop.settings.minimizeToTray.description",
+                invisible: () => isMac,
+                disabled: () => !Settings.store.tray
+            },
+            {
+                key: "clickTrayToShowHide",
+                titleKey: "desktop.settings.clickTrayToShowHide.title",
+                descriptionKey: "desktop.settings.clickTrayToShowHide.description"
+            },
+            {
+                key: "disableMinSize",
+                titleKey: "desktop.settings.disableMinSize.title",
+                descriptionKey: "desktop.settings.disableMinSize.description"
+            },
+            {
+                key: "disableSmoothScroll",
+                titleKey: "desktop.settings.disableSmoothScroll.title",
+                descriptionKey: "desktop.settings.disableSmoothScroll.description"
+            }
+        ]
+    },
+    {
+        id: "notifications",
+        titleKey: "desktop.settings.category.notifications",
+        settings: [
+            NotificationBadgeToggle,
+            {
+                key: "enableTaskbarFlashing",
+                titleKey: "desktop.settings.enableTaskbarFlashing.title",
+                descriptionKey: "desktop.settings.enableTaskbarFlashing.description"
+            }
+        ]
+    },
+    {
+        id: "misc",
+        titleKey: "desktop.settings.category.misc",
+        settings: [
+            {
+                key: "arRPC",
+                titleKey: "desktop.settings.arRPC.title",
+                descriptionKey: "desktop.settings.arRPC.description"
+            },
 
-        WebRTCIPHandlingPolicyPicker
-    ],
+            {
+                key: "openLinksWithElectron",
+                titleKey: "desktop.settings.openLinksWithElectron.title",
+                descriptionKey: "desktop.settings.openLinksWithElectron.description"
+            },
 
-    "Developer Options": [DeveloperOptionsButton]
-};
+            WebRTCIPHandlingPolicyPicker
+        ]
+    },
+
+    { id: "developer", titleKey: "desktop.settings.category.developer", settings: [DeveloperOptionsButton] }
+];
 
 function SettingsSections() {
     const Settings = useSettings();
 
-    const sections = Object.entries(SettingsOptions).map(([title, settings], i, arr) => (
-        <div key={title} className={cl("category")}>
+    const sections = SettingsOptions.map(({ id, titleKey, settings }, i, arr) => (
+        <div key={id} className={cl("category")}>
             <BaseText size="lg" weight="semibold" tag="h3" className={cl("category-title")}>
-                {title}
+                {t(titleKey)}
             </BaseText>
 
             <div className={cl("category-content")}>
                 {settings.map((Setting, i) => {
                     if (typeof Setting === "function") return <Setting key={`Custom-${i}`} settings={Settings} />;
 
-                    const { title, description, key, disabled, invisible } = Setting;
+                    const { titleKey, descriptionKey, key, disabled, invisible } = Setting;
                     if (invisible?.()) return null;
 
                     return (
                         <VesktopSettingsSwitch
-                            title={title}
-                            description={description}
+                            title={t(titleKey)}
+                            description={t(descriptionKey)}
                             disabled={disabled?.()}
                             {...getValueAndOnChange(key)}
                             key={key}

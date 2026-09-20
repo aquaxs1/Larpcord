@@ -67,7 +67,9 @@ interface SettingsLayoutNode {
 
 interface EntryOptions {
     key: string,
+    /** Larpcord: darf ein Getter sein (z. B. übersetzter Titel), wird erst beim Rendern gelesen */
     title: string,
+    /** Larpcord: darf ebenfalls ein Getter sein */
     panelTitle?: string,
     Component: ComponentType<{}>,
     Icon: ComponentType<IconProps>;
@@ -133,12 +135,16 @@ export default definePlugin({
     ],
 
     buildEntry(options: EntryOptions): SettingsLayoutNode {
-        const { key, title, panelTitle = title, Component, Icon } = options;
+        const { key, Component, Icon } = options;
+        // Larpcord: Titel erst beim Rendern lesen statt beim Aufbau des Layouts. Für normale Strings
+        // ändert sich nichts, Einträge mit Gettern auf title/panelTitle folgen so Discords Sprache.
+        const getTitle = () => options.title;
+        const getPanelTitle = () => options.panelTitle ?? options.title;
 
         const panel: SettingsLayoutNode = {
             key: key + "_panel",
             type: LayoutTypes.PANEL,
-            useTitle: () => panelTitle,
+            useTitle: getPanelTitle,
             buildLayout: () => [{
                 type: LayoutTypes.CATEGORY,
                 key: key + "_category",
@@ -146,7 +152,7 @@ export default definePlugin({
                     type: LayoutTypes.CUSTOM,
                     key: key + "_custom",
                     Component: Component,
-                    useSearchTerms: () => [title]
+                    useSearchTerms: () => [getTitle()]
                 }]
             }]
         };
@@ -154,7 +160,7 @@ export default definePlugin({
         return ({
             key,
             type: LayoutTypes.SIDEBAR_ITEM,
-            useTitle: () => title,
+            useTitle: getTitle,
             icon: () => <Icon width={20} height={20} />,
             buildLayout: () => [panel]
         });

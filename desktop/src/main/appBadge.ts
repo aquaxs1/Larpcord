@@ -10,6 +10,7 @@ import { BADGE_DIR } from "shared/paths";
 
 import { updateUnityLauncherCount } from "./dbus";
 import { AppEvents } from "./events";
+import { t } from "./i18n";
 import { mainWin } from "./mainWindow";
 
 const imgCache = new Map<number, NativeImage>();
@@ -56,9 +57,9 @@ export function setBadgeCount(count: number) {
 }
 
 function getBadgeIndexAndDescription(count: number): [number | null, string] {
-    if (count === -1) return [11, "Unread Messages"];
-    if (count === 0) return [null, "No Notifications"];
+    if (count === -1) return [11, t("desktop.badge.unread")];
+    if (count === 0) return [null, t("desktop.badge.none")];
 
     const index = Math.max(1, Math.min(count, 10));
-    return [index, `${index} Notification`];
+    return [index, t("desktop.badge.count", { count: index })];
 }

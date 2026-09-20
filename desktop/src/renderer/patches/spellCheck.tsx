@@ -6,6 +6,7 @@
 
 import { addContextMenuPatch } from "@vencord/types/api/ContextMenu";
 import { FluxDispatcher, Menu, SpellCheckStore, useMemo, useStateFromStores } from "@vencord/types/webpack/common";
+import { t } from "renderer/i18n";
 import { useSettings } from "renderer/settings";
 
 import { addPatch } from "./shared";
@@ -71,23 +72,27 @@ addContextMenuPatch("textarea-context", children => {
                     <Menu.MenuSeparator />
                     <Menu.MenuItem
                         id="vcd-spellcheck-learn"
-                        label={`Add ${word} to dictionary`}
+                        label={t("desktop.spellcheck.addToDictionary", { word })}
                         action={() => VesktopNative.spellcheck.addToDictionary(word)}
                     />
                 </>
             )}
 
-            <Menu.MenuItem id="vcd-spellcheck-settings" label="Spellcheck Settings">
+            <Menu.MenuItem id="vcd-spellcheck-settings" label={t("desktop.spellcheck.settings")}>
                 <Menu.MenuCheckboxItem
                     id="vcd-spellcheck-enabled"
-                    label="Enable Spellcheck"
+                    label={t("desktop.spellcheck.enable")}
                     checked={spellCheckEnabled}
                     action={() => {
                         FluxDispatcher.dispatch({ type: "SPELLCHECK_TOGGLE" });
                     }}
                 />
 
-                <Menu.MenuItem id="vcd-spellcheck-languages" label="Languages" disabled={!spellCheckEnabled}>
+                <Menu.MenuItem
+                    id="vcd-spellcheck-languages"
+                    label={t("desktop.spellcheck.languages")}
+                    disabled={!spellCheckEnabled}
+                >
                     {availableLanguages.map(lang => {
                         const isEnabled = spellCheckLanguages.includes(lang);
                         return (

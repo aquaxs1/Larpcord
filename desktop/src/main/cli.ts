@@ -45,7 +45,8 @@ const options = {
     },
     repair: {
         type: "boolean",
-        description: "Repair the application by re-downloading the latest Vencord files"
+        // Larpcord: Der Core ist Teil der App, --repair lädt nichts herunter (siehe index.ts)
+        description: "Does nothing in Larpcord (the core ships with the app). Reinstall Larpcord to repair it"
     }
 } satisfies Record<string, Option>;
 

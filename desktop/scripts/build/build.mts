@@ -7,6 +7,8 @@
 import { BuildContext, BuildOptions, context } from "esbuild";
 import { copyFile } from "fs/promises";
 
+// Larpcord: gemeinsame Sprachdateien (core/src/plugins/larpCore/i18n/locales) als "~larpcord-locales"
+import { larpLocalesPlugin } from "../../../core/scripts/build/larpLocales.mjs";
 import vencordDep from "./vencordDep.mjs";
 import { includeDirPlugin } from "./includeDirPlugin.mts";
 
@@ -30,7 +32,8 @@ const NodeCommonOpts: BuildOptions = {
     },
     define: {
         IS_DEV: JSON.stringify(isDev)
-    }
+    },
+    plugins: [larpLocalesPlugin]
 };
 
 const contexts = [] as BuildContext[];
@@ -110,7 +113,7 @@ await Promise.all([
         jsxFactory: "VencordCreateElement",
         jsxFragment: "VencordFragment",
         external: ["@vencord/types/*"],
-        plugins: [vencordDep, includeDirPlugin("patches", "src/renderer/patches")],
+        plugins: [vencordDep, includeDirPlugin("patches", "src/renderer/patches"), larpLocalesPlugin],
         footer: { js: "//# sourceURL=VesktopRenderer" }
     })
 ]);

@@ -6,6 +6,7 @@
 
 import { monthsSince } from "@plugins/larpCore/badges";
 import { cl, ColorPairField, DateField, ImageField, Row, Section, Toggle } from "@plugins/larpCore/hub/components";
+import { t, useLarpLocale } from "@plugins/larpCore/i18n";
 import { getBoostBadge, getNitroBadge } from "@plugins/larpCore/profileBadges";
 import { LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 
@@ -19,42 +20,43 @@ function BadgeInfo({ iconUrl, text }: { iconUrl?: string; text: string; }) {
 }
 
 export function NitroTab() {
+    useLarpLocale();
     const larp = useLarpProfile();
     const nitro = getNitroBadge(larp);
     const boost = getBoostBadge(larp);
 
     return (
         <>
-            <Section title="Nitro" description="Nitro-Badge und -Datum in deinem Profil. Die Badge-Stufe ergibt sich aus der Abo-Dauer.">
-                <Toggle label="Nitro anzeigen" value={larp.nitro.enabled} onChange={enabled => LarpStore.update({ nitro: { enabled } })} />
+            <Section title="Nitro" description={t("nitro.section.description")}>
+                <Toggle label={t("nitro.show")} value={larp.nitro.enabled} onChange={enabled => LarpStore.update({ nitro: { enabled } })} />
                 {larp.nitro.enabled && (
                     <>
-                        <Row label="Abonnent seit" hint={`${monthsSince(larp.nitro.since)} Monate`}>
+                        <Row label={t("nitro.since.label")} hint={t("nitro.months", { count: monthsSince(larp.nitro.since) })}>
                             <DateField value={larp.nitro.since} onCommit={since => LarpStore.update({ nitro: { since } })} />
                         </Row>
-                        <Row label="Server-Boost seit" hint={larp.nitro.boostSince ? `${monthsSince(larp.nitro.boostSince)} Monate` : "leer = kein Boost-Badge"}>
+                        <Row label={t("nitro.boostSince.label")} hint={larp.nitro.boostSince ? t("nitro.months", { count: monthsSince(larp.nitro.boostSince) }) : t("nitro.boostSince.emptyHint")}>
                             <DateField value={larp.nitro.boostSince} onCommit={boostSince => LarpStore.update({ nitro: { boostSince } })} />
                         </Row>
                         {nitro && <BadgeInfo iconUrl={nitro.iconUrl} text={nitro.description} />}
-                        {boost && <BadgeInfo iconUrl={boost.iconUrl} text={`${boost.description} (Stufe ${boost.id.replace(/\D/g, "")})`} />}
+                        {boost && <BadgeInfo iconUrl={boost.iconUrl} text={t("nitro.boostBadgeLevel", { description: boost.description, level: boost.id.replace(/\D/g, "") })} />}
                     </>
                 )}
             </Section>
 
-            <Section title="Profil" description="Nitro-Profilanpassungen, nur auf deinem Bildschirm sichtbar.">
-                <Row label="Theme-Farben" hint="Farbverlauf von Profil-Popout und -Karte">
+            <Section title={t("nitro.profile.title")} description={t("nitro.profile.description")}>
+                <Row label={t("nitro.themeColors.label")} hint={t("nitro.themeColors.hint")}>
                     <ColorPairField value={larp.profile.themeColors} onCommit={themeColors => LarpStore.update({ profile: { themeColors } })} />
                 </Row>
-                <Row label="Banner" hint="Bild oder GIF (https-Link oder Datei bis 1,4 MB)">
+                <Row label={t("nitro.banner.label")} hint={t("nitro.banner.hint")}>
                     <ImageField value={larp.profile.bannerUrl} maxBytes={1_400_000} onCommit={bannerUrl => LarpStore.update({ profile: { bannerUrl } })} />
                 </Row>
-                <Row label="Animierter Avatar" hint="GIF oder Bild, ersetzt deinen Avatar überall in deinem Client">
+                <Row label={t("nitro.animatedAvatar.label")} hint={t("nitro.animatedAvatar.hint")}>
                     <ImageField value={larp.profile.animatedAvatarUrl} maxBytes={1_400_000} onCommit={animatedAvatarUrl => LarpStore.update({ profile: { animatedAvatarUrl } })} />
                 </Row>
             </Section>
 
             <p className={cl("muted")}>
-                Echte Nitro-Funktionen (größere Uploads, HD-Streaming, Emojis überall) prüft Discords Server. Die schaltet Larpcord bewusst nicht frei.
+                {t("nitro.serverFeaturesNote")}
             </p>
         </>
     );

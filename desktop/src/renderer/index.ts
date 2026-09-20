@@ -16,6 +16,7 @@ export * as Components from "./components";
 import { VesktopSettingsIcon } from "@vencord/types/components";
 
 import SettingsUi from "./components/settings/Settings";
+import { t } from "./i18n";
 import { VesktopLogger } from "./logger";
 import { Settings } from "./settings";
 export { Settings };
@@ -28,8 +29,13 @@ const SettingsPlugin = Vencord.Plugins.plugins
 
 SettingsPlugin.customEntries.push({
     key: "vesktop",
-    title: "Larpcord Desktop",
-    panelTitle: "Larpcord Desktop Settings",
+    // Larpcord: Getter, damit ein Sprachwechsel ohne Neustart greift
+    get title() {
+        return t("desktop.settings.title");
+    },
+    get panelTitle() {
+        return t("desktop.settings.panelTitle");
+    },
     Component: SettingsUi,
     Icon: VesktopSettingsIcon
 });

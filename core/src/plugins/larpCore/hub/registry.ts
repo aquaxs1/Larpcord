@@ -6,6 +6,8 @@
 
 import type { ComponentType } from "react";
 
+import { t } from "@plugins/larpCore/i18n";
+
 /*
  * Die Larp-Plugins hängen ihre Unter-Tabs selbst in den Hub ein (registerHubTab in start(),
  * unregisterHubTab in stop()). Ist ein Plugin deaktiviert, zeigt der Hub einen Hinweis.
@@ -50,4 +52,10 @@ export function unregisterHubTab(id: HubTabId) {
 
 export function getHubTab(id: HubTabId) {
     return registered.get(id);
+}
+
+/** Titel eines Hub-Tabs in der aktuellen Sprache */
+export function hubTabTitle(id: HubTabId) {
+    const meta = HUB_TABS.find(tab => tab.id === id);
+    return meta ? t(meta.titleKey) : id;
 }

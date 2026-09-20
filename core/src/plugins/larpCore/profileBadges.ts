@@ -5,6 +5,7 @@
  */
 
 import { badgeIconUrl, BOOST_BADGES, monthsSince, NITRO_BADGE, NITRO_TENURE_BADGES, OFFICIAL_BADGES } from "./badges";
+import { formatLarpDate, t } from "./i18n";
 import { LarpProfile } from "./types";
 
 export interface LarpBadge {
@@ -20,22 +21,22 @@ export interface LarpBadge {
     kind: "official" | "nitro" | "boost" | "custom";
 }
 
-const isGerman = () => (document.documentElement.lang || navigator.language || "").toLowerCase().startsWith("de");
-
+/** Datum wie in Discords Badge-Tooltips („13. Mai 2015“ / „May 13, 2015“), in Discords Sprache */
 export function formatDate(iso: string) {
-    return new Date(iso).toLocaleDateString(isGerman() ? "de-DE" : "en-US", { year: "numeric", month: "short", day: "numeric" });
+    return formatLarpDate(iso, { year: "numeric", month: "short", day: "numeric" });
 }
 
 export function getNitroBadge(profile: LarpProfile): LarpBadge | undefined {
     if (!profile.nitro.enabled) return;
     const since = profile.nitro.since ?? new Date().toISOString();
     const months = monthsSince(since);
-    const tier = NITRO_TENURE_BADGES.find(t => months >= t.months);
+    // Parameter nicht "t" nennen: das würde die Übersetzungsfunktion verdecken
+    const tier = NITRO_TENURE_BADGES.find(entry => months >= entry.months);
     const icon = tier?.icon ?? NITRO_BADGE.icon;
     return {
         key: "nitro",
         id: tier?.id ?? NITRO_BADGE.id,
-        description: `${isGerman() ? "Abonnent seit" : "Subscriber since"} ${formatDate(since)}`,
+        description: t("badge.nitroSince", { date: formatDate(since) }),
         icon,
         iconUrl: badgeIconUrl(icon),
         link: "https://discord.com/settings/premium",
@@ -51,7 +52,7 @@ export function getBoostBadge(profile: LarpProfile): LarpBadge | undefined {
     return {
         key: "boost",
         id: `guild_booster_lvl${tier.level}`,
-        description: `${isGerman() ? "Server-Boost seit" : "Server boosting since"} ${formatDate(since)}`,
+        description: t("badge.boostSince", { date: formatDate(since) }),
         icon: tier.icon,
         iconUrl: badgeIconUrl(tier.icon),
         link: "https://discord.com/settings/premium",

@@ -70,14 +70,18 @@ export function TextField({ value, onCommit, placeholder, maxLength, validate }:
     validate?(v: string): string | undefined;
 }) {
     const [draft, setDraft] = useState(value ?? "");
-    const [error, setError] = useState<string>();
+    // Ungültiger Wert des letzten Speicherversuchs. Die Meldung wird erst beim Rendern erzeugt,
+    // damit sie nach einem Sprachwechsel in der neuen Sprache erscheint.
+    const [invalid, setInvalid] = useState<string>();
     useEffect(() => setDraft(value ?? ""), [value]);
+    const error = invalid ? validate?.(invalid) : undefined;
 
     const commit = () => {
         const v = draft.trim();
         const err = v ? validate?.(v) : undefined;
-        setError(err);
-        if (!err) onCommit(v || undefined);
+        setInvalid(err ? v : undefined);
+        // Nur bei echter Änderung speichern (ein bloßes Verlassen des Felds ändert nichts)
+        if (!err && v !== (value ?? "").trim()) onCommit(v || undefined);
     };
 
     return (
@@ -96,33 +100,55 @@ export function TextField({ value, onCommit, placeholder, maxLength, validate }:
     );
 }
 
-const urlError = (v: string) => safeUrl(v) ? undefined : "Nur https:// oder data:image/-URLs";
+const urlError = (v: string) => safeUrl(v) ? undefined : t("core.field.errorUrl");
 
-/** URL-Eingabe mit Datei-Auswahl (Bild wird als data:-URL lokal gespeichert) */
+/** Entfernen-Knopf (✕) mit übersetztem Tooltip */
+function RemoveBtn({ onClick }: { onClick(): void; }) {
+    const label = t("common.remove");
+    return <Btn variant="danger" title={label} aria-label={label} onClick={onClick}>✕</Btn>;
+}
+
+/**
+ * URL-Eingabe mit Datei-Auswahl (Bild wird als data:-URL lokal gespeichert).
+ * Ist eine lokale Datei gesetzt, bleibt das Textfeld leer und zeigt „(lokale Datei)“ nur als Platzhalter.
+ * So gibt es keinen angezeigten Text, der zugleich als Vergleichswert dient (sprachunabhängig).
+ */
 export function ImageField({ value, onCommit, placeholder = "https://…", maxBytes = 1_500_000 }: {
     value: string | undefined;
     onCommit(v: string | undefined): void;
     placeholder?: string;
     maxBytes?: number;
 }) {
-    const [error, setError] = useState<string>();
+    // Nur den Zustand merken, den Text erst beim Rendern übersetzen (Sprachwechsel)
+    const [tooLarge, setTooLarge] = useState(false);
+    const isLocalFile = !!value?.startsWith("data:");
 
     const pick = async () => {
         const file = await chooseFile("image/png,image/gif,image/jpeg,image/webp,image/svg+xml");
         if (!file) return;
-        if (file.size > maxBytes) return setError(`Datei zu groß (max. ${Math.round(maxBytes / 1_000_000 * 10) / 10} MB)`);
-        setError(undefined);
+        if (file.size > maxBytes) return setTooLarge(true);
+        setTooLarge(false);
         onCommit(await readAsDataUrl(file));
     };
 
     return (
         <div className={cl("field")}>
             <div className={cl("inline")}>
-                <TextField value={value?.startsWith("data:") ? "(lokale Datei)" : value} onCommit={v => v !== "(lokale Datei)" && onCommit(v)} placeholder={placeholder} validate={v => v === "(lokale Datei)" ? undefined : urlError(v)} />
-                <Btn variant="secondary" onClick={pick}>Datei…</Btn>
-                {value && <Btn variant="danger" onClick={() => onCommit(undefined)}>✕</Btn>}
+                <TextField
+                    value={isLocalFile ? undefined : value}
+                    // Leeres Feld bei lokaler Datei ist keine Änderung (TextField speichert nur Änderungen), entfernen geht über ✕
+                    onCommit={onCommit}
+                    placeholder={isLocalFile ? t("common.localFile") : placeholder}
+                    validate={urlError}
+                />
+                <Btn variant="secondary" onClick={pick}>{t("common.chooseFile")}</Btn>
+                {value && <RemoveBtn onClick={() => onCommit(undefined)} />}
             </div>
-            {error && <small className={cl("error")}>{error}</small>}
+            {tooLarge && (
+                <small className={cl("error")}>
+                    {t("core.field.errorFileTooLarge", { size: formatLarpNumber(maxBytes / 1_000_000, { maximumFractionDigits: 1 }) })}
+                </small>
+            )}
         </div>
     );
 }
@@ -151,7 +177,7 @@ export function DateField({ value, onCommit }: { value: string | undefined; onCo
                     onCommit(v ? new Date(v + "T12:00:00.000Z").toISOString() : undefined);
                 }}
             />
-            {value && <Btn variant="danger" onClick={() => onCommit(undefined)}>✕</Btn>}
+            {value && <RemoveBtn onClick={() => onCommit(undefined)} />}
         </div>
     );
 }
@@ -171,7 +197,7 @@ export function ColorPairField({ value, onCommit, defaults = ["#5865f2", "#eb459
             <ColorField value={a} onChange={v => onCommit([v, b])} />
             <ColorField value={b} onChange={v => onCommit([a, v])} />
             <span className={cl("swatch")} style={{ background: `linear-gradient(90deg, ${a}, ${b})`, opacity: value ? 1 : 0.35 }} />
-            {value && <Btn variant="danger" onClick={() => onCommit(undefined)}>✕</Btn>}
+            {value && <RemoveBtn onClick={() => onCommit(undefined)} />}
         </div>
     );
 }

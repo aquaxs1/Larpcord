@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "./i18n";
+
 /**
  * Offizielle Discord-Badges.
  *
@@ -14,28 +16,40 @@
 export interface OfficialBadge {
     /** Discords interne Badge-ID */
     id: string;
-    /** Tooltip, wie Discord ihn anzeigt */
-    description: string;
+    /** Übersetzungsschlüssel des Tooltips */
+    descriptionKey: string;
+    /** Tooltip, wie Discord ihn anzeigt, in der aktuellen Sprache (wird bei jedem Lesen übersetzt) */
+    readonly description: string;
     /** Hash für cdn.discordapp.com/badge-icons */
     icon: string;
     link?: string;
 }
 
+/** Tooltip nicht einfrieren: description ist ein Getter, damit ein Sprachwechsel sofort greift */
+function official(badge: Omit<OfficialBadge, "description">): OfficialBadge {
+    return {
+        ...badge,
+        get description() {
+            return t(badge.descriptionKey);
+        }
+    };
+}
+
 export const OFFICIAL_BADGES: OfficialBadge[] = [
-    { id: "staff", description: "Discord Staff", icon: "5e74e9b61934fc1f67c65515d1f7e60d", link: "https://discord.com/company" },
-    { id: "partner", description: "Partnered Server Owner", icon: "3f9748e53446a137a052f3454e2de41e", link: "https://discord.com/partners" },
-    { id: "certified_moderator", description: "Moderator Programs Alumni", icon: "fee1624003e2fee35cb398e125dc479b", link: "https://discord.com/safety" },
-    { id: "hypesquad", description: "HypeSquad Events", icon: "bf01d1073931f921909045f3a39fd264", link: "https://support.discord.com/hc/en-us/articles/360035962891-Profile-Badges-101#h_01GM67K5EJ16ZHYZQ5MPRW3JT3" },
-    { id: "hypesquad_house_1", description: "HypeSquad Bravery", icon: "8a88d63823d8a71cd5e390baa45efa02", link: "https://discord.com/settings/hypesquad-online" },
-    { id: "hypesquad_house_2", description: "HypeSquad Brilliance", icon: "011940fd013da3f7fb926e4a1cd2e618", link: "https://discord.com/settings/hypesquad-online" },
-    { id: "hypesquad_house_3", description: "HypeSquad Balance", icon: "3aa41de486fa12454c3761e8e223442e", link: "https://discord.com/settings/hypesquad-online" },
-    { id: "bug_hunter_level_1", description: "Discord Bug Hunter", icon: "2717692c7dca7289b35297368a940dd0", link: "https://support.discord.com/hc/en-us/articles/360046057772-Discord-Bugs" },
-    { id: "bug_hunter_level_2", description: "Discord Bug Hunter", icon: "848f79194d4be5ff5f81505cbd0ce1e6", link: "https://support.discord.com/hc/en-us/articles/360046057772-Discord-Bugs" },
-    { id: "active_developer", description: "Active Developer", icon: "6bdc42827a38498929a4920da12695d9", link: "https://support-dev.discord.com/hc/en-us/articles/10113997751447?ref=badge" },
-    { id: "verified_developer", description: "Early Verified Bot Developer", icon: "6df5892e0f35b051f8b61eace34f4967" },
-    { id: "early_supporter", description: "Early Supporter", icon: "7060786766c9c840eb3019e725d2b358", link: "https://discord.com/settings/premium" },
-    { id: "legacy_username", description: "Originally known as …", icon: "6de6d34650760ba5551a79732e98ed60" },
-    { id: "quest_completed", description: "Completed a Quest", icon: "7d9ae358c8c5e118768335dbe68b4fb8", link: "https://discord.com/discovery/quests" },
+    official({ id: "staff", descriptionKey: "badge.staff", icon: "5e74e9b61934fc1f67c65515d1f7e60d", link: "https://discord.com/company" }),
+    official({ id: "partner", descriptionKey: "badge.partner", icon: "3f9748e53446a137a052f3454e2de41e", link: "https://discord.com/partners" }),
+    official({ id: "certified_moderator", descriptionKey: "badge.certifiedModerator", icon: "fee1624003e2fee35cb398e125dc479b", link: "https://discord.com/safety" }),
+    official({ id: "hypesquad", descriptionKey: "badge.hypesquadEvents", icon: "bf01d1073931f921909045f3a39fd264", link: "https://support.discord.com/hc/en-us/articles/360035962891-Profile-Badges-101#h_01GM67K5EJ16ZHYZQ5MPRW3JT3" }),
+    official({ id: "hypesquad_house_1", descriptionKey: "badge.hypesquadBravery", icon: "8a88d63823d8a71cd5e390baa45efa02", link: "https://discord.com/settings/hypesquad-online" }),
+    official({ id: "hypesquad_house_2", descriptionKey: "badge.hypesquadBrilliance", icon: "011940fd013da3f7fb926e4a1cd2e618", link: "https://discord.com/settings/hypesquad-online" }),
+    official({ id: "hypesquad_house_3", descriptionKey: "badge.hypesquadBalance", icon: "3aa41de486fa12454c3761e8e223442e", link: "https://discord.com/settings/hypesquad-online" }),
+    official({ id: "bug_hunter_level_1", descriptionKey: "badge.bugHunter", icon: "2717692c7dca7289b35297368a940dd0", link: "https://support.discord.com/hc/en-us/articles/360046057772-Discord-Bugs" }),
+    official({ id: "bug_hunter_level_2", descriptionKey: "badge.bugHunter", icon: "848f79194d4be5ff5f81505cbd0ce1e6", link: "https://support.discord.com/hc/en-us/articles/360046057772-Discord-Bugs" }),
+    official({ id: "active_developer", descriptionKey: "badge.activeDeveloper", icon: "6bdc42827a38498929a4920da12695d9", link: "https://support-dev.discord.com/hc/en-us/articles/10113997751447?ref=badge" }),
+    official({ id: "verified_developer", descriptionKey: "badge.verifiedDeveloper", icon: "6df5892e0f35b051f8b61eace34f4967" }),
+    official({ id: "early_supporter", descriptionKey: "badge.earlySupporter", icon: "7060786766c9c840eb3019e725d2b358", link: "https://discord.com/settings/premium" }),
+    official({ id: "legacy_username", descriptionKey: "badge.legacyUsername", icon: "6de6d34650760ba5551a79732e98ed60" }),
+    official({ id: "quest_completed", descriptionKey: "badge.questCompleted", icon: "7d9ae358c8c5e118768335dbe68b4fb8", link: "https://discord.com/discovery/quests" }),
 ];
 
 /** Nitro-Tenure-Badges (ab Monat X), berechnet aus nitro.since */

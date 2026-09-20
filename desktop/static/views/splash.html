@@ -3,6 +3,8 @@
 
 <head>
     <link rel="stylesheet" href="./common.css" type="text/css" />
+    <!-- Larpcord: Übersetzungen (data-i18n), braucht exposeViewI18n() im Splash-Preload -->
+    <script src="./i18n.js"></script>
 
     <style>
         html,
@@ -54,7 +56,7 @@
 <body>
     <div class="wrapper">
         <img draggable="false" src="vesktop://assets/splash" alt="" role="presentation" />
-        <p id="splash-text">Loading Larpcord...</p>
+        <p id="splash-text" data-i18n="desktop.splash.loading">Loading Larpcord...</p>
         <p class="message"></p>
     </div>
 </body>

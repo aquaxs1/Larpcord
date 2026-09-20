@@ -8,6 +8,7 @@ import "./styles.css";
 
 import { badgeIconUrl, OFFICIAL_BADGES } from "@plugins/larpCore/badges";
 import { Btn, cl, DateField, ImageField, Section } from "@plugins/larpCore/hub/components";
+import { t, useLarpLocale } from "@plugins/larpCore/i18n";
 import { getLarpBadges } from "@plugins/larpCore/profileBadges";
 import { LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 import { useState } from "@webpack/common";
@@ -22,24 +23,29 @@ function OfficialBadges() {
     }));
 
     return (
-        <Section title="Offizielle Badges" description="Anklicken zum Ein- und Ausschalten. Die Icons kommen direkt von Discord.">
+        <Section title={t("badges.official.title")} description={t("badges.official.description")}>
             <div className={cl("badge-grid")}>
-                {OFFICIAL_BADGES.map(b => (
-                    <button
-                        key={b.id}
-                        className={cl("badge-tile", active.has(b.id) && "badge-tile-on")}
-                        aria-pressed={active.has(b.id)}
-                        title={b.description}
-                        onClick={() => toggle(b.id)}
-                    >
-                        <img src={badgeIconUrl(b.icon)} alt="" />
-                        <span>{b.description}{b.id === "bug_hunter_level_2" ? " (Gold)" : ""}</span>
-                    </button>
-                ))}
+                {OFFICIAL_BADGES.map(b => {
+                    const { description } = b;
+                    // Bug Hunter Stufe 1 und 2 haben bei Discord denselben Tooltip, Stufe 2 bekommt den Zusatz „(Gold)“
+                    const label = b.id === "bug_hunter_level_2" ? t("badges.official.bugHunterGold", { name: description }) : description;
+                    return (
+                        <button
+                            key={b.id}
+                            className={cl("badge-tile", active.has(b.id) && "badge-tile-on")}
+                            aria-pressed={active.has(b.id)}
+                            title={description}
+                            onClick={() => toggle(b.id)}
+                        >
+                            <img src={badgeIconUrl(b.icon)} alt="" />
+                            <span>{label}</span>
+                        </button>
+                    );
+                })}
             </div>
             <div className={cl("inline")} style={{ marginTop: 8 }}>
-                <Btn variant="secondary" onClick={() => LarpStore.update({ badges: { builtin: OFFICIAL_BADGES.map(b => b.id) } })}>Alle</Btn>
-                <Btn variant="secondary" onClick={() => LarpStore.update({ badges: { builtin: [] } })}>Keine</Btn>
+                <Btn variant="secondary" onClick={() => LarpStore.update({ badges: { builtin: OFFICIAL_BADGES.map(b => b.id) } })}>{t("badges.official.all")}</Btn>
+                <Btn variant="secondary" onClick={() => LarpStore.update({ badges: { builtin: [] } })}>{t("common.none")}</Btn>
             </div>
         </Section>
     );
@@ -64,14 +70,14 @@ function CustomBadges() {
     }));
 
     return (
-        <Section title="Eigene Badges" description="Eigenes Bild (PNG, GIF, SVG, WebP) per https-Link oder als Datei, dazu ein Tooltip-Text.">
+        <Section title={t("badges.custom.title")} description={t("badges.custom.description")}>
             {larp.badges.custom.length > 0 && (
                 <div className={cl("custom-list")}>
                     {larp.badges.custom.map(c => (
                         <div key={c.id} className={cl("custom-item")}>
                             <img src={c.imageUrl} alt="" />
                             <span>{c.tooltip}</span>
-                            <Btn variant="danger" onClick={() => remove(c.id)}>Entfernen</Btn>
+                            <Btn variant="danger" onClick={() => remove(c.id)}>{t("common.remove")}</Btn>
                         </div>
                     ))}
                 </div>
@@ -81,13 +87,13 @@ function CustomBadges() {
                 <ImageField value={image} onCommit={setImage} maxBytes={512_000} />
                 <input
                     className={cl("input")}
-                    placeholder="Tooltip, z. B. „Bester Freund“"
+                    placeholder={t("badges.custom.tooltipPlaceholder")}
                     value={tooltip}
                     maxLength={100}
                     onChange={e => setTooltip(e.currentTarget.value)}
                     onKeyDown={e => e.key === "Enter" && add()}
                 />
-                <Btn disabled={!image || !tooltip.trim()} onClick={add}>Hinzufügen</Btn>
+                <Btn disabled={!image || !tooltip.trim()} onClick={add}>{t("common.add")}</Btn>
             </div>
         </Section>
     );
@@ -111,7 +117,7 @@ function BadgeOrder() {
     };
 
     return (
-        <Section title="Reihenfolge" description="Per Drag & Drop sortieren. So erscheinen die Badges in deinem Profil.">
+        <Section title={t("badges.order.title")} description={t("badges.order.description")}>
             <div className={cl("order-list")}>
                 {badges.map(b => (
                     <div
@@ -128,19 +134,20 @@ function BadgeOrder() {
                     </div>
                 ))}
             </div>
-            {larp.badgeOrder && <Btn variant="secondary" style={{ marginTop: 8 }} onClick={() => LarpStore.update({ badgeOrder: undefined })}>Standard-Reihenfolge</Btn>}
+            {larp.badgeOrder && <Btn variant="secondary" style={{ marginTop: 8 }} onClick={() => LarpStore.update({ badgeOrder: undefined })}>{t("badges.order.reset")}</Btn>}
         </Section>
     );
 }
 
 export function BadgesTab() {
+    useLarpLocale();
     const larp = useLarpProfile();
     return (
         <>
             <OfficialBadges />
             <CustomBadges />
             <BadgeOrder />
-            <Section title="Mitglied seit" description="Überschreibt das „Mitglied seit“-Datum in deinem Profil. Leer = echtes Datum.">
+            <Section title={t("badges.memberSince.title")} description={t("badges.memberSince.description")}>
                 <DateField value={larp.memberSince} onCommit={memberSince => LarpStore.update({ memberSince })} />
             </Section>
         </>

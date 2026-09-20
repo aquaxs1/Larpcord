@@ -6,6 +6,7 @@
 
 import { app, dialog } from "electron";
 import { access, constants as FsConstants } from "fs/promises";
+import { t } from "main/i18n";
 import { VENCORD_FILES_DIR } from "main/vencordFilesDir";
 import { join } from "path";
 
@@ -30,9 +31,7 @@ export async function isValidVencordInstall(dir: string) {
 export async function ensureVencordFiles() {
     if (await isValidVencordInstall(VENCORD_FILES_DIR)) return;
 
-    dialog.showErrorBox(
-        "Larpcord",
-        `Der Larpcord-Core wurde nicht gefunden:\n${VENCORD_FILES_DIR}\n\nBitte Larpcord neu installieren (bzw. im Dev-Modus zuerst "pnpm build" ausführen).`
-    );
+    // Titel ist der Markenname, nicht übersetzt
+    dialog.showErrorBox("Larpcord", t("desktop.coreMissing.message", { dir: VENCORD_FILES_DIR }));
     app.exit(1);
 }

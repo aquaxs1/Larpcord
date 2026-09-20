@@ -5,6 +5,7 @@
  */
 
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
+import { t } from "@plugins/larpCore/i18n";
 import { isSelf, LarpStore } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -23,7 +24,9 @@ import { NitroTab } from "./NitroTab";
 
 export default definePlugin({
     name: "LarpNitro",
-    description: "Lokale Nitro-Optik für dein eigenes Profil: Nitro-/Boost-Badge mit Datum, Theme-Farben, Banner und animierter Avatar.",
+    get description() {
+        return t("plugin.LarpNitro.description");
+    },
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     enabledByDefault: true,

@@ -14,6 +14,7 @@ import { pathToFileURL } from "url";
 
 import { DATA_DIR } from "./constants";
 import { AppEvents } from "./events";
+import { t } from "./i18n";
 import { mainWin } from "./mainWindow";
 import { fileExistsAsync } from "./utils/fileExists";
 import { handle } from "./utils/ipcWrappers";
@@ -101,11 +102,12 @@ handle(IpcEvents.CHOOSE_USER_ASSET, async (_event, asset: UserAssetType, value?:
 
     const res = await dialog.showOpenDialog(mainWin, {
         properties: ["openFile"],
-        title: `Select an image to use as ${asset}`,
+        // i18n-keys: desktop.userAssets.asset.* (splash, tray, trayUnread, appIcon)
+        title: t("desktop.userAssets.dialogTitle", { asset: t(`desktop.userAssets.asset.${asset}`) }),
         defaultPath: app.getPath("pictures"),
         filters: [
             {
-                name: "Images",
+                name: t("desktop.userAssets.filterImages"),
                 extensions: ["png", "jpg", "jpeg", "webp", "gif", "avif", "svg"]
             }
         ]

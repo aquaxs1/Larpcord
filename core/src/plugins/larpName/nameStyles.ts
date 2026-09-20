@@ -4,15 +4,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { t } from "@plugins/larpCore/i18n";
 import { LarpProfile } from "@plugins/larpCore/types";
 
 /*
  * Discords native Anzeigenamen-Stile: { fontId, effectId, colors }. Die IDs stammen aus Discords
  * eigenen Enums (DisplayNameFont / DisplayNameEffect) im Client.
+ *
+ * Beschriftungen: Schriftnamen sind Eigennamen (label), übersetzbare Texte nur als Schlüssel
+ * (labelKey), damit sie erst beim Rendern in der aktuellen Sprache aufgelöst werden.
  */
 
-export const NAME_FONTS: Record<string, { id: number; label: string; css: string; }> = {
-    DEFAULT: { id: 11, label: "Standard", css: "var(--font-display)" },
+export const NAME_FONTS: Record<string, { id: number; label?: string; labelKey?: string; css: string; }> = {
+    DEFAULT: { id: 11, labelKey: "common.default", css: "var(--font-display)" },
     BANGERS: { id: 1, label: "Bangers", css: "Bangers" },
     BIO_RHYME: { id: 2, label: "BioRhyme", css: "BioRhyme" },
     CHERRY_BOMB: { id: 3, label: "Cherry Bomb", css: "Cherry Bomb One" },
@@ -30,16 +34,29 @@ export const NAME_FONTS: Record<string, { id: number; label: string; css: string
     KALAM: { id: 16, label: "Kalam", css: "Kalam" },
 };
 
-export const NAME_EFFECTS: Record<string, { id: number; label: string; }> = {
-    SOLID: { id: 1, label: "Einfarbig" },
-    GRADIENT: { id: 2, label: "Farbverlauf" },
-    NEON: { id: 3, label: "Neon" },
-    TOON: { id: 4, label: "Toon" },
-    POP: { id: 5, label: "Pop" },
-    GLOW: { id: 6, label: "Glow" },
-    PRISM: { id: 7, label: "Prisma" },
-    GUMMY: { id: 8, label: "Gummy" },
+export const NAME_EFFECTS: Record<string, { id: number; labelKey: string; }> = {
+    SOLID: { id: 1, labelKey: "name.effect.solid" },
+    GRADIENT: { id: 2, labelKey: "name.effect.gradient" },
+    NEON: { id: 3, labelKey: "name.effect.neon" },
+    TOON: { id: 4, labelKey: "name.effect.toon" },
+    POP: { id: 5, labelKey: "name.effect.pop" },
+    GLOW: { id: 6, labelKey: "name.effect.glow" },
+    PRISM: { id: 7, labelKey: "name.effect.prism" },
+    GUMMY: { id: 8, labelKey: "name.effect.gummy" },
 };
+
+/** Anzeigename einer Schrift in der aktuellen Sprache */
+export function fontLabel(font: string) {
+    const f = NAME_FONTS[font];
+    if (!f) return font;
+    return f.labelKey ? t(f.labelKey) : f.label ?? font;
+}
+
+/** Anzeigename eines Effekts in der aktuellen Sprache */
+export function effectLabel(effect: string) {
+    const e = NAME_EFFECTS[effect];
+    return e ? t(e.labelKey) : effect;
+}
 
 /** Effekt: explizit gewählt, sonst aus glow/gradient abgeleitet */
 export function resolveEffect(style: LarpProfile["nameStyle"]) {

@@ -6,6 +6,10 @@
 
 import { contextBridge, ipcRenderer } from "electron/renderer";
 
+import { exposeViewI18n } from "./viewI18n";
+
+exposeViewI18n();
+
 contextBridge.exposeInMainWorld("VesktopSplashNative", {
     onUpdateMessage(callback: (message: string) => void) {
         ipcRenderer.on("update-splash-message", (_, message: string) => callback(message));

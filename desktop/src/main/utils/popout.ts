@@ -5,6 +5,7 @@
  */
 
 import { BrowserWindow, BrowserWindowConstructorOptions } from "electron";
+import { t } from "main/i18n";
 import { Settings } from "main/settings";
 
 import { handleExternalUrl } from "./makeLinksOpenExternally";
@@ -33,7 +34,6 @@ const ALLOWED_FEATURES = new Set([
 const MIN_POPOUT_WIDTH = 320;
 const MIN_POPOUT_HEIGHT = 180;
 const DEFAULT_POPOUT_OPTIONS: BrowserWindowConstructorOptions = {
-    title: "Discord Popout",
     backgroundColor: "#2f3136",
     minWidth: MIN_POPOUT_WIDTH,
     minHeight: MIN_POPOUT_HEIGHT,
@@ -93,6 +93,8 @@ export function createOrFocusPopup(key: string, features: string) {
         action: "allow",
         overrideBrowserWindowOptions: {
             ...DEFAULT_POPOUT_OPTIONS,
+            // Larpcord: erst hier übersetzen (Sprache kann sich zur Laufzeit ändern)
+            title: t("desktop.popout.title"),
             ...parseWindowFeatures(features)
         }
     };

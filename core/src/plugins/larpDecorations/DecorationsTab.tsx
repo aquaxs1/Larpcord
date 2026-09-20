@@ -8,6 +8,7 @@ import "./styles.css";
 
 import { Btn, cl, Section } from "@plugins/larpCore/hub/components";
 import { decorationUrl } from "@plugins/larpCore/hub/Preview";
+import { t, tNode, useLarpLocale } from "@plugins/larpCore/i18n";
 import { LarpStore, logger, useLarpProfile } from "@plugins/larpCore/store";
 import { LarpProfile } from "@plugins/larpCore/types";
 import { findStoreLazy } from "@webpack";
@@ -62,10 +63,11 @@ function readCatalog(type: ItemType): CatalogItem[] {
     }
 }
 
+// Titel als Schlüssel, übersetzt wird erst beim Rendern (Sprachwechsel live)
 const KINDS = [
-    { type: ItemType.Decoration, title: "Avatar-Dekorationen" },
-    { type: ItemType.ProfileEffect, title: "Profileffekte" },
-    { type: ItemType.Nameplate, title: "Nameplates" }
+    { type: ItemType.Decoration, titleKey: "decorations.kind.decoration" },
+    { type: ItemType.ProfileEffect, titleKey: "decorations.kind.profileEffect" },
+    { type: ItemType.Nameplate, titleKey: "decorations.kind.nameplate" }
 ] as const;
 
 function selectedSku(larp: LarpProfile, type: ItemType) {
@@ -97,8 +99,8 @@ function Picker({ type }: { type: ItemType; }) {
     if (!catalog.length) {
         return (
             <p className={cl("muted")}>
-                Discords Shop-Katalog ist noch nicht geladen. Öffne einmal den <b>Shop</b> in Discord und komm dann hierher zurück.
-                {current && <><br /><br />Aktuell ausgewählt: <code>{current}</code> <Btn variant="danger" onClick={() => select(type, undefined)}>Entfernen</Btn></>}
+                {tNode("decorations.catalogNotLoaded", { shop: <b>{t("decorations.shop")}</b> })}
+                {current && <><br /><br />{tNode("decorations.currentlySelected", { sku: <code>{current}</code> })} <Btn variant="danger" onClick={() => select(type, undefined)}>{t("common.remove")}</Btn></>}
             </p>
         );
     }
@@ -110,8 +112,8 @@ function Picker({ type }: { type: ItemType; }) {
     return (
         <>
             <div className={cl("inline")} style={{ marginBottom: 12 }}>
-                <input className={cl("input")} placeholder={`${catalog.length} Items durchsuchen …`} value={query} onChange={e => { setQuery(e.currentTarget.value); setLimit(PAGE); }} />
-                {current && <Btn variant="danger" onClick={() => select(type, undefined)}>Entfernen{selectedItem ? ` (${selectedItem.name})` : ""}</Btn>}
+                <input className={cl("input")} placeholder={t("decorations.searchPlaceholder", { count: catalog.length })} value={query} onChange={e => { setQuery(e.currentTarget.value); setLimit(PAGE); }} />
+                {current && <Btn variant="danger" onClick={() => select(type, undefined)}>{selectedItem ? t("decorations.removeSelected", { name: selectedItem.name }) : t("common.remove")}</Btn>}
             </div>
             <div className={cl("deco-grid", type === ItemType.Nameplate && "deco-grid-wide")}>
                 {filtered.slice(0, limit).map(item => (
@@ -128,7 +130,7 @@ function Picker({ type }: { type: ItemType; }) {
             </div>
             {filtered.length > limit && (
                 <Btn variant="secondary" style={{ marginTop: 12 }} onClick={() => setLimit(limit + PAGE)}>
-                    Mehr anzeigen ({filtered.length - limit} weitere)
+                    {t("decorations.showMore", { more: filtered.length - limit })}
                 </Btn>
             )}
         </>
@@ -136,14 +138,15 @@ function Picker({ type }: { type: ItemType; }) {
 }
 
 export function DecorationsTab() {
+    useLarpLocale();
     const [kind, setKind] = useState<ItemType>(ItemType.Decoration);
     const meta = KINDS.find(k => k.type === kind)!;
 
     return (
-        <Section title={meta.title} description="Alles aus Discords Shop, nur lokal für dich. Andere sehen dein echtes Profil.">
+        <Section title={t(meta.titleKey)} description={t("decorations.section.description")}>
             <div className={cl("inline")} style={{ marginBottom: 12 }}>
                 {KINDS.map(k => (
-                    <Btn key={k.type} variant={k.type === kind ? "primary" : "secondary"} onClick={() => setKind(k.type)}>{k.title}</Btn>
+                    <Btn key={k.type} variant={k.type === kind ? "primary" : "secondary"} onClick={() => setKind(k.type)}>{t(k.titleKey)}</Btn>
                 ))}
             </div>
             <Picker key={kind} type={kind} />

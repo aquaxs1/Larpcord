@@ -5,6 +5,7 @@
  */
 
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
+import { t } from "@plugins/larpCore/i18n";
 import { isSelf, LarpStore } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -22,7 +23,9 @@ let nameplateCache: { key: string; value: any; } | undefined;
 
 export default definePlugin({
     name: "LarpDecorations",
-    description: "Avatar-Dekorationen, Profileffekte und Nameplates aus dem Shop lokal für dein eigenes Profil.",
+    get description() {
+        return t("plugin.LarpDecorations.description");
+    },
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     enabledByDefault: true,
