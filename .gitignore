@@ -6,3 +6,4 @@ node_modules/
 core/dist/
 desktop/dist/
 desktop/vencord/
+desktop/release-notes.md

@@ -101,12 +101,6 @@ await Promise.all([
         footer: { js: "//# sourceURL=VesktopSplashPreload" }
     }),
     createContext({
-        ...NodeCommonOpts,
-        entryPoints: ["src/preload/updater.ts"],
-        outfile: "dist/js/updaterPreload.js",
-        footer: { js: "//# sourceURL=VesktopUpdaterPreload" }
-    }),
-    createContext({
         ...CommonOpts,
         globalName: "Vesktop",
         entryPoints: ["src/renderer/index.ts"],

@@ -39,6 +39,15 @@ export interface Settings {
     splashBackground?: string;
     /** Larpcord: eigener Text im Ladebildschirm */
     splashText?: string;
+    /** Larpcord: zuletzt vom Core gemeldete Discord-Sprache (für Splash, Tray und Dialoge vor dem Login) */
+    larpLocale?: string;
+    /** Larpcord: Auto-Updater (electron-updater, GitHub-Releases von aquaxs1/Larpcord) */
+    larpUpdater?: {
+        /** Automatisch beim Start und alle 4 Stunden prüfen und im Hintergrund laden (Standard: an) */
+        autoUpdate?: boolean;
+        /** "beta" = auch GitHub-Prereleases (Standard: "stable") */
+        channel?: "stable" | "beta";
+    };
 
     spellCheckLanguages?: string[];
 

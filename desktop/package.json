@@ -5,7 +5,11 @@
     "private": true,
     "description": "Larpcord – a standalone Discord client for local, cosmetic larping (based on Vesktop)",
     "keywords": [],
-    "homepage": "https://github.com/larpcord/larpcord",
+    "homepage": "https://github.com/aquaxs1/Larpcord",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/aquaxs1/Larpcord.git"
+    },
     "license": "GPL-3.0-or-later",
     "author": "Larpcord contributors (based on Vesktop by Vendicated)",
     "main": "dist/js/main.js",
@@ -193,7 +197,12 @@
                 }
             ]
         },
-        "publish": null,
+        "publish": {
+            "provider": "github",
+            "owner": "aquaxs1",
+            "repo": "Larpcord",
+            "releaseType": "release"
+        },
         "rpm": {
             "fpm": [
                 "--rpm-rpmbuild-define=_build_id_links none"

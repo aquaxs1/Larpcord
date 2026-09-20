@@ -9,6 +9,8 @@ import { ipcRenderer } from "electron/renderer";
 import type { IpcMessage, IpcResponse } from "main/ipcCommands";
 import type { Settings } from "shared/settings";
 
+import type { LarpUpdaterOptions, LarpUpdaterStatus } from "../../../core/src/plugins/larpCore/updater/types";
+
 import { IpcEvents } from "../shared/IpcEvents";
 import { invoke, sendSync } from "./typedIpc";
 
@@ -33,8 +35,6 @@ export const VesktopNative = {
         setBadgeCount: (count: number) => invoke<void>(IpcEvents.SET_BADGE_COUNT, count),
         supportsWindowsTransparency: () => sendSync<boolean>(IpcEvents.SUPPORTS_WINDOWS_TRANSPARENCY),
         getEnableHardwareAcceleration: () => sendSync<boolean>(IpcEvents.GET_ENABLE_HARDWARE_ACCELERATION),
-        isOutdated: () => invoke<boolean>(IpcEvents.UPDATER_IS_OUTDATED),
-        openUpdater: () => invoke<void>(IpcEvents.UPDATER_OPEN),
         // used by vencord
         getRendererCss: () => invoke<string>(IpcEvents.GET_VESKTOP_RENDERER_CSS),
         onRendererCssUpdate: (cb: (newCss: string) => void) => {
@@ -108,5 +108,23 @@ export const VesktopNative = {
             ipcRenderer.on(IpcEvents.IPC_COMMAND, (_, message) => cb(message));
         },
         respond: (response: IpcResponse) => ipcRenderer.send(IpcEvents.IPC_COMMAND, response)
+    },
+    /** Larpcord-spezifische Schnittstellen für den Core (larp*-Plugins). Immer mit ?. aufrufen. */
+    larpcord: {
+        /** Discord-Sprache an den Main-Prozess melden (Tray, Dialoge, Splash) */
+        setLocale: (locale: string) => invoke<void>(IpcEvents.LARP_SET_LOCALE, locale),
+        /** Auto-Updater (desktop/src/main/updater.ts), Anzeige im Larpcord-Hub */
+        updater: {
+            getStatus: () => invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_GET_STATUS),
+            onStatus(cb: (status: LarpUpdaterStatus) => void) {
+                const listener = (_: unknown, status: LarpUpdaterStatus) => cb(status);
+                ipcRenderer.on(IpcEvents.LARP_UPDATER_STATUS, listener);
+                return () => void ipcRenderer.off(IpcEvents.LARP_UPDATER_STATUS, listener);
+            },
+            check: () => invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_CHECK),
+            setOptions: (options: LarpUpdaterOptions) => invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_SET_OPTIONS, options),
+            install: () => invoke<boolean>(IpcEvents.LARP_UPDATER_INSTALL),
+            dismiss: (version: string) => invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_DISMISS, version)
+        }
     }
 };

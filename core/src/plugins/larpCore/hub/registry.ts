@@ -13,19 +13,27 @@ import type { ComponentType } from "react";
 
 export interface HubTab {
     id: HubTabId;
-    title: string;
+    /**
+     * Wird nicht angezeigt (die Tab-Leiste nutzt HUB_TABS[].titleKey), bleibt aber für
+     * Kompatibilität mit bestehenden registerHubTab-Aufrufen erlaubt.
+     */
+    title?: string;
+    /** Optional, ebenfalls nicht angezeigt. Maßgeblich ist HUB_TABS[].titleKey */
+    titleKey?: string;
     Component: ComponentType;
 }
 
+/** Titel werden als Schlüssel gespeichert und erst beim Rendern übersetzt (hubTabTitle) */
 export const HUB_TABS = [
-    { id: "badges", title: "Badges", plugin: "LarpBadges" },
-    { id: "nitro", title: "Nitro", plugin: "LarpNitro" },
-    { id: "decorations", title: "Dekorationen", plugin: "LarpDecorations" },
-    { id: "name", title: "Name", plugin: "LarpName" },
-    { id: "servers", title: "Server", plugin: "LarpServers" },
-    { id: "themes", title: "Themes", plugin: "LarpThemes" },
-    { id: "layout", title: "Layout", plugin: "LarpLayout" },
-    { id: "presets", title: "Presets", plugin: "LarpCore" },
+    { id: "badges", titleKey: "core.hub.tab.badges", plugin: "LarpBadges" },
+    { id: "nitro", titleKey: "core.hub.tab.nitro", plugin: "LarpNitro" },
+    { id: "decorations", titleKey: "core.hub.tab.decorations", plugin: "LarpDecorations" },
+    { id: "name", titleKey: "core.hub.tab.name", plugin: "LarpName" },
+    { id: "servers", titleKey: "core.hub.tab.servers", plugin: "LarpServers" },
+    { id: "themes", titleKey: "core.hub.tab.themes", plugin: "LarpThemes" },
+    { id: "layout", titleKey: "core.hub.tab.layout", plugin: "LarpLayout" },
+    { id: "presets", titleKey: "core.hub.tab.presets", plugin: "LarpCore" },
+    { id: "updates", titleKey: "core.updates.tab", plugin: "LarpCore" },
 ] as const;
 
 export type HubTabId = typeof HUB_TABS[number]["id"];

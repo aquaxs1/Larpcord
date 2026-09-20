@@ -17,15 +17,15 @@ import { AutoStartToggle } from "./AutoStartToggle";
 import { DeveloperOptionsButton } from "./DeveloperOptions";
 import { DiscordBranchPicker } from "./DiscordBranchPicker";
 import { NotificationBadgeToggle } from "./NotificationBadgeToggle";
-import { OutdatedVesktopWarning } from "./OutdatedVesktopWarning";
 import { UserAssetsButton } from "./UserAssets";
 import { VesktopSettingsSwitch } from "./VesktopSettingsSwitch";
 import { WindowsTransparencyControls } from "./WindowsTransparencyControls";
 
 interface BooleanSetting {
     key: keyof typeof Settings.store;
-    title: string;
-    description: string;
+    /** Übersetzungsschlüssel, Text wird erst beim Rendern berechnet (Sprachwechsel) */
+    titleKey: string;
+    descriptionKey: string;
     disabled?(): boolean;
     invisible?(): boolean;
 }
@@ -188,15 +188,19 @@ function SettingsSections() {
 
 export default ErrorBoundary.wrap(
     function SettingsUI() {
+        // Ganzer Tab rendert bei Sprachwechsel neu (Unterkomponenten inklusive)
+        useLarpLocale();
+
         return (
             <section>
-                <OutdatedVesktopWarning />
                 <SettingsSections />
             </section>
         );
     },
     {
-        message:
-            "Failed to render the Larpcord Desktop Settings tab. If this issue persists, reinstall Larpcord."
+        // Getter: wird erst beim Rendern gelesen (aktuelle Sprache)
+        get message() {
+            return t("desktop.settings.renderError");
+        }
     }
 );

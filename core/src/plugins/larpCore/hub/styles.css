@@ -442,3 +442,144 @@
     font-weight: 600;
     white-space: nowrap;
 }
+
+/* Wasserzeichen-Badge im echten Profil */
+.larp-watermark-badge img {
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+    object-fit: contain;
+}
+
+/* Updates */
+
+.larp-segmented {
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 8px;
+    background: var(--background-base-lower, var(--background-secondary));
+}
+
+.larp-segment {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-default, var(--text-normal));
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.larp-segment:hover {
+    background: var(--background-modifier-hover);
+}
+
+.larp-segment-active {
+    background: var(--brand-500, var(--brand-experiment));
+    color: #fff;
+}
+
+.larp-btn-row {
+    display: flex;
+    gap: 8px;
+}
+
+.larp-update-version {
+    font-size: 13px;
+}
+
+.larp-update-ready {
+    color: var(--text-positive, var(--status-positive, #23a55a));
+    font-weight: 500;
+}
+
+.larp-progress {
+    height: 6px;
+    margin-top: 8px;
+    border-radius: 3px;
+    background: var(--background-modifier-accent);
+    overflow: hidden;
+}
+
+.larp-progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--brand-500, var(--brand-experiment));
+    transition: width 0.2s ease;
+}
+
+/* Update-Hinweis (Modal) */
+
+.larp-update-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.larp-update-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.larp-update-versions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-default, var(--text-normal));
+}
+
+.larp-update-old {
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+.larp-update-new {
+    color: var(--text-positive, var(--status-positive, #23a55a));
+}
+
+.larp-update-notes-title {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--header-primary, var(--text-strong));
+}
+
+.larp-update-notes {
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text-default, var(--text-normal));
+}
+
+.larp-update-notes h4,
+.larp-update-notes h5,
+.larp-update-notes h6 {
+    margin: 12px 0 4px;
+    color: var(--header-primary, var(--text-strong));
+}
+
+.larp-update-notes ul,
+.larp-update-notes ol {
+    margin: 4px 0;
+    padding-left: 20px;
+}
+
+.larp-update-notes code {
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--background-secondary);
+    font-family: var(--font-code, monospace);
+    font-size: 12px;
+}
+
+.larp-update-notes a {
+    color: var(--text-link);
+}

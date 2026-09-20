@@ -1,4 +1,6 @@
-# Baut bei jedem Tag "v*" die Windows-.exe und hängt sie an ein GitHub-Release.
+# Baut bei jedem Tag "v*" die Windows-.exe und veröffentlicht sie als GitHub-Release inklusive
+# latest.yml und .blockmap, damit der Auto-Updater (electron-updater) neue Versionen findet.
+# Tags mit "-beta" (z. B. v0.3.0-beta.1) werden als Prerelease veröffentlicht und nur vom Kanal „Beta“ installiert.
 name: Release
 
 on:
@@ -22,6 +24,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Übersetzungen prüfen
+        run: node scripts/i18n/check.mjs
+
       # postinstall installiert core/ und desktop/ (inkl. Electron-Binary)
       - name: Abhängigkeiten installieren
         run: pnpm install --frozen-lockfile
@@ -29,14 +34,19 @@ jobs:
       - name: Version aus dem Tag übernehmen
         run: node scripts/set-version.mjs ${{ github.ref_name }}
 
-      - name: Larpcord bauen und paketieren
-        run: pnpm package
+      # Abschnitt aus CHANGELOG.md → Release-Text → Changelog im Update-Hinweis
+      - name: Release-Notes aus CHANGELOG.md
+        run: node scripts/release-notes.mjs ${{ github.ref_name }}
+
+      - name: Core und Desktop bauen
+        run: node scripts/build.mjs
         env:
           VENCORD_HASH: ${{ github.sha }}
           VENCORD_REMOTE: ${{ github.repository }}
 
-      - name: Release erstellen
-        uses: softprops/action-gh-release@v2
-        with:
-          files: desktop/dist/Larpcord-Setup.exe
-          generate_release_notes: true
+      # Veröffentlicht Larpcord-Setup.exe, .blockmap und latest.yml (publish-Konfiguration in desktop/package.json)
+      - name: Paketieren und veröffentlichen
+        run: pnpm -C desktop exec electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EP_PRE_RELEASE: ${{ contains(github.ref_name, '-beta') }}

@@ -14,29 +14,37 @@ import definePlugin, { IconProps } from "@utils/types";
 import { GuildStore, UserProfileStore, UserStore } from "@webpack/common";
 
 import { Hub } from "./hub/Hub";
+import * as i18n from "./i18n";
+import { LARPCORD_LOGO } from "./logo";
 import { cancelPatchHealthCheck, schedulePatchHealthCheck } from "./patchHealth";
 import { overrideProfile } from "./profileOverride";
 import { isSelf, LarpStore, logger } from "./store";
+import { startUpdaterClient, stopUpdaterClient } from "./updater/client";
+import { watchForDownloadedUpdates } from "./updater/UpdateModal";
 
 const HUB_KEY = "larpcord_hub";
 
-function MaskIcon({ width = 24, height = 24, className }: IconProps) {
-    return (
-        <svg width={width} height={height} viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
-            <path d="M2 4.5C2 3.67 2.67 3 3.5 3c2.4.9 4.6.9 7 0 .83 0 1.5.67 1.5 1.5v4.3c0 3.7-2.2 6.2-5 6.2S2 12.5 2 8.8V4.5Zm2.7 3.3a.9.9 0 0 0 1.6.8.8.8 0 0 1 1.4 0 .9.9 0 0 0 1.6-.8 2.6 2.6 0 0 0-4.6 0Zm.2 3.4c.9 1.4 3.3 1.4 4.2 0H4.9Z" />
-            <path d="M13 9.3V9c2.3.8 4.5.8 6.8 0 .7 0 1.2.5 1.2 1.2v4.1c0 3.7-2.2 6.2-5 6.2-2.3 0-4.2-1.7-4.8-4.3 1.6-1.3 2.6-3.6 2.6-6.9h-.8Zm2 3.7a.8.8 0 0 0 1.5.6.7.7 0 0 1 1.2 0 .8.8 0 0 0 1.5-.6 2.4 2.4 0 0 0-4.2 0Zm4.2 4.2c-.9-1.3-3.2-1.3-4.1 0h4.1Z" />
-        </svg>
-    );
+function LarpcordIcon({ width = 24, height = 24, className }: IconProps) {
+    return <img src={LARPCORD_LOGO} width={width} height={height} className={className} alt="" draggable={false} />;
 }
 
-/** Wasserzeichen als Badge-Komponente: nutzt Vencords Badge-API statt eines eigenen, fragilen Patches */
+/**
+ * Wasserzeichen als Badge-Komponente: nutzt Vencords Badge-API statt eines eigenen, fragilen Patches.
+ * description ist ein Getter, Vencord liest ihn bei jedem Rendern (Sprachwechsel greift sofort).
+ */
 const WatermarkBadge: ProfileBadge = {
     id: "larpcord_watermark",
     key: "larpcord_watermark",
-    description: "Dieses Profil wird mit Larpcord lokal verändert angezeigt",
+    get description() {
+        return i18n.t("core.watermark.description");
+    },
     position: BadgePosition.END,
     shouldShow: ({ userId }) => isSelf(userId) && LarpStore.get().watermark,
-    component: () => <span className="larp-watermark-badge" title="Lokal verändert mit Larpcord">🎭 Larpcord</span>
+    component: () => (
+        <span className="larp-watermark-badge" title={i18n.t("core.watermark.title")}>
+            <img src={LARPCORD_LOGO} alt="" draggable={false} /> Larpcord
+        </span>
+    )
 };
 
 /**
@@ -83,15 +91,30 @@ export default definePlugin({
 
     overrideProfile,
 
+    /** i18n-API für den Desktop-Renderer (desktop/src/renderer) und Konsolen-Tests */
+    i18n,
+
     async start() {
         SettingsPlugin.customEntries.push({
             key: HUB_KEY,
-            title: "Larpcord Hub",
+            // Getter: _core/settings liest den Titel erst beim Rendern, so folgt er Discords Sprache
+            get title() {
+                return i18n.t("core.settings.hubTitle");
+            },
             panelTitle: "Larpcord",
             Component: Hub,
-            Icon: MaskIcon,
+            Icon: LarpcordIcon,
             position: "top"
         });
+
+        unsubscribeLocale = i18n.onLocaleChange(() => {
+            refreshDiscordUi();
+            reportLocaleToDesktop();
+        });
+        i18n.startI18n();
+
+        unsubscribeUpdates = watchForDownloadedUpdates();
+        startUpdaterClient();
 
         unsubscribe = LarpStore.subscribe(refreshDiscordUi);
         schedulePatchHealthCheck();
@@ -102,5 +125,9 @@ export default definePlugin({
         cancelPatchHealthCheck();
         removeFromArray(SettingsPlugin.customEntries, e => e.key === HUB_KEY);
         unsubscribe?.();
+        unsubscribeLocale?.();
+        unsubscribeUpdates?.();
+        stopUpdaterClient();
+        i18n.stopI18n();
     }
 });
