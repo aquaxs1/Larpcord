@@ -31,7 +31,7 @@ import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import { shouldShowContributorBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
-import { ContextMenuApi, Forms, Menu, Modal, openModal, Toasts, UserStore } from "@webpack/common";
+import { ContextMenuApi, Forms, Menu, Modal, openModal, UserStore } from "@webpack/common";
 
 const CONTRIBUTOR_BADGE = "https://cdn.discordapp.com/emojis/1092089799109775453.png?size=64";
 
@@ -46,13 +46,10 @@ const ContributorBadge: ProfileBadge = {
 
 let DonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
 
-async function loadBadges(noCache = false) {
-    const init = {} as RequestInit;
-    if (noCache)
-        init.cache = "no-cache";
-
-    DonorBadges = await fetch("https://badges.vencord.dev/badges.json", init)
-        .then(r => r.json());
+// Larpcord: Die Donor-Badge-Liste wurde von badges.vencord.dev geladen (beim Start und alle 30 Minuten).
+// Larpcord lädt nichts von Vencord-Servern, die Liste bleibt deshalb leer.
+async function loadBadges(_noCache = false) {
+    DonorBadges = {};
 }
 
 let intervalId: any;
@@ -128,24 +125,10 @@ export default definePlugin({
         return DonorBadges;
     },
 
-    toolboxActions: {
-        async "Refetch Badges"() {
-            await loadBadges(true);
-            Toasts.show({
-                id: Toasts.genId(),
-                message: "Successfully refetched badges!",
-                type: Toasts.Type.SUCCESS
-            });
-        }
-    },
-
     userProfileBadge: ContributorBadge,
 
     async start() {
         await loadBadges();
-
-        clearInterval(intervalId);
-        intervalId = setInterval(loadBadges, 1000 * 60 * 30); // 30 minutes
     },
 
     async stop() {

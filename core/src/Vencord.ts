@@ -51,6 +51,7 @@ if (IS_REPORTER) {
     require("./debug/runReporter");
 }
 
+// Larpcord: wird nicht mehr aufgerufen (kein Cloud-Sync), bleibt für einfachere Upstream-Merges erhalten
 async function syncSettings() {
     // pre-check for local shared settings
     if (
@@ -148,7 +149,7 @@ async function init() {
     await onceReady;
     startAllPlugins(StartAt.WebpackReady);
 
-    syncSettings();
+    // Larpcord: kein Vencord-Cloud-Sync (api.vencord.dev), Einstellungen bleiben lokal
 
     if (!IS_WEB && !IS_UPDATER_DISABLED) {
         runUpdateCheck();

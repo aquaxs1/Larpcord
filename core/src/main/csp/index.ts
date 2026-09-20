@@ -52,7 +52,7 @@ export const CspPolicies: PolicyMap = {
     "cdn.jsdelivr.net": ImageScriptsAndCssSrc,
 
     // Function Specific
-    "api.github.com": ConnectSrc, // used for updating Vencord itself
+    // Larpcord: api.github.com (Vencord-Updater) und *.vencord.dev (Cloud, Badges) entfernt – Larpcord lädt nichts von Vencord
     "ws.audioscrobbler.com": ConnectSrc, // Last.fm API
     "musicbrainz.org": ConnectSrc,
     "*.listenbrainz.org": ConnectSrc,
@@ -60,7 +60,6 @@ export const CspPolicies: PolicyMap = {
     "archive.org": ConnectSrc,
     "*.archive.org": ConnectSrc,
     "translate-pa.googleapis.com": ConnectSrc, // Google Translate API
-    "*.vencord.dev": ImageSrc, // VenCloud (api.vencord.dev) and Badges (badges.vencord.dev)
     "manti.vendicated.dev": ImageSrc, // ReviewDB API
     "decor.fieryflames.dev": ConnectSrc, // Decor API
     "ugc.decor.fieryflames.dev": ImageSrc, // Decor CDN
