@@ -39,6 +39,8 @@ export interface Settings {
     splashBackground?: string;
     /** Larpcord: eigener Text im Ladebildschirm */
     splashText?: string;
+    /** Larpcord: Discords „Reduzierte Bewegung“ aus der letzten Sitzung (Splash/Onboarding animieren dann nicht) */
+    splashReducedMotion?: boolean;
     /** Larpcord: zuletzt vom Core gemeldete Discord-Sprache (für Splash, Tray und Dialoge vor dem Login) */
     larpLocale?: string;
     /** Larpcord: Auto-Updater (electron-updater, GitHub-Releases von aquaxs1/Larpcord) */
@@ -67,6 +69,17 @@ export interface Settings {
     };
 }
 
+/**
+ * Larpcord: Was beim Onboarding gewählt wurde und noch im Core (Vencord-DataStore) ankommen muss.
+ * Der Core holt es genau einmal ab (VesktopNative.larpcord.consumeOnboarding()) und leert es dabei.
+ */
+export interface LarpPendingOnboarding {
+    /** ID eines mitgelieferten Presets, das beim Start geladen wird (null/undefined = keins) */
+    preset?: "staff" | "nitro" | "og2015" | null;
+    /** Wasserzeichen „🎭 Larpcord“ im eigenen Profil */
+    watermark?: boolean;
+}
+
 export interface State {
     maximized?: boolean;
     minimized?: boolean;
@@ -83,4 +96,7 @@ export interface State {
         ignoredVersion?: string;
         snoozeUntil?: number;
     };
+
+    /** Larpcord: Ergebnis des Onboardings, bis der Core es abgeholt hat */
+    pendingOnboarding?: LarpPendingOnboarding;
 }

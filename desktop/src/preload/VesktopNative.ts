@@ -7,7 +7,7 @@
 import type { Node } from "@vencord/venmic";
 import { ipcRenderer } from "electron/renderer";
 import type { IpcMessage, IpcResponse } from "main/ipcCommands";
-import type { Settings } from "shared/settings";
+import type { LarpPendingOnboarding, Settings } from "shared/settings";
 
 import type { LarpUpdaterOptions, LarpUpdaterStatus } from "../../../core/src/plugins/larpCore/updater/types";
 
@@ -113,6 +113,11 @@ export const VesktopNative = {
     larpcord: {
         /** Discord-Sprache an den Main-Prozess melden (Tray, Dialoge, Splash) */
         setLocale: (locale: string) => invoke<void>(IpcEvents.LARP_SET_LOCALE, locale),
+        /**
+         * Ergebnis des Onboardings (Start-Preset, Wasserzeichen) abholen. Der Wert wird dabei geleert,
+         * es gibt ihn also nur beim ersten Start nach dem Onboarding, danach immer null.
+         */
+        consumeOnboarding: () => invoke<LarpPendingOnboarding | null>(IpcEvents.LARP_ONBOARDING_CONSUME),
         /** Auto-Updater (desktop/src/main/updater.ts), Anzeige im Larpcord-Hub */
         updater: {
             getStatus: () => invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_GET_STATUS),

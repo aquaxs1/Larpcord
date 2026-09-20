@@ -14,9 +14,9 @@ import "./vesktopProtocol";
 import { app, BrowserWindow, nativeTheme } from "electron";
 
 import { DATA_DIR } from "./constants";
-import { createFirstLaunchTour } from "./firstLaunch";
 import { createWindows, mainWin } from "./mainWindow";
 import { registerMediaPermissionsHandler } from "./mediaPermissions";
+import { startOnboarding } from "./onboarding";
 import { registerScreenShareHandler } from "./screenShare";
 import { Settings, State } from "./settings";
 import { setAsDefaultProtocolClient } from "./utils/setAsDefaultProtocolClient";
@@ -129,7 +129,8 @@ if (!app.requestSingleInstanceLock({ IS_DEV })) {
 
 async function bootstrap() {
     if (!Object.hasOwn(State.store, "firstLaunch")) {
-        createFirstLaunchTour();
+        // Larpcord: Setup-Splash und Onboarding statt Vesktops First-Launch-Tour
+        startOnboarding();
     } else {
         createWindows();
     }

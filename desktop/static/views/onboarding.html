@@ -1,0 +1,600 @@
+<!doctype html>
+<meta charset="utf-8" />
+
+<head>
+    <title data-i18n="desktop.onboarding.title">Set up Larpcord</title>
+
+    <link rel="stylesheet" href="./common.css" type="text/css" />
+    <!-- Larpcord: Übersetzungen (data-i18n), braucht exposeViewI18n() im Onboarding-Preload -->
+    <script src="./i18n.js"></script>
+
+    <style>
+        /* Farben: Standard im Discord-Look, überschrieben von den Theme-Farben der letzten Sitzung
+           (src/main/onboarding.ts setzt --bg und --fg per insertCSS). Alles andere leitet sich davon ab. */
+        :root {
+            --bg: #1e1f22;
+            --fg: #f2f3f5;
+            --muted: color-mix(in srgb, var(--fg) 62%, transparent);
+            --surface: color-mix(in srgb, var(--fg) 5%, transparent);
+            --surface-strong: color-mix(in srgb, var(--fg) 9%, transparent);
+            --border: color-mix(in srgb, var(--fg) 13%, transparent);
+            --accent: #5865f2;
+            --accent-hover: #4752c4;
+            --accent-fg: #ffffff;
+            color-scheme: dark;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            user-select: none;
+            font-size: 15px;
+            line-height: 1.45;
+        }
+
+        .app {
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 32px 22px;
+        }
+
+        /* Kopfzeile */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 0 0 auto;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        header .wordmark {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        header .counter {
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* Schritte */
+        main {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            padding: 22px 2px;
+            /* Schritt senkrecht mittig, „safe“ damit langer Text oben nicht abgeschnitten wird */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            justify-content: safe center;
+        }
+
+        .step {
+            display: none;
+            /* nicht stauchen, sonst überlappt langer Text die Fußzeile statt zu scrollen */
+            flex: 0 0 auto;
+            animation: fade-in 220ms ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        h1 {
+            font-size: 24px;
+            line-height: 1.25;
+            margin: 0 0 10px;
+        }
+
+        p {
+            margin: 0 0 12px;
+            color: var(--muted);
+        }
+
+        p.lead {
+            color: var(--fg);
+        }
+
+        /* Schritt 1: Willkommen */
+        .welcome {
+            text-align: center;
+        }
+
+        .welcome .hero {
+            width: 104px;
+            height: 104px;
+            object-fit: contain;
+            margin-bottom: 18px;
+            animation: larp-float 2.6s ease-in-out infinite;
+        }
+
+        @keyframes larp-float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-7px) scale(1.04);
+            }
+        }
+
+        .welcome p {
+            max-width: 480px;
+            margin-inline: auto;
+        }
+
+        /* Hinweis-Karten (Schritt 2) */
+        .note {
+            display: flex;
+            gap: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 12px;
+        }
+
+        .note .icon {
+            font-size: 20px;
+            line-height: 1.2;
+        }
+
+        .note h2 {
+            margin: 0 0 3px;
+            font-size: 15px;
+        }
+
+        .note p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Preset-Karten (Schritt 3) */
+        .presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .presets label {
+            display: block;
+            cursor: pointer;
+        }
+
+        .presets input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .presets .card {
+            height: 100%;
+            box-sizing: border-box;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 13px 15px;
+            transition: background 150ms ease, border-color 150ms ease;
+        }
+
+        .presets label:hover .card {
+            background: var(--surface-strong);
+        }
+
+        .presets input:focus-visible+.card {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .presets input:checked+.card {
+            border-color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 16%, transparent);
+        }
+
+        .presets .name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .presets .desc {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Schalter (Schritt 4) */
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 0;
+            cursor: pointer;
+        }
+
+        .toggle+.toggle {
+            border-top: 1px solid var(--border);
+        }
+
+        .toggle .text {
+            flex: 1;
+        }
+
+        .toggle .name {
+            font-weight: 600;
+        }
+
+        .toggle .desc {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .toggle input {
+            appearance: none;
+            flex: 0 0 auto;
+            width: 42px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--surface-strong);
+            border: 1px solid var(--border);
+            position: relative;
+            cursor: pointer;
+            transition: background 150ms ease, border-color 150ms ease;
+        }
+
+        .toggle input::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--fg);
+            transition: transform 150ms ease, background 150ms ease;
+        }
+
+        .toggle input:checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .toggle input:checked::after {
+            transform: translateX(18px);
+            background: var(--accent-fg);
+        }
+
+        .toggle input:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Fußzeile */
+        footer {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .dots {
+            display: flex;
+            gap: 7px;
+        }
+
+        .dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--surface-strong);
+            transition: background 150ms ease, width 150ms ease;
+        }
+
+        .dots span.active {
+            width: 22px;
+            border-radius: 4px;
+            background: var(--accent);
+        }
+
+        .actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button {
+            font: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 9px 20px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+        }
+
+        button:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        #next {
+            background: var(--accent);
+            color: var(--accent-fg);
+        }
+
+        #next:hover {
+            background: var(--accent-hover);
+        }
+
+        #back {
+            background: transparent;
+            color: var(--fg);
+            border-color: var(--border);
+        }
+
+        #back:hover {
+            background: var(--surface);
+        }
+
+        #quit {
+            background: transparent;
+            color: var(--muted);
+            padding-inline: 12px;
+        }
+
+        #quit:hover {
+            color: var(--fg);
+            text-decoration: underline;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        /* Reduzierte Bewegung: System-Einstellung und Discords eigene */
+        @media (prefers-reduced-motion: reduce) {
+
+            .welcome .hero,
+            .step {
+                animation: none;
+            }
+        }
+
+        html.reduced-motion .welcome .hero,
+        html.reduced-motion .step {
+            animation: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header>
+            <img src="vesktop://static/logo.png" alt="" role="presentation" draggable="false" />
+            <span class="wordmark">Larpcord</span>
+            <span class="counter" id="counter"></span>
+        </header>
+
+        <main>
+            <!-- 1. Willkommen -->
+            <section class="step active welcome" data-step="1">
+                <img class="hero" src="vesktop://static/logo.png" alt="" role="presentation" draggable="false" />
+                <h1 data-i18n="desktop.onboarding.welcome.title"></h1>
+                <p class="lead" data-i18n="desktop.onboarding.welcome.text"></p>
+                <p data-i18n="desktop.onboarding.welcome.text2"></p>
+            </section>
+
+            <!-- 2. Nur lokal -->
+            <section class="step" data-step="2">
+                <h1 data-i18n="desktop.onboarding.local.title"></h1>
+                <p class="lead" data-i18n="desktop.onboarding.local.text"></p>
+
+                <div class="note">
+                    <span class="icon" aria-hidden="true">⚠️</span>
+                    <div>
+                        <h2 data-i18n="desktop.onboarding.local.tosTitle"></h2>
+                        <p data-i18n="desktop.onboarding.local.tos"></p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <span class="icon" aria-hidden="true">🎭</span>
+                    <div>
+                        <h2 data-i18n="desktop.onboarding.local.fairTitle"></h2>
+                        <p data-i18n="desktop.onboarding.local.fair"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Start-Preset -->
+            <section class="step" data-step="3">
+                <h1 data-i18n="desktop.onboarding.preset.title"></h1>
+                <p data-i18n="desktop.onboarding.preset.text"></p>
+
+                <div class="presets">
+                    <label>
+                        <input type="radio" name="preset" value="" checked />
+                        <div class="card">
+                            <div class="name" data-i18n="desktop.onboarding.preset.none"></div>
+                            <div class="desc" data-i18n="desktop.onboarding.preset.noneDescription"></div>
+                        </div>
+                    </label>
+                    <label>
+                        <input type="radio" name="preset" value="staff" />
+                        <div class="card">
+                            <div class="name" data-i18n="preset.builtin.staff"></div>
+                            <div class="desc" data-i18n="desktop.onboarding.preset.staffDescription"></div>
+                        </div>
+                    </label>
+                    <label>
+                        <input type="radio" name="preset" value="nitro" />
+                        <div class="card">
+                            <div class="name" data-i18n="preset.builtin.nitro"></div>
+                            <div class="desc" data-i18n="desktop.onboarding.preset.nitroDescription"></div>
+                        </div>
+                    </label>
+                    <label>
+                        <input type="radio" name="preset" value="og2015" />
+                        <div class="card">
+                            <div class="name" data-i18n="preset.builtin.og2015"></div>
+                            <div class="desc" data-i18n="desktop.onboarding.preset.og2015Description"></div>
+                        </div>
+                    </label>
+                </div>
+            </section>
+
+            <!-- 4. Einstellungen -->
+            <section class="step" data-step="4">
+                <h1 data-i18n="desktop.onboarding.settings.title"></h1>
+                <p data-i18n="desktop.onboarding.settings.text"></p>
+
+                <label class="toggle">
+                    <div class="text">
+                        <div class="name" data-i18n="desktop.onboarding.settings.watermark"></div>
+                        <div class="desc" data-i18n="desktop.onboarding.settings.watermarkDescription"></div>
+                    </div>
+                    <input type="checkbox" id="watermark" />
+                </label>
+
+                <label class="toggle">
+                    <div class="text">
+                        <div class="name" data-i18n="desktop.settings.autoStart.title"></div>
+                        <div class="desc" data-i18n="desktop.settings.autoStart.description"></div>
+                    </div>
+                    <input type="checkbox" id="autoStart" />
+                </label>
+
+                <label class="toggle">
+                    <div class="text">
+                        <div class="name" data-i18n="desktop.settings.minimizeToTray.title"></div>
+                        <div class="desc" data-i18n="desktop.settings.minimizeToTray.description"></div>
+                    </div>
+                    <input type="checkbox" id="minimizeToTray" checked />
+                </label>
+
+                <label class="toggle" id="importSettingsRow" hidden>
+                    <div class="text">
+                        <div class="name" data-i18n="desktop.onboarding.settings.importVencord"></div>
+                        <div class="desc" data-i18n="desktop.onboarding.settings.importVencordDescription"></div>
+                    </div>
+                    <input type="checkbox" id="importSettings" />
+                </label>
+            </section>
+        </main>
+
+        <footer>
+            <div class="dots" id="dots" aria-hidden="true">
+                <span class="active"></span><span></span><span></span><span></span>
+            </div>
+            <div class="actions">
+                <button id="quit" type="button" data-i18n="desktop.onboarding.quit"></button>
+                <button id="back" type="button" hidden data-i18n="desktop.onboarding.back"></button>
+                <button id="next" type="button" data-i18n="desktop.onboarding.next"></button>
+            </div>
+        </footer>
+    </div>
+</body>
+
+<script>
+    (() => {
+        const native = window.LarpcordOnboarding;
+        const steps = [...document.querySelectorAll(".step")];
+        const dots = [...document.querySelectorAll("#dots span")];
+        const TOTAL = steps.length;
+        let current = 1;
+
+        let info = { hasVencordSettings: false, reducedMotion: false };
+        try {
+            info = native?.getInfo?.() || info;
+        } catch (e) {
+            console.error("[Larpcord] Onboarding-Infos konnten nicht geladen werden", e);
+        }
+
+        if (info.reducedMotion) document.documentElement.classList.add("reduced-motion");
+        // Vencord-Import nur anbieten, wenn es eine Vencord-Installation gibt
+        if (info.hasVencordSettings) document.getElementById("importSettingsRow").hidden = false;
+
+        // i18n-keys: desktop.onboarding.finish (letzter Schritt, siehe render())
+        function render() {
+            steps.forEach(s => s.classList.toggle("active", Number(s.dataset.step) === current));
+            dots.forEach((d, i) => d.classList.toggle("active", i === current - 1));
+
+            back.hidden = current === 1;
+            quit.hidden = current !== 1;
+            next.textContent = LarpcordI18n.t(
+                current === TOTAL ? "desktop.onboarding.finish" : "desktop.onboarding.next"
+            );
+            next.dataset.i18n = current === TOTAL ? "desktop.onboarding.finish" : "desktop.onboarding.next";
+            counter.textContent = LarpcordI18n.t("desktop.onboarding.step", { current, total: TOTAL });
+            document.querySelector("main").scrollTop = 0;
+        }
+
+        function finish() {
+            next.disabled = true;
+            const checked = document.querySelector("input[name=preset]:checked");
+            try {
+                native?.finish?.({
+                    preset: checked?.value || null,
+                    watermark: watermark.checked,
+                    autoStart: autoStart.checked,
+                    minimizeToTray: minimizeToTray.checked,
+                    importSettings: info.hasVencordSettings && importSettings.checked
+                });
+            } catch (e) {
+                console.error("[Larpcord] Onboarding konnte nicht abgeschlossen werden", e);
+                next.disabled = false;
+            }
+        }
+
+        next.onclick = () => {
+            if (current === TOTAL) finish();
+            else {
+                current++;
+                render();
+            }
+        };
+        back.onclick = () => {
+            if (current > 1) current--;
+            render();
+        };
+        quit.onclick = () => native?.quit?.();
+
+        // Sprachwechsel (Discord meldet die Sprache erst nach dem Login, hier also selten)
+        LarpcordI18n.onChange(render);
+        render();
+    })();
+</script>

@@ -71,10 +71,67 @@ const updateSplashColors = () => {
     }
 };
 
-if (document.readyState === "complete") {
-    updateSplashColors();
-} else {
-    window.addEventListener("load", updateSplashColors);
+/*
+ * Larpcord: Splash und Onboarding sollen zum aktuellen Thema passen, auch wenn es mitten in der Sitzung
+ * gewechselt wird. Zusätzlich merken wir uns Discords „Reduzierte Bewegung“, damit die Views dann nicht
+ * animieren. Alles optional und in try/catch: fehlt ein Store, bleibt es einfach bei den alten Werten.
+ */
+
+/** Discords „Reduzierte Bewegung“ übernehmen (useReducedMotion ist ein Getter, kein Hook) */
+function updateReducedMotion() {
+    try {
+        const reduced = Vencord?.Webpack?.Common?.AccessibilityStore?.useReducedMotion;
+        if (typeof reduced === "boolean") Settings.store.splashReducedMotion = reduced;
+    } catch {
+        // Store (noch) nicht da – Wert der letzten Sitzung bleibt stehen
+    }
 }
 
-window.addEventListener("beforeunload", updateSplashColors);
+function update() {
+    try {
+        updateSplashColors();
+    } catch {
+        // computedStyleMap kann während eines Theme-Wechsels kurz fehlschlagen
+    }
+    updateReducedMotion();
+}
+
+// Theme-Wechsel lösen mehrere Änderungen kurz hintereinander aus → entprellen
+let timer: ReturnType<typeof setTimeout> | undefined;
+function scheduleUpdate() {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(update, 500);
+}
+
+/** Auf Theme-Wechsel horchen: Vencords Stores, dazu die theme-*-Klassen von <html> und <body> als Rückfall */
+function watchTheme() {
+    try {
+        const { ThemeStore, AccessibilityStore } = Vencord?.Webpack?.Common ?? ({} as any);
+        ThemeStore?.addChangeListener?.(scheduleUpdate);
+        AccessibilityStore?.addChangeListener?.(scheduleUpdate);
+    } catch {
+        // egal, der Observer unten greift trotzdem
+    }
+
+    try {
+        const observer = new MutationObserver(scheduleUpdate);
+        for (const el of [document.documentElement, document.body]) {
+            if (el) observer.observe(el, { attributes: true, attributeFilter: ["class", "style"] });
+        }
+    } catch {
+        // MutationObserver nicht verfügbar – dann bleibt es bei load/beforeunload
+    }
+}
+
+function init() {
+    update();
+    watchTheme();
+}
+
+if (document.readyState === "complete") {
+    init();
+} else {
+    window.addEventListener("load", init);
+}
+
+window.addEventListener("beforeunload", update);

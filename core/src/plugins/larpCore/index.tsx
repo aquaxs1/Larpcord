@@ -80,6 +80,36 @@ function reportLocaleToDesktop() {
     }
 }
 
+/**
+ * Ergebnis des Onboardings (erster Start) übernehmen: Start-Preset und Wasserzeichen.
+ * Der Desktop-Teil legt es als State.pendingOnboarding ab, hier wird es genau einmal abgeholt
+ * (consumeOnboarding() leert den Wert dabei). Fehler werden nur geloggt, nichts darf den Client blockieren.
+ */
+async function applyPendingOnboarding() {
+    try {
+        if (!IS_VESKTOP) return;
+        const consume = VesktopNative?.larpcord?.consumeOnboarding;
+        if (typeof consume !== "function") return;
+
+        const pending = await consume();
+        if (!pending) return;
+
+        if (pending.preset) {
+            try {
+                LarpStore.loadPreset(`builtin:${pending.preset}`);
+            } catch (e) {
+                logger.warn("Start-Preset aus dem Onboarding konnte nicht geladen werden", e);
+            }
+        }
+        // update() vergisst das aktive Preset (jede Änderung ist eine Abweichung davon),
+        // deshalb nur schreiben, wenn sich der Wert wirklich unterscheidet.
+        const watermark = !!pending.watermark;
+        if (LarpStore.get().watermark !== watermark) LarpStore.update({ watermark });
+    } catch (e) {
+        logger.warn("Onboarding-Einstellungen konnten nicht übernommen werden", e);
+    }
+}
+
 export default definePlugin({
     name: "LarpCore",
     get description() {
@@ -132,6 +162,7 @@ export default definePlugin({
         unsubscribe = LarpStore.subscribe(refreshDiscordUi);
         schedulePatchHealthCheck();
         await LarpStore.init();
+        await applyPendingOnboarding();
     },
 
     stop() {

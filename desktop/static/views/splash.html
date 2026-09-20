@@ -2,11 +2,31 @@
 <meta charset="utf-8" />
 
 <head>
+    <script>
+        // Larpcord: muss vor dem Stylesheet laufen, sonst blitzt kurz der helle Hintergrund auf.
+        // ?setup=1 = allererster Start, ?reducedMotion=1 = Discords „Reduzierte Bewegung“ der letzten Sitzung.
+        (() => {
+            const params = new URLSearchParams(location.search);
+            if (params.get("setup") === "1") document.documentElement.classList.add("setup");
+            if (params.get("reducedMotion") === "1") document.documentElement.classList.add("reduced-motion");
+        })();
+    </script>
+
     <link rel="stylesheet" href="./common.css" type="text/css" />
     <!-- Larpcord: Übersetzungen (data-i18n), braucht exposeViewI18n() im Splash-Preload -->
     <script src="./i18n.js"></script>
 
     <style>
+        /* Erster Start: Discord-Look, egal wie das System eingestellt ist. Es gibt ja noch keine
+           Theme-Farben aus Discord; sind welche da, gewinnen sie (splash.ts setzt sie mit !important). */
+        html.setup {
+            color-scheme: dark;
+            --bg: #1e1f22;
+            --fg: #f2f3f5;
+            --fg-secondary: #b5bac1;
+            --fg-semi-trans: rgb(255 255 255 / 0.2);
+        }
+
         html,
         body {
             width: 100%;
@@ -49,6 +69,33 @@
             width: 128px;
             height: 128px;
             object-fit: contain;
+            /* Larpcord: sanftes Schweben/Pulsieren des Logos */
+            animation: larp-float 2.6s ease-in-out infinite;
+        }
+
+        @keyframes larp-float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(-6px) scale(1.04);
+                opacity: 0.85;
+            }
+        }
+
+        /* Reduzierte Bewegung: System-Einstellung und Discords eigene (?reducedMotion=1) */
+        @media (prefers-reduced-motion: reduce) {
+            img {
+                animation: none;
+            }
+        }
+
+        html.reduced-motion img {
+            animation: none;
         }
     </style>
 </head>
@@ -62,6 +109,15 @@
 </body>
 
 <script>
+    // Larpcord: beim allerersten Start (html.setup, siehe Skript im <head>) „Larpcord wird eingerichtet …“
+    // statt des Ladetexts. i18n-keys: desktop.splash.setup
+    (() => {
+        if (!document.documentElement.classList.contains("setup")) return;
+        const el = document.getElementById("splash-text");
+        el.dataset.i18n = "desktop.splash.setup";
+        window.LarpcordI18n?.apply();
+    })();
+
     document.addEventListener("DOMContentLoaded", () => {
         const messageElement = document.querySelector('.message');
         VesktopSplashNative.onUpdateMessage(message => {

@@ -103,6 +103,13 @@ await Promise.all([
         outfile: "dist/js/splashPreload.js",
         footer: { js: "//# sourceURL=VesktopSplashPreload" }
     }),
+    // Larpcord: Preload des Onboarding-Fensters (erster Start)
+    createContext({
+        ...NodeCommonOpts,
+        entryPoints: ["src/preload/onboarding.ts"],
+        outfile: "dist/js/onboardingPreload.js",
+        footer: { js: "//# sourceURL=LarpcordOnboardingPreload" }
+    }),
     createContext({
         ...CommonOpts,
         globalName: "Vesktop",

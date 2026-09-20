@@ -59,13 +59,16 @@ export function onMainLocaleChange(listener: () => void) {
     return () => void listeners.delete(listener);
 }
 
-/** Alle desktop.*-Texte der aktuellen Sprache (mit en-Fallback) für die HTML-Views */
+// preset.builtin.*: Namen der mitgelieferten Presets, die das Onboarding zur Auswahl anbietet
+const VIEW_PREFIXES = ["desktop.", "preset.builtin."];
+
+/** Texte der aktuellen Sprache (mit en-Fallback) für die HTML-Views */
 export function getViewStrings() {
     ensureInit();
     const strings: Record<string, string> = {};
     for (const dict of [LOCALES.en, LOCALES[translator.locale]]) {
         if (!dict) continue;
-        for (const [k, v] of Object.entries(dict)) if (k.startsWith("desktop.")) strings[k] = v;
+        for (const [k, v] of Object.entries(dict)) if (VIEW_PREFIXES.some(p => k.startsWith(p))) strings[k] = v;
     }
     return { locale: translator.locale, strings };
 }
