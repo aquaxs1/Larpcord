@@ -7,3 +7,5 @@ core/dist/
 desktop/dist/
 desktop/vencord/
 desktop/release-notes.md
+desktop/dev-app-update.yml
+desktop/dist-updatetest/

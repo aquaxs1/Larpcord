@@ -71,6 +71,52 @@ Interne Vencord-Bezeichner (`Vencord.*`) **nicht** umbenennen, das macht Upstrea
 
 ---
 
+## Mehrsprachigkeit (i18n)
+
+Larpcord spricht Deutsch und Englisch und folgt Discords Spracheinstellung, ohne Neustart.
+
+- **Modul:** `core/src/plugins/larpCore/i18n/` – `t(key, vars?)`, `tNode(key, vars)` für Texte mit React-Elementen,
+  `useLarpLocale()` in Komponenten, `formatLarpDate`/`formatLarpNumber`, `LarpError(key, vars)` + `errorText(e)`
+  für übersetzbare Fehler. Die reine Logik steht in `i18n/translator.ts` (ohne Vencord/Electron).
+- **Sprachdateien:** `core/src/plugins/larpCore/i18n/locales/<sprache>.json`, flache Schlüssel
+  (`"bereich.schluessel": "Text mit {variable}"`), Mehrzahl über `.one`/`.other`. Eine weitere Sprache braucht
+  **nur eine neue JSON-Datei** – das esbuild-Plugin `core/scripts/build/larpLocales.mjs` findet sie automatisch
+  (virtuelles Modul `~larpcord-locales`, auch im Desktop-Build).
+- **Quelle der Sprache:** Discords `LocaleStore` (nicht das System). Der Core meldet sie per IPC an den
+  Main-Prozess (`VesktopNative.larpcord.setLocale`), der sie in `settings.json` merkt und Tray, Menü und eigene
+  Fenster neu aufbaut. Vor dem Login gilt die zuletzt gemeldete bzw. die Systemsprache.
+- **Desktop:** `desktop/src/main/i18n.ts` (gleiche Sprachdateien), Views nutzen `data-i18n="desktop.…"` plus
+  `desktop/static/views/i18n.js`; Schlüssel für Views müssen mit `desktop.` beginnen.
+- **Regeln:** keine übersetzten Texte in Modul-Konstanten einfrieren (Getter oder erst beim Rendern übersetzen),
+  Plugin-Beschreibungen als Getter, Logger-Ausgaben bleiben unübersetzt.
+- **Prüfen:** `pnpm i18n:check` meldet fehlende, überflüssige und abweichende Schlüssel und läuft in CI
+  (`.github/workflows/ci.yml`). Dynamische Schlüssel mit Kommentar `// i18n-keys: prefix.*` anmelden.
+
+## Auto-Updater und Release
+
+- **Main-Prozess:** `desktop/src/main/updater.ts` (electron-updater, GitHub-Provider `aquaxs1/Larpcord`).
+  Prüft beim Start und alle 4 Stunden, lädt im Hintergrund, meldet den Status per IPC an den Core.
+  Kanal „Beta“ = `allowPrerelease`. Dev- und portable Builds melden `unsupported`.
+- **Core:** `larpCore/updater/` (Status-Client, Discord-Modal mit Changelog, sichere Release-Notes-Anzeige) und
+  der Hub-Tab „Updates“ (`hub/UpdatesTab.tsx`).
+- **„Später“** heißt `autoInstallOnAppQuit`, nicht „vergessen“. Fehler werden nur geloggt und im Hub gezeigt.
+- **Release:** Tag `v*` → GitHub Action baut, `electron-builder --publish always` lädt `Larpcord-Setup.exe`,
+  `latest.yml` und Blockmap hoch. Tags mit `-beta` werden über `EP_PRE_RELEASE` zum Prerelease.
+  Der Release-Text kommt aus `CHANGELOG.md` (`scripts/release-notes.mjs`) und ist zugleich der Changelog im
+  Update-Hinweis. Lokales Veröffentlichen braucht `GH_TOKEN` aus `.env` (nie committen).
+- **Installer:** NSIS oneClick pro Benutzer (`desktop/build/installer.nsh`), dunkles Farbschema über
+  `MUI_CUSTOMFUNCTION_GUIINIT`, eigene Icons, Deutsch/Englisch. Die Deinstallation fragt nach den Nutzerdaten,
+  aber nicht bei Updates (`${isUpdated}`) und nicht im Silent-Modus.
+- **Testen ohne Risiko:** Testpakete immer mit eigener `appId`, eigenem `extraMetadata.name` **und**
+  `extraMetadata.productName` bauen, sonst teilen sie sich Datenordner und Einzelinstanz-Sperre mit der
+  installierten Larpcord-Version des Users.
+
+## Logo
+
+`assets/larpcordlogo.png` ist die einzige Quelle. `python scripts/generate-icons.py` erzeugt daraus alle
+Icons (EXE, Installer, Tray, Ladebildschirm, Fenster) und `core/src/plugins/larpCore/assets/logo.png`, das im
+Core über `larpCore/logo.ts` als Data-URL eingebettet wird. Ein neues Logo heißt: Datei austauschen, Skript laufen lassen.
+
 ## Phasen
 
 Nacheinander, nach jeder Phase bauen, starten, testen, kurz zusammenfassen.
@@ -86,7 +132,7 @@ Nacheinander, nach jeder Phase bauen, starten, testen, kurz zusammenfassen.
 7. **larpLayout** (fertig, wenn Server und DMs verschiebbar sind, das nach Neustart bleibt und die echte Reihenfolge im normalen Discord unverändert ist)
 8. **Feinschliff:** alle Larp-Plugins standardmäßig aktiv unter Kategorie „Larpcord“, absichtlich kaputten Patch testen (Client muss weiterlaufen), GitHub Action baut bei Tag `v*` die .exe als Release.
 
-### Stand (2026-09-19)
+### Stand (2026-09-20)
 
 | Phase | Stand |
 |---|---|
@@ -99,6 +145,19 @@ Nacheinander, nach jeder Phase bauen, starten, testen, kurz zusammenfassen.
 | 6 larpThemes | fertig |
 | 7 larpLayout | fertig: Stufen A–E und Sicherheitsnetz. Weitere Bereiche siehe `TODO.md` |
 | 8 Feinschliff | fertig: alle Plugins standardmäßig aktiv unter „Larpcord“, Test mit absichtlich kaputten Patches bestanden, Release-Workflow, README |
+
+Danach läuft das große Update aus `TODO.md`:
+
+| Abschnitt | Stand |
+|---|---|
+| 1 Mehrsprachigkeit | fertig (de/en, Live-Wechsel, `pnpm i18n:check` in CI) |
+| 2 Auto-Updater | fertig, Ende-zu-Ende-Test mit lokalem Update-Server |
+| 3 Installer im Discord-Stil | oneClick, dunkel, Icons, Uninstaller-Frage fertig; Setup-Splash und Onboarding offen |
+| 4 larpActivity | offen |
+| 5 Lokale Rollen | offen |
+| 6 Server umgestalten | offen |
+| 7 Profil-Musik | offen |
+| 8 Abschluss | offen |
 
 ### Testen
 

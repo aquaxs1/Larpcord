@@ -12,51 +12,58 @@
   WriteRegExpandStr HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation "$LocalAppData\${APP_FILENAME}"
 !macroend
 
+; Discord-ähnliche dunkle Farben. MUI ruft diese Funktion beim Aufbau des Fensters auf
+; (die Datei wird vor MUI2.nsh eingebunden, .onGUIInit selbst gehört MUI).
+!define LARP_FG 0xF2F3F5
+!define LARP_BG 0x1E1F22
+
+!ifdef BUILD_UNINSTALLER
+  !define MUI_CUSTOMFUNCTION_UNGUIINIT un.larpDarkGuiInit
+!else
+  !define MUI_CUSTOMFUNCTION_GUIINIT larpDarkGuiInit
+!endif
+
+!macro larpDarkWindow
+  SetCtlColors $HWNDPARENT ${LARP_FG} ${LARP_BG}
+  FindWindow $0 "#32770" "" $HWNDPARENT
+  SetCtlColors $0 ${LARP_FG} ${LARP_BG}
+  ; Statustext, Fortschritt, Detailliste der Instfiles-Seite
+  GetDlgItem $1 $0 1000
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  GetDlgItem $1 $0 1004
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  GetDlgItem $1 $0 1006
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  GetDlgItem $1 $0 1016
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  ; Kopfbereich und Fußzeile des Hauptfensters
+  GetDlgItem $1 $HWNDPARENT 1034
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  GetDlgItem $1 $HWNDPARENT 1035
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  GetDlgItem $1 $HWNDPARENT 1036
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  GetDlgItem $1 $HWNDPARENT 1037
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  GetDlgItem $1 $HWNDPARENT 1038
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  GetDlgItem $1 $HWNDPARENT 1039
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+  GetDlgItem $1 $HWNDPARENT 1256
+  SetCtlColors $1 ${LARP_FG} ${LARP_BG}
+!macroend
+
 !macro customHeader
-  ; Discord-ähnliche dunkle Farben
-  !define LARP_FG 0xF2F3F5
-  !define LARP_BG 0x1E1F22
-
-  !macro larpDarkWindow
-    SetCtlColors $HWNDPARENT ${LARP_FG} ${LARP_BG}
-    FindWindow $0 "#32770" "" $HWNDPARENT
-    SetCtlColors $0 ${LARP_FG} ${LARP_BG}
-    ; Statustext, Fortschritt, Detailliste der Instfiles-Seite
-    GetDlgItem $1 $0 1000
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    GetDlgItem $1 $0 1004
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    GetDlgItem $1 $0 1006
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    GetDlgItem $1 $0 1016
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    ; Kopfbereich und Fußzeile des Hauptfensters
-    GetDlgItem $1 $HWNDPARENT 1034
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    GetDlgItem $1 $HWNDPARENT 1035
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    GetDlgItem $1 $HWNDPARENT 1036
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    GetDlgItem $1 $HWNDPARENT 1037
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    GetDlgItem $1 $HWNDPARENT 1038
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    GetDlgItem $1 $HWNDPARENT 1039
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-    GetDlgItem $1 $HWNDPARENT 1256
-    SetCtlColors $1 ${LARP_FG} ${LARP_BG}
-  !macroend
-
   ; Texte der Deinstallation (Sprache wählt NSIS nach Systemsprache)
   LangString larpKeepData ${LANG_ENGLISH} "Keep your Larpcord settings and presets?$\r$\n$\r$\nYes: your presets, settings and login stay on this PC.$\r$\nNo: everything Larpcord stored on this PC is deleted."
   LangString larpKeepData ${LANG_GERMAN} "Einstellungen und Presets behalten?$\r$\n$\r$\nJa: Presets, Einstellungen und Anmeldung bleiben auf diesem PC.$\r$\nNein: Alle Larpcord-Daten auf diesem PC werden gelöscht."
 
   !ifdef BUILD_UNINSTALLER
-    Function un.onGUIInit
+    Function un.larpDarkGuiInit
       !insertmacro larpDarkWindow
     FunctionEnd
   !else
-    Function .onGUIInit
+    Function larpDarkGuiInit
       !insertmacro larpDarkWindow
     FunctionEnd
   !endif

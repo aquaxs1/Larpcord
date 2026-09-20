@@ -1,4 +1,6 @@
-# 🎭 Larpcord
+<p align="center"><img src="assets/larpcordlogo.png" width="160" alt="Larpcord"></p>
+
+# Larpcord
 
 **Der Discord-Client, in dem du alles sein darfst. Zumindest auf deinem eigenen Bildschirm.**
 
@@ -51,8 +53,17 @@ Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), m
 - Theme-Editor mit Live-Vorschau (Farben, Schriftarten, Rundungen)
 - Eigene Sounds, eigener Ladebildschirm, eigenes App-Icon
 
+### 🌍 Sprache
+- Deutsch und Englisch, Larpcord folgt automatisch deiner Discord-Spracheinstellung
+- Umschalten wirkt sofort, ohne Neustart
+
+### 🔄 Updates
+- Larpcord aktualisiert sich selbst über die offiziellen GitHub-Releases (beim Start und alle 4 Stunden)
+- Update wird im Hintergrund geladen, danach ein Hinweis mit Changelog: **Jetzt neu starten** oder **Später**
+- Kanäle **Stabil** und **Beta**, abschaltbar unter **Larpcord Hub → Updates**
+
 ### ⚙️ Larpcord-Hub
-Alle Einstellungen an einem Ort, mit Live-Vorschau deines Profils: **Einstellungen → Larpcord → Larpcord Hub** (Unter-Tabs Badges, Nitro, Dekorationen, Name, Server, Themes, Layout, Presets).
+Alle Einstellungen an einem Ort, mit Live-Vorschau deines Profils: **Einstellungen → Larpcord → Larpcord Hub** (Unter-Tabs Badges, Nitro, Dekorationen, Name, Server, Themes, Layout, Presets, Updates).
 Ladebildschirm, Tray- und App-Icon findest du unter **Einstellungen → Larpcord → Larpcord Desktop → Customize App Assets**.
 
 ---
@@ -71,10 +82,17 @@ Larpcord ist **rein kosmetisch und lokal**. Alles, was Discords Server prüft, b
 
 ## 🚀 Installation
 
-1. Neuestes Release unter [Releases](../../releases) herunterladen
-2. `Larpcord-Setup.exe` ausführen
-3. Mit deinem Discord-Account einloggen
-4. Einstellungen → **Larpcord** öffnen und loslegen
+1. Neuestes Release unter [Releases](https://github.com/aquaxs1/Larpcord/releases) herunterladen
+2. `Larpcord-Setup.exe` ausführen – ein Klick, kurzer Fortschritt, fertig (Installation nur für dich, keine Adminrechte nötig)
+3. Beim ersten Start führt dich ein kurzes Onboarding durch die wichtigsten Einstellungen
+4. Mit deinem Discord-Account einloggen und unter Einstellungen → **Larpcord** loslegen
+
+> **Windows SmartScreen:** Larpcord ist nicht code-signiert (Zertifikate kosten Geld). Beim ersten Start meldet
+> Windows deshalb „Der Computer wurde durch Windows geschützt“ → **Weitere Informationen** → **Trotzdem ausführen**.
+> Automatische Updates laufen danach ohne diese Warnung durch.
+
+Larpcord meldet sich, sobald eine neue Version da ist, und installiert sie auf Wunsch sofort.
+Deinstallieren geht über **Einstellungen → Apps**; dabei fragt Larpcord, ob deine Presets und Einstellungen bleiben sollen.
 
 ### Selbst bauen
 
@@ -93,9 +111,15 @@ Weitere Befehle:
 | Befehl | Zweck |
 |---|---|
 | `pnpm dev` | Dev-Build bauen und Larpcord direkt aus dem Quellcode starten |
-| `pnpm icons` | Platzhalter-Icons neu erzeugen (braucht Python + Pillow) |
+| `pnpm icons` | Alle Icons aus `assets/larpcordlogo.png` neu erzeugen (braucht Python + Pillow) |
+| `pnpm i18n:check` | Prüft die Sprachdateien auf fehlende oder überflüssige Schlüssel |
 
-Ein Release entsteht automatisch, sobald ein Tag `v*` gepusht wird (siehe `.github/workflows/release.yml`).
+Ein Release entsteht automatisch, sobald ein Tag `v*` gepusht wird (siehe `.github/workflows/release.yml`):
+gebaut wird `Larpcord-Setup.exe` plus `latest.yml`, damit der Auto-Updater die Version findet.
+Tags mit `-beta` (z. B. `v0.3.0-beta.1`) landen als Vorabversion im Kanal **Beta**.
+
+**Eine weitere Sprache beisteuern:** eine Kopie von `core/src/plugins/larpCore/i18n/locales/en.json` unter dem
+Sprachkürzel anlegen (z. B. `fr.json`), übersetzen, `pnpm i18n:check` ausführen – mehr braucht es nicht.
 
 ---
 

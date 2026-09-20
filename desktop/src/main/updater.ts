@@ -39,8 +39,12 @@ const log = {
     debug: () => {}
 };
 
-/** Updates gehen nur mit installierter App (NSIS). Dev-Builds und die portable win-unpacked-Version nicht. */
-export const UPDATER_SUPPORTED = app.isPackaged && !PORTABLE && process.platform === "win32";
+/**
+ * Updates gehen nur mit installierter App (NSIS). Dev-Builds und die portable win-unpacked-Version nicht.
+ * Zum Testen: LARPCORD_DEV_UPDATER=1 setzen und desktop/dev-app-update.yml mit einem Update-Server anlegen.
+ */
+const DEV_UPDATER = process.env.LARPCORD_DEV_UPDATER === "1";
+export const UPDATER_SUPPORTED = (app.isPackaged && !PORTABLE && process.platform === "win32") || DEV_UPDATER;
 
 function options() {
     const o = Settings.store.larpUpdater ?? {};
@@ -165,6 +169,7 @@ function installNow() {
 
 if (UPDATER_SUPPORTED) {
     autoUpdater.logger = log;
+    if (DEV_UPDATER) autoUpdater.forceDevUpdateConfig = true;
     autoUpdater.autoDownload = true;
     autoUpdater.autoInstallOnAppQuit = true;
     autoUpdater.fullChangelog = false;
