@@ -40,13 +40,54 @@ function convert(node: Node, key: string, budget: { left: number; }): ReactNode 
     return <React.Fragment key={key}>{children}</React.Fragment>;
 }
 
+/** Fettdruck und Code aus Markdown, alles andere bleibt Text */
+function inlineMarkdown(text: string, key: string): ReactNode {
+    const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+    return parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**")) return <strong key={`${key}.${i}`}>{part.slice(2, -2)}</strong>;
+        if (part.startsWith("`") && part.endsWith("`")) return <code key={`${key}.${i}`}>{part.slice(1, -1)}</code>;
+        return part;
+    });
+}
+
+/** Klartext-Notes mit etwas Markdown (Überschriften, Listen, Fettdruck) */
+function renderPlainNotes(text: string): ReactNode {
+    const out: ReactNode[] = [];
+    let list: ReactNode[] = [];
+
+    const flush = () => {
+        if (!list.length) return;
+        out.push(<ul key={`ul${out.length}`}>{list}</ul>);
+        list = [];
+    };
+
+    text.split(/\r?\n/).forEach((line, i) => {
+        const trimmed = line.trim();
+        const heading = /^(#{1,6})\s+(.*)$/.exec(trimmed);
+        const bullet = /^[-*]\s+(.*)$/.exec(trimmed);
+        if (heading) {
+            flush();
+            const Tag = (heading[1].length <= 2 ? "h4" : "h5") as "h4" | "h5";
+            out.push(<Tag key={i}>{inlineMarkdown(heading[2], String(i))}</Tag>);
+        } else if (bullet) {
+            list.push(<li key={i}>{inlineMarkdown(bullet[1], String(i))}</li>);
+        } else if (trimmed) {
+            flush();
+            out.push(<p key={i}>{inlineMarkdown(trimmed, String(i))}</p>);
+        } else {
+            flush();
+        }
+    });
+    flush();
+    return out;
+}
+
 /** Wandelt Release-Notes (HTML oder Klartext) sicher in React-Elemente um */
 export function renderReleaseNotes(notes: string | null | undefined): ReactNode {
     if (!notes?.trim()) return null;
     const text = notes.slice(0, 50_000);
-    if (!/<[a-z][\s\S]*>/i.test(text)) {
-        return text.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>);
-    }
+    // Kein HTML (z. B. generischer Update-Server): einfaches Markdown rendern
+    if (!/<[a-z][\s\S]*>/i.test(text)) return renderPlainNotes(text);
     try {
         const doc = new DOMParser().parseFromString(text, "text/html");
         const budget = { left: MAX_NODES };
