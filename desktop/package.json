@@ -181,10 +181,24 @@
         },
         "nsis": {
             "include": "build/installer.nsh",
-            "oneClick": false,
+            "oneClick": true,
             "artifactName": "Larpcord-Setup.exe",
             "shortcutName": "Larpcord",
-            "uninstallDisplayName": "Larpcord"
+            "uninstallDisplayName": "Larpcord",
+            "perMachine": false,
+            "runAfterFinish": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "deleteAppDataOnUninstall": false,
+            "installerIcon": "build/installerIcon.ico",
+            "uninstallerIcon": "build/uninstallerIcon.ico",
+            "installerHeaderIcon": "build/installerHeaderIcon.ico",
+            "multiLanguageInstaller": true,
+            "installerLanguages": [
+                "en_US",
+                "de_DE"
+            ],
+            "unicode": true
         },
         "win": {
             "icon": "build/icon.ico",
