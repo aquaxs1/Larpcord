@@ -69,25 +69,43 @@
   !endif
 !macroend
 
-; Vor dem Löschen der Programmdateien fragen, ob die Nutzerdaten bleiben sollen.
-; Nicht bei einem Update (--updated) und nicht bei "/S" (stille Deinstallation),
-; weil der Auto-Updater die alte Version still deinstalliert.
-!macro customUnInstall
+; Frage nach den Nutzerdaten. Wichtig: NSIS startet den Uninstaller als Kopie im Temp-Ordner neu und schaltet
+; dabei auf „silent“ – gefragt werden darf deshalb nur im äußeren Prozess (customUnInit, noch ohne "/S" auf der
+; Kommandozeile). Die Antwort wird kurz in der Registry gemerkt und beim Deinstallieren ausgewertet.
+; Nicht gefragt wird bei einem Update (--updated), denn der Auto-Updater deinstalliert die alte Version still.
+!macro customUnInit
   ${ifNot} ${isUpdated}
     ClearErrors
     ${GetParameters} $R8
     ${GetOptions} $R8 "/S" $R9
     ${if} ${Errors}
+      DeleteRegValue SHELL_CONTEXT "${INSTALL_REGISTRY_KEY}" "LarpcordDeleteData"
+      ; Der oneClick-Uninstaller hat sich direkt davor selbst auf "silent" gesetzt; dann würde die Frage
+      ; still mit der Vorgabe beantwortet statt angezeigt. Für die Frage also kurz zurückschalten.
+      SetSilent normal
       MessageBox MB_YESNO|MB_ICONQUESTION "$(larpKeepData)" /SD IDYES IDYES larpKeepUserData
-        SetShellVarContext current
-        RMDir /r "$APPDATA\${APP_FILENAME}"
-        !ifdef APP_PRODUCT_FILENAME
-          RMDir /r "$APPDATA\${APP_PRODUCT_FILENAME}"
-        !endif
-        !ifdef APP_PACKAGE_NAME
-          RMDir /r "$APPDATA\${APP_PACKAGE_NAME}"
-        !endif
+        WriteRegDWORD SHELL_CONTEXT "${INSTALL_REGISTRY_KEY}" "LarpcordDeleteData" 1
       larpKeepUserData:
+      SetSilent silent
     ${endif}
+  ${endif}
+!macroend
+
+!macro customUnInstall
+  ClearErrors
+  ReadRegDWORD $R8 SHELL_CONTEXT "${INSTALL_REGISTRY_KEY}" "LarpcordDeleteData"
+  DeleteRegValue SHELL_CONTEXT "${INSTALL_REGISTRY_KEY}" "LarpcordDeleteData"
+  ${if} $R8 == 1
+  ${andIfNot} ${isUpdated}
+    SetShellVarContext current
+    ; Electron legt die Nutzerdaten unter dem Produktnamen ab, NSIS kennt zusätzlich Datei- und Paketnamen
+    RMDir /r "$APPDATA\${PRODUCT_NAME}"
+    RMDir /r "$APPDATA\${APP_FILENAME}"
+    !ifdef APP_PRODUCT_FILENAME
+      RMDir /r "$APPDATA\${APP_PRODUCT_FILENAME}"
+    !endif
+    !ifdef APP_PACKAGE_NAME
+      RMDir /r "$APPDATA\${APP_PACKAGE_NAME}"
+    !endif
   ${endif}
 !macroend
