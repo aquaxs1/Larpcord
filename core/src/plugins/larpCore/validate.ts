@@ -7,7 +7,7 @@
 import { OFFICIAL_BADGE_IDS } from "./badges";
 import { createDefaultProfile } from "./defaults";
 import { LarpError } from "./i18n";
-import { CustomBadge, LarpButtonLayout, LarpExportFile, LarpLayout, LarpPreset, LarpProfile, LarpSounds, LarpTheme, ServerLarp } from "./types";
+import { CustomBadge, LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpActivityType, LarpButtonLayout, LarpExportFile, LarpLayout, LarpPreset, LarpProfile, LarpSounds, LarpTheme, ServerLarp } from "./types";
 
 /*
  * Bereinigt beliebige (importierte oder gespeicherte) Daten zu einem gültigen LarpProfile.
@@ -151,6 +151,100 @@ function layout(v: unknown): LarpLayout | undefined {
     };
 }
 
+const MAX_ACTIVITIES = 10;
+const MAX_ACTIVITY_RULES = 30;
+const ACTIVITY_TYPES: LarpActivityType[] = [0, 1, 2, 3, 4, 5];
+
+function int(v: unknown, min: number, max: number): number | undefined {
+    if (typeof v !== "number" || !Number.isFinite(v)) return undefined;
+    return Math.max(min, Math.min(max, Math.floor(v)));
+}
+
+/** Zufällige, stabile ID für Einträge ohne eigene */
+function entryId(v: unknown): string {
+    return str(v, 40)?.replace(/[^\w-]/g, "") || Math.random().toString(36).slice(2, 10);
+}
+
+function activityTimes(v: unknown): LarpActivityTimes | undefined {
+    if (!isObj(v)) return undefined;
+    const mode = v.mode;
+    if (mode !== "since" && mode !== "until" && mode !== "progress") return undefined;
+    const out: LarpActivityTimes = { mode, live: bool(v.live, true) };
+    // Höchstens ein Jahr, damit aus Zahlenmüll keine unsinnigen Zeitangaben werden
+    const seconds = int(v.seconds, 0, 31_536_000);
+    if (seconds != null) out.seconds = seconds;
+    const elapsed = int(v.elapsed, 0, 31_536_000);
+    if (elapsed != null) out.elapsed = elapsed;
+    // Zeitpunkte dürfen anders als bei Badges auch in der Zukunft liegen („noch bis …“)
+    if (typeof v.at === "string") {
+        const d = new Date(v.at);
+        if (!isNaN(d.getTime())) out.at = d.toISOString();
+    }
+    if (!out.live && !out.at) out.live = true;
+    return out;
+}
+
+/** Anzeige-Felder, die eigene Aktivitäten und Regeln gemeinsam haben */
+function activityFields(v: Record<string, unknown>): LarpActivityFields {
+    const out: LarpActivityFields = {
+        name: str(v.name, 128),
+        details: str(v.details, 128),
+        state: str(v.state, 128),
+        largeImage: safeUrl(v.largeImage),
+        largeText: str(v.largeText, 128),
+        smallImage: safeUrl(v.smallImage),
+        smallText: str(v.smallText, 128),
+        times: activityTimes(v.times)
+    };
+    return out;
+}
+
+function activity(v: unknown): LarpActivity | undefined {
+    if (!isObj(v)) return undefined;
+    const fields = activityFields(v);
+    const name = fields.name;
+    if (!name) return undefined;
+    const type = ACTIVITY_TYPES.includes(v.type as LarpActivityType) ? v.type as LarpActivityType : 0;
+    const out: LarpActivity = { ...fields, id: entryId(v.id), enabled: bool(v.enabled, true), type, name };
+
+    if (Array.isArray(v.party) && v.party.length === 2) {
+        const a = int(v.party[0], 0, 999_999), b = int(v.party[1], 0, 999_999);
+        if (a != null && b != null && b > 0) out.party = [Math.min(a, b), b];
+    }
+    if (Array.isArray(v.buttons)) {
+        const buttons = v.buttons.map(b => str(b, 32)).filter(Boolean) as string[];
+        if (buttons.length) out.buttons = buttons.slice(0, 2);
+    }
+    // Nur Unicode-Emoji: erfundene Emoji-IDs würden auf nicht existierende CDN-Bilder zeigen,
+    // deshalb keine Discord-Emoji-Schreibweise (<:name:id>) zulassen
+    const emoji = str(v.emoji, 16);
+    if (emoji && !/[:<>@a-zA-Z]/.test(emoji)) out.emoji = emoji;
+
+    return out;
+}
+
+function activityRule(v: unknown): LarpActivityRule | undefined {
+    if (!isObj(v)) return undefined;
+    const match = str(v.match, 128)?.toLowerCase();
+    if (!match) return undefined;
+    return {
+        ...activityFields(v),
+        id: entryId(v.id),
+        enabled: bool(v.enabled, true),
+        match,
+        label: str(v.label, 128),
+        hide: bool(v.hide)
+    };
+}
+
+function activities(v: unknown): LarpActivities | undefined {
+    if (!isObj(v)) return undefined;
+    const list = Array.isArray(v.list) ? v.list.map(activity).filter(Boolean).slice(0, MAX_ACTIVITIES) as LarpActivity[] : [];
+    const rules = Array.isArray(v.rules) ? v.rules.map(activityRule).filter(Boolean).slice(0, MAX_ACTIVITY_RULES) as LarpActivityRule[] : [];
+    if (!list.length && !rules.length) return undefined;
+    return { enabled: bool(v.enabled, true), list, rules };
+}
+
 const SNOWFLAKE = /^\d{15,21}$/;
 // Discord-Asset-Hashes, z. B. "a_1234abcd…" oder "v2_…"
 const ASSET = /^[\w-]{8,80}$/;
@@ -249,6 +343,9 @@ export function sanitizeProfile(input: unknown): LarpProfile {
 
     const l = layout(input.layout);
     if (l) p.layout = l;
+
+    const acts = activities(input.activities);
+    if (acts) p.activities = acts;
 
     const t = theme(input.theme);
     if (t) p.theme = t;

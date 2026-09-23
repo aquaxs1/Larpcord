@@ -60,16 +60,16 @@ Wichtig: Muss mit `electron-updater` kompatibel bleiben, also NSIS-Target behalt
 
 **Harte Regel:** Nur lokale Anzeige. Keine Presence-Updates über das Gateway, keine Rich-Presence-Anmeldung. Anders als Vencords CustomRPC darf diese Aktivität für andere nicht sichtbar sein. Umsetzung durch Patchen der Aktivitäten, die der Client für die eigene User-ID anzeigt.
 
-- [ ] Eigene Aktivitäten erstellen, mehrere gleichzeitig möglich
-- [ ] Typ: Spielt, Hört, Schaut, Streamt, Tritt an, Benutzerdefinierter Status
-- [ ] Alle Felder bearbeitbar: Name, Details, Status-Zeile, großes Bild, kleines Bild, Tooltip-Texte beider Bilder, Gruppengröße (z. B. 2 von 4), Buttons (nur Anzeige, ohne Aktion)
-- [ ] Bilder als URL oder hochgeladene Datei
-- [ ] Zeit: „seit X“ (Startzeit), „noch X“ (Endzeit), fester Wert oder live laufend. Bei „Hört“ Fortschrittsleiste wie bei Spotify
-- [ ] Benutzerdefinierter Status mit Emoji und Text
-- [ ] **Aktivitäts-Changer:** echte erkannte Aktivitäten (z. B. ein laufendes Spiel) lokal verändern: Icon, Texte, Zeit überschreiben oder ganz ausblenden. Regeln pro Anwendung speichern
-- [ ] Editor im Hub mit Live-Vorschau, wie die Aktivität im Profil und in der Mitgliederliste aussieht
-- [ ] Anzeige überall, wo die eigene Aktivität erscheint: Profil-Popout, Profil-Fenster, Mitgliederliste, DM-Liste, User-Panel
-- [ ] Aktivitäten sind Teil der Presets
+- [x] Eigene Aktivitäten erstellen, mehrere gleichzeitig möglich
+- [x] Typ: Spielt, Hört, Schaut, Streamt, Tritt an, Benutzerdefinierter Status
+- [x] Alle Felder bearbeitbar: Name, Details, Status-Zeile, großes Bild, kleines Bild, Tooltip-Texte beider Bilder, Gruppengröße (z. B. 2 von 4), Buttons (nur Anzeige, ohne Aktion)
+- [x] Bilder als URL oder hochgeladene Datei
+- [x] Zeit: „seit X“ (Startzeit), „noch X“ (Endzeit), fester Wert oder live laufend. Bei „Hört“ Fortschrittsleiste wie bei Spotify
+- [x] Benutzerdefinierter Status mit Emoji und Text
+- [x] **Aktivitäts-Changer:** echte erkannte Aktivitäten (z. B. ein laufendes Spiel) lokal verändern: Icon, Texte, Zeit überschreiben oder ganz ausblenden. Regeln pro Anwendung speichern
+- [x] Editor im Hub mit Live-Vorschau, wie die Aktivität im Profil und in der Mitgliederliste aussieht
+- [x] Anzeige überall, wo die eigene Aktivität erscheint: Profil-Popout, Profil-Fenster, Mitgliederliste, DM-Liste, User-Panel
+- [x] Aktivitäten sind Teil der Presets
 
 ---
 

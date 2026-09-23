@@ -31,6 +31,7 @@ export const HUB_TABS = [
     { id: "nitro", titleKey: "core.hub.tab.nitro", plugin: "LarpNitro" },
     { id: "decorations", titleKey: "core.hub.tab.decorations", plugin: "LarpDecorations" },
     { id: "name", titleKey: "core.hub.tab.name", plugin: "LarpName" },
+    { id: "activity", titleKey: "core.hub.tab.activity", plugin: "LarpActivity" },
     { id: "servers", titleKey: "core.hub.tab.servers", plugin: "LarpServers" },
     { id: "themes", titleKey: "core.hub.tab.themes", plugin: "LarpThemes" },
     { id: "layout", titleKey: "core.hub.tab.layout", plugin: "LarpLayout" },

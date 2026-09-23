@@ -69,6 +69,67 @@ export interface LarpLayout {
     userPanelPosition: "bottom" | "top";
 }
 
+/** Aktivitätstyp wie bei Discord: 0 Spielt, 1 Streamt, 2 Hört, 3 Schaut, 4 Status, 5 Tritt an */
+export type LarpActivityType = 0 | 1 | 2 | 3 | 4 | 5;
+
+export interface LarpActivityTimes {
+    /** none = keine Zeit, since = „seit X“, until = „noch X“, progress = Fortschrittsleiste (nur „Hört“) */
+    mode: "none" | "since" | "until" | "progress";
+    /** true = läuft ab dem Start der App mit, false = fester Zeitpunkt aus `at` */
+    live: boolean;
+    /** Sekunden. since: bereits vergangen, until: verbleibend, progress: Gesamtlänge */
+    seconds?: number;
+    /** progress: bereits abgespielte Sekunden */
+    elapsed?: number;
+    /** Fester Zeitpunkt (ISO), wenn live = false */
+    at?: string;
+}
+
+/** Gemeinsame Anzeige-Felder von eigenen Aktivitäten und Änderungs-Regeln */
+export interface LarpActivityFields {
+    name?: string;
+    details?: string;
+    state?: string;
+    /** https:- oder data:image/-URL */
+    largeImage?: string;
+    largeText?: string;
+    smallImage?: string;
+    smallText?: string;
+    times?: LarpActivityTimes;
+}
+
+export interface LarpActivity extends LarpActivityFields {
+    id: string;
+    enabled: boolean;
+    type: LarpActivityType;
+    name: string;
+    /** Gruppengröße [aktuell, maximal] */
+    party?: [number, number];
+    /** Knöpfe, reine Anzeige ohne Aktion (Regel 4) */
+    buttons?: string[];
+    /** Nur bei Typ 4 (Benutzerdefinierter Status): Unicode-Emoji */
+    emoji?: string;
+}
+
+/** Aktivitäts-Changer: verändert eine echte, erkannte Aktivität rein lokal */
+export interface LarpActivityRule extends LarpActivityFields {
+    id: string;
+    enabled: boolean;
+    /** Erkennung: application_id der echten Aktivität oder ihr Name (Kleinschreibung) */
+    match: string;
+    /** Anzeigename der Anwendung im Hub */
+    label?: string;
+    /** Aktivität ganz ausblenden */
+    hide?: boolean;
+}
+
+export interface LarpActivities {
+    /** Eigene Aktivitäten anzeigen */
+    enabled: boolean;
+    list: LarpActivity[];
+    rules: LarpActivityRule[];
+}
+
 export interface LarpProfile {
     badges: { builtin: string[]; custom: CustomBadge[]; };
     /** Reihenfolge aller Badges (builtin-ID oder "custom:<id>"). Fehlende IDs werden hinten angehängt. */
@@ -93,6 +154,8 @@ export interface LarpProfile {
     servers: Record<string, ServerLarp>;
     theme?: LarpTheme;
     sounds?: LarpSounds;
+    /** Eigene Aktivitäten und Aktivitäts-Changer (larpActivity) */
+    activities?: LarpActivities;
     /** Eigenes Layout (larpLayout). Fehlt = Discords Standard-Layout */
     layout?: LarpLayout;
     /** Standard: false */

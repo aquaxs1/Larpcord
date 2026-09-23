@@ -1,0 +1,217 @@
+.larp-activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.larp-activity-item {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: var(--background-secondary, #2b2d31);
+    padding: 8px 10px;
+}
+
+.larp-activity-item-on {
+    border-color: var(--brand-500, #5865f2);
+}
+
+.larp-activity-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.larp-activity-head > .larp-check {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.larp-activity-title {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.larp-activity-type {
+    flex: 0 1 auto;
+    font-size: 12px;
+    color: var(--text-muted, #949ba4);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.larp-activity-head > .larp-btn {
+    flex: none;
+}
+
+.larp-activity-manual {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 10px;
+}
+
+.larp-activity-manual > small {
+    color: var(--text-muted, #949ba4);
+}
+
+.larp-activity-editor {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--background-modifier-accent, #3f4147);
+}
+
+.larp-activity-detected {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.larp-duration-part {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted, #949ba4);
+}
+
+.larp-duration-part .larp-input {
+    width: 64px;
+}
+
+.larp-input-medium {
+    width: 190px;
+}
+
+/* ---- Vorschau ---- */
+
+.larp-act-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.larp-act-card {
+    border-radius: 8px;
+    background: var(--background-secondary, #2b2d31);
+    padding: 10px 12px;
+}
+
+.larp-act-card-status {
+    padding: 8px 12px;
+}
+
+.larp-act-header {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-muted, #949ba4);
+    margin-bottom: 8px;
+}
+
+.larp-act-body {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.larp-act-images {
+    position: relative;
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+}
+
+.larp-act-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.larp-act-large-empty {
+    background: var(--background-tertiary, #1e1f22);
+}
+
+.larp-act-small {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--background-secondary, #2b2d31);
+}
+
+.larp-act-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    font-size: 13px;
+}
+
+.larp-act-text span,
+.larp-act-text strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.larp-act-time {
+    color: var(--text-muted, #949ba4);
+    font-variant-numeric: tabular-nums;
+}
+
+.larp-act-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--background-tertiary, #1e1f22);
+    margin: 4px 0 2px;
+    overflow: hidden;
+}
+
+.larp-act-bar-fill {
+    height: 100%;
+    background: var(--brand-500, #5865f2);
+}
+
+.larp-act-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.larp-act-button {
+    flex: 1;
+    text-align: center;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--background-tertiary, #1e1f22);
+    font-size: 13px;
+}
+
+.larp-act-status {
+    font-size: 14px;
+}
+
+.larp-act-memberlist {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.larp-act-memberline {
+    font-size: 12px;
+    color: var(--text-muted, #949ba4);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
