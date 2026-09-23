@@ -99,14 +99,14 @@ Wichtig: Muss mit `electron-updater` kompatibel bleiben, also NSIS-Target behalt
 
 ## 7. Profil-Musik (neues Plugin `larpMusic`)
 
-- [ ] Song als lokale Datei (mp3, ogg, wav, m4a) oder URL
-- [ ] Dateien im App-Datenordner speichern (über IPC im Desktop-Teil), nicht im DataStore (Größe). Maximal 20 MB pro Datei
-- [ ] Wiedergabe beim Öffnen des eigenen Profil-Popouts oder Profil-Fensters, stoppt beim Schließen
-- [ ] Einstellungen: Lautstärke, Startzeitpunkt im Song, Schleife, Ein- und Ausblenden
-- [ ] Kleiner Mini-Player im Profil (Titel, Pause, Stumm)
-- [ ] Globaler Stumm-Schalter im Hub
-- [ ] Keine Songs mitliefern, nur eigene Dateien der Nutzer
-- [ ] Teil der Presets (Verweis auf die Datei, beim Export optional einbetten)
+- [x] Song als lokale Datei (mp3, ogg, wav, m4a) oder URL
+- [x] Dateien im App-Datenordner speichern (über IPC im Desktop-Teil), nicht im DataStore (Größe). Maximal 20 MB pro Datei
+- [x] Wiedergabe beim Öffnen des eigenen Profil-Popouts oder Profil-Fensters, stoppt beim Schließen
+- [x] Einstellungen: Lautstärke, Startzeitpunkt im Song, Schleife, Ein- und Ausblenden
+- [x] Kleiner Mini-Player im Profil (Titel, Pause, Stumm)
+- [x] Globaler Stumm-Schalter im Hub
+- [x] Keine Songs mitliefern, nur eigene Dateien der Nutzer
+- [x] Teil der Presets (Verweis auf die Datei, Einbetten beim Export siehe Abschnitt 8)
 
 ---
 

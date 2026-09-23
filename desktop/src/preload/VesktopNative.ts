@@ -7,6 +7,7 @@
 import type { Node } from "@vencord/venmic";
 import { ipcRenderer } from "electron/renderer";
 import type { IpcMessage, IpcResponse } from "main/ipcCommands";
+import type { LarpSong } from "main/larpMusic";
 import type { LarpPendingOnboarding, Settings } from "shared/settings";
 
 import type { LarpUpdaterOptions, LarpUpdaterStatus } from "../../../core/src/plugins/larpCore/updater/types";
@@ -118,6 +119,14 @@ export const VesktopNative = {
          * es gibt ihn also nur beim ersten Start nach dem Onboarding, danach immer null.
          */
         consumeOnboarding: () => invoke<LarpPendingOnboarding | null>(IpcEvents.LARP_ONBOARDING_CONSUME),
+        /** Profil-Musik: Dateien liegen im App-Datenordner, nicht im DataStore (larpMusic) */
+        music: {
+            list: () => invoke<LarpSong[]>(IpcEvents.LARP_MUSIC_LIST),
+            choose: () => invoke<LarpSong | { error: string }>(IpcEvents.LARP_MUSIC_CHOOSE),
+            remove: (id: string) => invoke<boolean>(IpcEvents.LARP_MUSIC_DELETE, id),
+            /** Abspiel-URL einer gespeicherten Datei */
+            url: (id: string) => `vesktop://music/${encodeURIComponent(id)}`
+        },
         /** Auto-Updater (desktop/src/main/updater.ts), Anzeige im Larpcord-Hub */
         updater: {
             getStatus: () => invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_GET_STATUS),

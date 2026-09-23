@@ -151,6 +151,32 @@ export interface LarpActivities {
     rules: LarpActivityRule[];
 }
 
+/** Profil-Musik (larpMusic). Dateien liegen im App-Datenordner, hier steht nur der Verweis. */
+export interface LarpMusicSource {
+    /** file = Datei im Larpcord-Datenordner, url = https-Adresse */
+    kind: "file" | "url";
+    /** kind "file": ID der gespeicherten Datei */
+    id?: string;
+    /** kind "url": https-Adresse */
+    url?: string;
+    /** Anzeigename im Mini-Player */
+    title?: string;
+}
+
+export interface LarpMusic {
+    enabled: boolean;
+    /** Globaler Stumm-Schalter */
+    muted: boolean;
+    source?: LarpMusicSource;
+    /** 0–100 */
+    volume: number;
+    /** Startzeitpunkt im Song (Sekunden) */
+    start: number;
+    loop: boolean;
+    /** Ein- und Ausblenden (Sekunden, 0 = aus) */
+    fade: number;
+}
+
 export interface LarpProfile {
     badges: { builtin: string[]; custom: CustomBadge[]; };
     /** Reihenfolge aller Badges (builtin-ID oder "custom:<id>"). Fehlende IDs werden hinten angehängt. */
@@ -177,6 +203,8 @@ export interface LarpProfile {
     sounds?: LarpSounds;
     /** Eigene Aktivitäten und Aktivitäts-Changer (larpActivity) */
     activities?: LarpActivities;
+    /** Profil-Musik (larpMusic) */
+    music?: LarpMusic;
     /** Eigenes Layout (larpLayout). Fehlt = Discords Standard-Layout */
     layout?: LarpLayout;
     /** Standard: false */

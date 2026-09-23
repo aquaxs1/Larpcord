@@ -1,0 +1,38 @@
+.larp-music-player {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 220px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--background-secondary-alt, #232428);
+    font-size: 12px;
+    line-height: 20px;
+    vertical-align: middle;
+}
+
+.larp-music-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-normal, #dbdee1);
+}
+
+.larp-music-button {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-muted, #949ba4);
+    font-size: 12px;
+    line-height: 1;
+}
+
+.larp-music-button:hover {
+    color: var(--text-normal, #dbdee1);
+}
+
+.larp-range {
+    width: 180px;
+    accent-color: var(--brand-500, #5865f2);
+}

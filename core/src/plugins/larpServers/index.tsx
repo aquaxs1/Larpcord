@@ -6,7 +6,7 @@
 
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
 import { t } from "@plugins/larpCore/i18n";
-import { isSelf, LarpStore, logger } from "@plugins/larpCore/store";
+import { isSelf, logger } from "@plugins/larpCore/store";
 import { ServerLarp } from "@plugins/larpCore/types";
 import { Devs } from "@utils/constants";
 import { getCurrentGuild } from "@utils/discord";

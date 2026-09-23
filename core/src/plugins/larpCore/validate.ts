@@ -7,7 +7,7 @@
 import { OFFICIAL_BADGE_IDS } from "./badges";
 import { createDefaultProfile } from "./defaults";
 import { LarpError } from "./i18n";
-import { CustomBadge, LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpActivityType, LarpButtonLayout, LarpExportFile, LarpLayout, LarpPreset, LarpProfile, LarpRole, LarpSounds, LarpTheme, ServerLarp } from "./types";
+import { CustomBadge, LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpActivityType, LarpButtonLayout, LarpExportFile, LarpLayout, LarpMusic, LarpMusicSource, LarpPreset, LarpProfile, LarpRole, LarpSounds, LarpTheme, ServerLarp } from "./types";
 
 /*
  * Bereinigt beliebige (importierte oder gespeicherte) Daten zu einem gültigen LarpProfile.
@@ -275,6 +275,32 @@ function activities(v: unknown): LarpActivities | undefined {
     return { enabled: bool(v.enabled, true), list, rules };
 }
 
+function musicSource(v: unknown): LarpMusicSource | undefined {
+    if (!isObj(v)) return undefined;
+    const title = str(v.title, 120);
+    if (v.kind === "url") {
+        const url = safeUrl(v.url, "data:audio/");
+        return url ? { kind: "url", url, title } : undefined;
+    }
+    // Datei-IDs zeigen auf den Datenordner: nur harmlose Zeichen zulassen
+    const id = str(v.id, 64)?.replace(/[^w-]/g, "");
+    return id ? { kind: "file", id, title } : undefined;
+}
+
+function music(v: unknown): LarpMusic | undefined {
+    if (!isObj(v)) return undefined;
+    const out: LarpMusic = {
+        enabled: bool(v.enabled, true),
+        muted: bool(v.muted),
+        source: musicSource(v.source),
+        volume: int(v.volume, 0, 100) ?? 50,
+        start: int(v.start, 0, 86_400) ?? 0,
+        loop: bool(v.loop, true),
+        fade: int(v.fade, 0, 30) ?? 2
+    };
+    return out.source ? out : undefined;
+}
+
 const SNOWFLAKE = /^\d{15,21}$/;
 // Discord-Asset-Hashes, z. B. "a_1234abcd…" oder "v2_…"
 const ASSET = /^[\w-]{8,80}$/;
@@ -376,6 +402,9 @@ export function sanitizeProfile(input: unknown): LarpProfile {
 
     const acts = activities(input.activities);
     if (acts) p.activities = acts;
+
+    const m = music(input.music);
+    if (m) p.music = m;
 
     const t = theme(input.theme);
     if (t) p.theme = t;

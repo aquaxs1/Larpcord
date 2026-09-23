@@ -6,6 +6,7 @@
 
 import { app, protocol } from "electron";
 
+import { handleLarpMusicProtocol } from "./larpMusic";
 import { handleVesktopAssetsProtocol } from "./userAssets";
 import { handleVesktopStaticProtocol } from "./vesktopStatic";
 
@@ -16,6 +17,8 @@ app.whenReady().then(() => {
         switch (url.hostname) {
             case "assets":
                 return handleVesktopAssetsProtocol(url.pathname, req);
+            case "music":
+                return handleLarpMusicProtocol(url.pathname);
             case "static":
                 return handleVesktopStaticProtocol(url.pathname, req);
             default:

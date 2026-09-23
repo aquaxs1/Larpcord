@@ -9,6 +9,7 @@ import "./i18n";
 import "./updater";
 import "./ipc";
 import "./userAssets";
+import "./larpMusic";
 import "./vesktopProtocol";
 
 import { app, BrowserWindow, nativeTheme } from "electron";
