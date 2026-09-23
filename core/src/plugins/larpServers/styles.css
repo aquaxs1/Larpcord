@@ -140,3 +140,15 @@
     object-fit: contain;
     vertical-align: middle;
 }
+
+/* ---- Server umgestalten ---- */
+
+.larp-appearance {
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px solid var(--background-modifier-accent, #3f4147);
+}

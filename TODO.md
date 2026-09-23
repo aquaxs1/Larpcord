@@ -88,12 +88,12 @@ Wichtig: Muss mit `electron-updater` kompatibel bleiben, also NSIS-Target behalt
 
 ## 6. Server umgestalten (Erweiterung von `larpServers`)
 
-- [ ] Pro Server lokal ändern: Name, Icon, Banner
-- [ ] Icon und Banner als URL oder Datei, GIFs erlaubt
-- [ ] Anzeige überall: Serverleiste inklusive Tooltip, Server-Header, Banner oben in der Kanalliste, Server-Einstellungsübersicht, Erwähnungen des Servers
-- [ ] Umsetzung über die Funktionen, die Icon- und Banner-URLs erzeugen, sowie die Namensanzeige. Guild-Objekte im Store nicht dauerhaft verändern
-- [ ] „Auf Original zurücksetzen“ pro Server
-- [ ] Teil der Presets
+- [x] Pro Server lokal ändern: Name, Icon, Banner
+- [x] Icon und Banner als URL oder Datei, GIFs erlaubt
+- [x] Anzeige überall: Serverleiste inklusive Tooltip, Server-Header, Banner oben in der Kanalliste, Server-Einstellungsübersicht, Erwähnungen des Servers
+- [x] Umsetzung über die Funktionen, die Icon- und Banner-URLs erzeugen, sowie die Namensanzeige. Guild-Objekte im Store nicht dauerhaft verändern
+- [x] „Auf Original zurücksetzen“ pro Server
+- [x] Teil der Presets
 
 ---
 

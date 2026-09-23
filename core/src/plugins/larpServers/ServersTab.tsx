@@ -12,6 +12,8 @@ import { LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 import { ServerLarp } from "@plugins/larpCore/types";
 import { GuildStore, IconUtils, useState } from "@webpack/common";
 
+import { AppearanceEditor } from "./AppearanceEditor";
+import { originalGuild } from "./guilds";
 import { RolesEditor } from "./RolesEditor";
 
 function setServer(guildId: string, patch: Partial<ServerLarp>) {
@@ -23,7 +25,10 @@ function setServer(guildId: string, patch: Partial<ServerLarp>) {
             verified: merged.verified || undefined,
             boostLevel: merged.boostLevel,
             boostCount: merged.boostCount,
-            roles: merged.roles?.length ? merged.roles : undefined
+            roles: merged.roles?.length ? merged.roles : undefined,
+            name: merged.name,
+            iconUrl: merged.iconUrl,
+            bannerUrl: merged.bannerUrl
         };
         const empty = Object.values(entry).every(v => v === undefined);
         return { servers: { [guildId]: empty ? undefined : entry } };
@@ -33,14 +38,20 @@ function setServer(guildId: string, patch: Partial<ServerLarp>) {
 function ServerRow({ guild, larp }: { guild: any; larp: ServerLarp | undefined; }) {
     const icon = guild.icon ? IconUtils.getGuildIconURL({ id: guild.id, icon: guild.icon, size: 64, canAnimate: false }) : null;
     const s = larp ?? {};
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState<"roles" | "look" | undefined>();
     const roleCount = s.roles?.length ?? 0;
+    const looksChanged = !!(s.name || s.iconUrl || s.bannerUrl);
 
     return (
         <div className={cl("server", larp && "server-active")}>
             <div className={cl("server-name")}>
-                {icon ? <img src={icon} alt="" /> : <span className={cl("server-acronym")}>{guild.acronym ?? guild.name.slice(0, 2)}</span>}
-                <span title={guild.name}>{guild.name}</span>
+                {s.iconUrl
+                    ? <img src={s.iconUrl} alt="" />
+                    : icon ? <img src={icon} alt="" /> : <span className={cl("server-acronym")}>{guild.acronym ?? guild.name.slice(0, 2)}</span>}
+                <span title={guild.name}>
+                    {s.name ?? guild.name}
+                    {s.name && <small className={cl("muted")}> ({guild.name})</small>}
+                </span>
             </div>
             <div className={cl("server-controls")}>
                 <label className={cl("check")}>
@@ -73,12 +84,16 @@ function ServerRow({ guild, larp }: { guild: any; larp: ServerLarp | undefined; 
                         setServer(guild.id, { boostCount: v === "" ? undefined : Math.max(0, Math.min(999_999, Math.floor(Number(v)))) });
                     }}
                 />
-                <Btn variant="secondary" onClick={() => setOpen(!open)}>
+                <Btn variant="secondary" onClick={() => setOpen(open === "roles" ? undefined : "roles")}>
                     {roleCount ? t("roles.buttonCount", { count: roleCount }) : t("roles.button")}
                 </Btn>
-                {larp && <Btn variant="danger" title={t("common.reset")} aria-label={t("common.reset")} onClick={() => setServer(guild.id, { partner: undefined, verified: undefined, boostLevel: undefined, boostCount: undefined, roles: undefined })}>✕</Btn>}
+                <Btn variant={looksChanged ? "primary" : "secondary"} onClick={() => setOpen(open === "look" ? undefined : "look")}>
+                    {t("appearance.button")}
+                </Btn>
+                {larp && <Btn variant="danger" title={t("common.reset")} aria-label={t("common.reset")} onClick={() => setServer(guild.id, { partner: undefined, verified: undefined, boostLevel: undefined, boostCount: undefined, roles: undefined, name: undefined, iconUrl: undefined, bannerUrl: undefined })}>✕</Btn>}
             </div>
-            {open && <RolesEditor guildId={guild.id} roles={s.roles ?? []} />}
+            {open === "roles" && <RolesEditor guildId={guild.id} roles={s.roles ?? []} />}
+            {open === "look" && <AppearanceEditor guildId={guild.id} larp={s} realName={guild.name} />}
         </div>
     );
 }
@@ -87,7 +102,8 @@ export function ServersTab() {
     const larp = useLarpProfile();
     useLarpLocale();
     const [query, setQuery] = useState("");
-    const guilds = Object.values(GuildStore.getGuilds()) as any[];
+    // Immer die echten Server zeigen, auch wenn ein lokaler Name gesetzt ist
+    const guilds = (Object.values(GuildStore.getGuilds()) as any[]).map(originalGuild);
     const q = query.trim().toLowerCase();
     const filtered = guilds
         .filter(g => !q || g.name.toLowerCase().includes(q))

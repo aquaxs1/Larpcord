@@ -12,6 +12,7 @@ import { Devs } from "@utils/constants";
 import { getCurrentGuild } from "@utils/discord";
 import definePlugin from "@utils/types";
 
+import { displayGuild, displayGuildList, displayGuildRecord, guardGuildBody, guildBannerUrl as bannerUrlFor, guildIconUrl as iconUrlFor, GuildLike, larpFor } from "./guilds";
 import { RoleIcon } from "./RoleIcon";
 import { applyRoleColor, ColorProps, isLarpRole, resolveRoleIcon, withLarpRoles } from "./roles";
 import { ServersTab } from "./ServersTab";
@@ -22,14 +23,6 @@ import { ServersTab } from "./ServersTab";
  * Stattdessen bekommen nur die Anzeige-Komponenten eine lokale "Anzeige-Kopie" der Guild.
  */
 
-interface GuildLike {
-    id: string;
-    features: Iterable<string>;
-    premiumTier?: number;
-    premiumSubscriberCount?: number;
-}
-
-const cache = new WeakMap<object, { version: number; value: any; }>();
 
 /**
  * Ersetzung für den Rollen-Abschnitt im Profil. Beide Fundstellen (Popout und Fenster)
@@ -39,11 +32,6 @@ const PROFILE_ROLES_REPLACEMENT = {
     match: /(\{userId:(\i),[^}]*\}=\i[\s\S]{0,600}?)(\i\.\i\.getManyRoles\((\i(?:\.id)?),\i\?\?\[\]\)\.sort\(\i\.\i\))/,
     replace: "$1$self.withLarpRoles($3,$4,$2)"
 };
-
-function larpFor(guild: GuildLike | null | undefined): ServerLarp | undefined {
-    if (!guild?.id) return undefined;
-    return LarpStore.get().servers[guild.id];
-}
 
 function displayFeatureSet(guild: GuildLike, larp: ServerLarp) {
     const features = new Set(guild.features);
@@ -135,6 +123,52 @@ export default definePlugin({
             }
         },
         {
+            // Server umgestalten: Die Lese-Methoden liefern Anzeige-Kopien mit Larp-Name, -Icon
+            // und -Banner. Die Einträge im Store selbst bleiben unverändert.
+            find: 'displayName="GuildStore"',
+            group: true,
+            replacement: [
+                {
+                    // getGuild ist ein Klassenfeld mit Pfeilfunktion, keine Methode
+                    match: /getGuild=(\i)=>\{/,
+                    replace: "getGuild=$1=>$self.displayGuild(this.__larpGetGuild($1));__larpGetGuild=$1=>{"
+                },
+                {
+                    // Serverleiste und Ordner lesen die ganze Liste statt einzelner Server
+                    match: /getGuilds=(this\.\i\.memoized\(\i=>\(\{\.\.\.\i\}\)\));/,
+                    replace: "__larpGetGuilds=$1;getGuilds=()=>$self.displayGuildRecord(this.__larpGetGuilds());"
+                },
+                {
+                    match: /getGuildsArray=(this\.\i\.memoized\(\i=>Object\.values\(\i\)\));/,
+                    replace: "__larpGetGuildsArray=$1;getGuildsArray=()=>$self.displayGuildList(this.__larpGetGuildsArray());"
+                }
+            ]
+        },
+        {
+            // Server-Icon: eigene URL statt der CDN-Adresse
+            find: 'path:"icons"',
+            replacement: {
+                match: /\{id:(\i),icon:\i,size:\i,canAnimate:[^}]*\}=\i;/,
+                replace: "$&const larpGuildIcon=$self.guildIconUrl($1);if(larpGuildIcon!=null)return larpGuildIcon;"
+            }
+        },
+        {
+            // Server-Banner (Kanalliste, Server-Einstellungen)
+            find: "/banners/",
+            replacement: {
+                match: /(\{id:(\i),banner:\i\}=\i,\i=arguments\.length>1[^;]*;)/,
+                replace: "$1const larpGuildBanner=$self.guildBannerUrl($2);if(larpGuildBanner!=null)return larpGuildBanner;"
+            }
+        },
+        {
+            // Regel 1: Ein mit Larp-Werten vorausgefülltes Server-Formular darf sie nie senden
+            find: '"GUILD_SETTINGS_SUBMIT"',
+            replacement: {
+                match: /(\.patch\(\{url:\i\.\i\.GUILD\((\i)\),query:\{for_discovery:[^}]*\},body:)(\i)/,
+                replace: "$1$self.guardGuildBody($2,$3)"
+            }
+        },
+        {
             // Rollen-Icons: "larp:<id>" zur gespeicherten URL auflösen, statt eine CDN-URL zu bauen
             find: "/role-icons",
             replacement: [
@@ -153,7 +187,7 @@ export default definePlugin({
 
     displayFeatures(guild: GuildLike) {
         try {
-            const larp = larpFor(guild);
+            const larp = larpFor(guild?.id);
             return larp ? displayFeatureSet(guild, larp) : new Set(guild.features);
         } catch (e) {
             logger.error("displayFeatures", e);
@@ -163,34 +197,31 @@ export default definePlugin({
 
     hasDisplayBadge(guild: GuildLike) {
         try {
-            const larp = larpFor(guild);
+            const larp = larpFor(guild?.id);
             return !!(larp?.partner || larp?.verified);
         } catch {
             return false;
         }
     },
 
-    /** Anzeige-Kopie: erbt alles von der echten Guild (Prototyp), überschreibt nur Anzeige-Felder */
-    displayGuild<T extends GuildLike>(guild: T): T {
+    displayGuild,
+    displayGuildRecord,
+    displayGuildList,
+    guardGuildBody,
+
+    guildIconUrl(guildId: unknown) {
         try {
-            const larp = larpFor(guild);
-            if (!larp || typeof guild !== "object") return guild;
+            return iconUrlFor(guildId);
+        } catch {
+            return undefined;
+        }
+    },
 
-            const hit = cache.get(guild);
-            if (hit?.version === LarpStore.version) return hit.value;
-
-            const overrides: Record<string, unknown> = { features: displayFeatureSet(guild, larp) };
-            if (larp.boostLevel != null) overrides.premiumTier = larp.boostLevel;
-            if (larp.boostCount != null) {
-                overrides.premiumSubscriberCount = larp.boostCount;
-                overrides.premiumSubscriptionCount = larp.boostCount;
-            }
-            const value = Object.assign(Object.create(guild), overrides);
-            cache.set(guild, { version: LarpStore.version, value });
-            return value;
-        } catch (e) {
-            logger.error("displayGuild", e);
-            return guild;
+    guildBannerUrl(guildId: unknown) {
+        try {
+            return bannerUrlFor(guildId);
+        } catch {
+            return undefined;
         }
     },
 

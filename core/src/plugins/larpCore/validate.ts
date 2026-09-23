@@ -56,10 +56,13 @@ export function safeDate(v: unknown): string | undefined {
     return d.toISOString();
 }
 
+/** Steuerzeichen und Zeilentrenner, die in Namen nichts zu suchen haben */
+const CONTROL_CHARS = /[\u0000-\u001f\u007f\u2028\u2029]/g;
+
 /** Namen: wie bei Discord max. 32 Zeichen, ohne Steuerzeichen und Zeilenumbrüche */
 function name(v: unknown): string | undefined {
     if (typeof v !== "string") return undefined;
-    return str(v.replace(/[\u0000-\u001f\u007f\u2028\u2029]/g, ""), 32);
+    return str(v.replace(CONTROL_CHARS, ""), 32);
 }
 
 function colorPair(v: unknown): [string, string] | undefined {
@@ -105,6 +108,13 @@ function serverLarp(v: unknown): ServerLarp | undefined {
         const roles = v.roles.map(larpRole).filter(Boolean).slice(0, MAX_ROLES_PER_GUILD) as LarpRole[];
         if (roles.length) out.roles = roles;
     }
+    // Servernamen: wie bei Discord max. 100 Zeichen, ohne Steuerzeichen
+    const guildName = str(typeof v.name === "string" ? v.name.replace(CONTROL_CHARS, "") : undefined, 100);
+    if (guildName) out.name = guildName;
+    const iconUrl = safeUrl(v.iconUrl);
+    if (iconUrl) out.iconUrl = iconUrl;
+    const bannerUrl = safeUrl(v.bannerUrl);
+    if (bannerUrl) out.bannerUrl = bannerUrl;
     return Object.keys(out).length ? out : undefined;
 }
 
@@ -135,7 +145,7 @@ function sounds(v: unknown): LarpSounds | undefined {
 /** aria-labels landen später in CSS-Attributselektoren: nur druckbare Zeichen, begrenzte Länge */
 function label(v: unknown): string | undefined {
     if (typeof v !== "string") return undefined;
-    const s = v.replace(/[\u0000-\u001f\u007f\u2028\u2029]/g, "").trim();
+    const s = v.replace(CONTROL_CHARS, "").trim();
     return s ? s.slice(0, 100) : undefined;
 }
 

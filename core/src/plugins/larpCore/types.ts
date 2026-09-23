@@ -31,6 +31,11 @@ export interface ServerLarp {
     boostCount?: number;
     /** Eigene Rollen, Reihenfolge = Rangfolge (erste ist die höchste) */
     roles?: LarpRole[];
+    /** Lokaler Servername (leer = echter Name) */
+    name?: string;
+    /** https:- oder data:image/-URL, GIFs erlaubt */
+    iconUrl?: string;
+    bannerUrl?: string;
 }
 
 export interface LarpTheme {
