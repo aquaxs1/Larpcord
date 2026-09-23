@@ -4,20 +4,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { exportPresets, hasSongFile } from "@plugins/larpCore/exportFile";
 import { errorText, LarpError, t, tNode, useLarpLocale } from "@plugins/larpCore/i18n";
 import { LarpStore, logger, presetKey, useLarpProfile } from "@plugins/larpCore/store";
-import { LarpExportFile, LarpPreset } from "@plugins/larpCore/types";
+import { LarpPreset } from "@plugins/larpCore/types";
 import { parseExportFile } from "@plugins/larpCore/validate";
-import { chooseFile, saveFile } from "@utils/web";
+import { chooseFile } from "@utils/web";
 import { showToast, Toasts, useState } from "@webpack/common";
 
 import { Btn, cl, Section, Toggle } from "./components";
-
-/** Format bleibt version 1. Mitgelieferte Presets werden mit ihrem Namen in der aktuellen Sprache exportiert. */
-function exportPresets(presets: LarpPreset[], filename: string) {
-    const data: LarpExportFile = { version: 1, presets: presets.map(({ name, profile }) => ({ name, profile })) };
-    saveFile(new File([JSON.stringify(data, null, 2)], filename, { type: "application/json" }));
-}
 
 // Text läuft über LarpError, deshalb für den i18n-Check:
 // i18n-keys: core.import.errorTooLarge (LarpError)
@@ -38,7 +33,7 @@ async function importFile() {
 /** Dateiname aus einem Preset-Namen: Buchstaben und Ziffern aller Sprachen bleiben erhalten */
 const safeFileName = (name: string) => name.replace(/[^\p{L}\p{N}_\- ]/gu, "").trim().replace(/\s+/g, "-") || "preset";
 
-function PresetRow({ preset, active }: { preset: LarpPreset; active: boolean; }) {
+function PresetRow({ preset, active, embed }: { preset: LarpPreset; active: boolean; embed: boolean; }) {
     const [renaming, setRenaming] = useState(false);
     const [name, setName] = useState(preset.name);
 
@@ -73,7 +68,7 @@ function PresetRow({ preset, active }: { preset: LarpPreset; active: boolean; })
             )}
             <div className={cl("inline")}>
                 <Btn onClick={() => run(() => LarpStore.loadPreset(presetKey(preset)))}>{t("common.load")}</Btn>
-                <Btn variant="secondary" title={t("core.presets.exportTooltip")} onClick={() => exportPresets([preset], `${safeFileName(preset.name)}.larp.json`)}>
+                <Btn variant="secondary" title={t("core.presets.exportTooltip")} onClick={() => exportPresets([preset], `${safeFileName(preset.name)}.larp.json`, embed)}>
                     {t("core.presets.export")}
                 </Btn>
                 {!preset.builtin && (renaming
@@ -89,7 +84,10 @@ export function PresetsTab() {
     const larp = useLarpProfile();
     useLarpLocale();
     const [newName, setNewName] = useState("");
+    // Song-Dateien liegen im Datenordner: beim Export auf Wunsch mit in die Datei
+    const [embed, setEmbed] = useState(false);
     const presets = LarpStore.getPresets();
+    const songs = hasSongFile(presets);
     const active = LarpStore.activePreset;
 
     const save = () => {
@@ -122,18 +120,26 @@ export function PresetsTab() {
                 <div className={cl("preset-list")}>
                     {presets.map(p => {
                         const key = presetKey(p);
-                        return <PresetRow key={key} preset={p} active={key === active} />;
+                        return <PresetRow key={key} preset={p} active={key === active} embed={embed} />;
                     })}
                 </div>
             </Section>
 
             <Section title={t("core.presets.importExportTitle")} description={tNode("core.presets.importExportDescription", { file: <code>*.larp.json</code> })}>
+                {songs && (
+                    <Toggle
+                        label={t("core.export.embed")}
+                        hint={t("core.export.embedHint")}
+                        value={embed}
+                        onChange={setEmbed}
+                    />
+                )}
                 <div className={cl("inline")}>
                     <Btn onClick={importFile}>{t("core.presets.import")}</Btn>
                     <Btn
                         variant="secondary"
                         disabled={!LarpStore.getUserPresets().length}
-                        onClick={() => exportPresets(LarpStore.getUserPresets(), t("core.presets.exportFileName"))}
+                        onClick={() => exportPresets(LarpStore.getUserPresets(), t("core.presets.exportFileName"), embed)}
                     >
                         {t("core.presets.exportOwn")}
                     </Btn>

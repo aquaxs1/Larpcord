@@ -90,7 +90,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 8px;
-    border-radius: 6px;
+    border-radius: var(--radius-xs, 6px);
     background: var(--background-tertiary, #1e1f22);
 }
 
@@ -136,7 +136,7 @@
 .larp-role-icon {
     width: 16px;
     height: 16px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs, 4px);
     object-fit: contain;
     vertical-align: middle;
 }

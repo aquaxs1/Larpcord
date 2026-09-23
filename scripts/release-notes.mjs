@@ -21,9 +21,9 @@ if (!version) {
 }
 
 const changelog = readFileSync(join(ROOT, "CHANGELOG.md"), "utf8").replace(/\r\n/g, "\n");
-const escaped = version.replace(/[.*+?^${}()|[\]\]/g, "\$&");
+const escaped = version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // Überschriften wie "## [0.2.0] – 2026-09-19" oder "## 0.2.0"
-const heading = new RegExp(`^## \[?v?${escaped}\]?.*$`, "m");
+const heading = new RegExp(`^## \\[?v?${escaped}\\]?.*$`, "m");
 const match = heading.exec(changelog);
 
 let notes;

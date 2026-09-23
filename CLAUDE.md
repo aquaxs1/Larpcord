@@ -22,6 +22,12 @@ Beide als normale Ordner einchecken (kein Submodule, `.git` entfernen), Upstream
 6. **Jeder Patch braucht einen Fallback:** Matcht ein `find` nicht mehr, darf nichts crashen, Feature wird deaktiviert und geloggt.
 7. **Keine serverseitig geprüften Nitro-Funktionen vortäuschen** (Upload-Limits, Stream-Qualität), keine UI aktivieren, die dann serverseitig scheitert.
 8. **Wenn etwas nur mit schreibenden API-Requests ginge:** weglassen und in `TODO.md` notieren.
+9. **Keine Presence-Updates:** Larp-Aktivitäten entstehen nur beim *Lesen* der Anzeige-Stores. Was Discord ans
+   Gateway schickt (`SelfPresenceStore.getLocalPresence()`), bleibt unangetastet.
+10. **Keine Larp-Rollen in Berechtigungen:** Rollen tauchen nie in `member.roles` oder im `GuildRoleStore` auf,
+    sondern erst in der fertigen Anzeige-Liste – und ohne `permissions`.
+11. **Kein Larp-Wert in einem Formular, das gesendet wird:** Wo Discord ein Formular mit Store-Daten vorausfüllt
+    (Konto, Server-Einstellungen), setzt ein Guard vor dem Request wieder die echten Werte ein.
 
 ---
 
@@ -43,7 +49,9 @@ larpcord/
 │       ├── larpNitro/
 │       ├── larpDecorations/
 │       ├── larpName/
+│       ├── larpActivity/
 │       ├── larpServers/
+│       ├── larpMusic/
 │       ├── larpThemes/
 │       └── larpLayout/
 └── desktop/                  ← Fork von Vesktop
@@ -55,11 +63,24 @@ Interne Vencord-Bezeichner (`Vencord.*`) **nicht** umbenennen, das macht Upstrea
 
 ## Plugins
 
-- **larpCore:** zentraler Store (Vencord DataStore) mit `get`/`update`/`subscribe`. Enthält Badges, Custom-Badges (Bild + Tooltip), „Mitglied seit“, Clan-Tag, Nitro (seit/Boost seit), Profil-Theme-Farben, Banner, animierter Avatar, Dekoration, Profileffekt, Nameplate, Name-Style, Extras (Verified-Häkchen, Owner-Krone), Namen (`username`, `displayName`), Server-Einstellungen pro guildId (`partner`, `verified`, `boostLevel` 0–3, `boostCount`), Layout, Wasserzeichen (Standard aus). Presets speichern/laden/löschen/umbenennen, mitgeliefert: „Discord Staff“, „Nitro-Gönner“, „OG 2015“. Import/Export als `*.larp.json` (`{ version: 1, presets: [...] }`), beim Import validieren, Bild-URLs nur `https:` oder `data:image/`. Einstellungs-Tab „Larpcord“ mit Unter-Tabs und Live-Vorschau des eigenen Profils. Optionales Wasserzeichen „🎭 Larpcord“ im eigenen Profil-Popout.
+- **larpCore:** zentraler Store (Vencord DataStore) mit `get`/`update`/`subscribe`. Enthält Badges, Custom-Badges (Bild + Tooltip), „Mitglied seit“, Clan-Tag, Nitro (seit/Boost seit), Profil-Theme-Farben, Banner, animierter Avatar, Dekoration, Profileffekt, Nameplate, Name-Style, Extras (Verified-Häkchen, Owner-Krone), Namen (`username`, `displayName`), Server-Einstellungen pro guildId (`partner`, `verified`, `boostLevel` 0–3, `boostCount`, lokale Rollen, lokaler Name/Icon/Banner), Aktivitäten, Profil-Musik, Layout, Wasserzeichen (Standard aus). Presets speichern/laden/löschen/umbenennen, mitgeliefert: „Discord Staff“, „Nitro-Gönner“, „OG 2015“. Import/Export als `*.larp.json` (`{ version: 2, presets: [...] }`, Version 1 wird beim Import migriert), beim Import validieren, Bild-URLs nur `https:` oder `data:image/`. Einstellungs-Tab „Larpcord“ mit Unter-Tabs und Live-Vorschau des eigenen Profils. Optionales Wasserzeichen „🎭 Larpcord“ im eigenen Profil-Popout.
 - **larpBadges:** Vencords `@api/Badges` (`addProfileBadge`), nur eigene User-ID. Alle offiziellen Badges (Icons aus Discords Client referenzieren, nichts ins Repo kopieren) plus Custom Badges, Reihenfolge per Drag & Drop. „Mitglied seit“ im Profil.
 - **larpNitro & larpDecorations:** Nitro-Badge mit Datum, Boost-Badge-Stufe aus Datum berechnet, Theme-Farben, Banner, animierter Avatar, Auswahl von Dekorationen/Profileffekten/Nameplates aus Discords Collectibles-Store mit Vorschau. Vorhandene Vencord-Plugins für Profil-Themes und Dekorationen als Vorlage nutzen.
 - **larpName:** Clan-Tag, Verified-Häkchen, Owner-Krone, Name-Styles (Font, Gradient, Glow). **Name-Änderer:** Username und Anzeigename lokal sofort überschreiben, ohne Cooldown, überall (Chat, Profil, Mitgliederliste, User-Panel, Erwähnungen, Tooltips). Option „Larp-Name statt Server-Nicknames anzeigen“ (Standard an). Im Hub beschriften: „Nur lokal sichtbar“.
-- **larpServers:** Serverliste im Hub, pro Server Partner-/Verified-Icon, Boost-Level und -Anzahl. Nur Anzeige patchen (Header, Tooltip, Boost-Anzeige).
+- **larpActivity:** Eigene Aktivitäten (alle Typen inklusive benutzerdefiniertem Status) und ein Aktivitäts-Changer
+  für echte, erkannte Aktivitäten. Gepatcht werden nur `SelfPresenceStore.getActivities()` und
+  `PresenceStore.getActivities(id)`; Bilder laufen über einen `larp:`-Schlüssel, den ein Patch auf
+  `getAssetImage` auflöst. Fortschrittsleiste bei „Hört“ gibt es nur, weil Discord die Aktivität dann für
+  Spotify hält (Name „Spotify“, `party.id` mit `spotify:`-Präfix).
+- **larpServers:** Serverliste im Hub, pro Server Partner-/Verified-Icon, Boost-Level und -Anzahl. Nur Anzeige patchen
+  (Header, Tooltip, Boost-Anzeige). Dazu **lokale Rollen** (Name, Farbe, Verlauf, Icon, Rangfolge; Anzeige über den
+  Rollen-Abschnitt im Profil, die Namensfarbe in Chat und Mitgliederliste und ein eigenes Decorator-Icon) und
+  **Server umgestalten** (Name, Icon, Banner): `GuildStore` liefert beim Lesen eine Anzeige-Kopie, die Bild-URLs
+  kommen aus Patches auf `getGuildIconURL`/`getGuildBannerURL`, und `guardGuildBody` hält Larp-Werte aus
+  `PATCH /guilds/<id>` heraus.
+- **larpMusic:** Profil-Musik. Songs liegen als Datei im App-Datenordner (`desktop/src/main/larpMusic.ts`,
+  ausgeliefert über `vesktop://music/<id>`) oder als URL. Kein Patch: Der Mini-Player hängt als Profil-Badge am
+  eigenen Profil, dadurch startet die Wiedergabe beim Öffnen und stoppt beim Schließen.
 - **larpThemes:** Theme-Editor (Farben, Font, Eckenradius) mit Live-Vorschau über Vencords Theme/QuickCSS, Themes in Presets speicherbar, eigene Sounds, Ladebildschirm und App-Icon (im `desktop/`-Teil).
 - **larpLayout** (in Stufen bauen):
   - **A)** Bearbeitungsmodus per Hub-Toggle und Strg+Shift+L: Rahmen und Griffe, Klicks deaktiviert, Leiste mit „Fertig“, „Zurücksetzen“, „Als Preset speichern“. Elemente über stabile IDs identifizieren (Guild-/Channel-IDs, aria-label), nie über Positionen oder minifizierte Klassen.
@@ -152,16 +173,20 @@ Danach läuft das große Update aus `TODO.md`:
 |---|---|
 | 1 Mehrsprachigkeit | fertig (de/en, Live-Wechsel, `pnpm i18n:check` in CI) |
 | 2 Auto-Updater | fertig, Ende-zu-Ende-Test mit lokalem Update-Server |
-| 3 Installer im Discord-Stil | oneClick, dunkel, Icons, Uninstaller-Frage fertig; Setup-Splash und Onboarding offen |
-| 4 larpActivity | offen |
-| 5 Lokale Rollen | offen |
-| 6 Server umgestalten | offen |
-| 7 Profil-Musik | offen |
-| 8 Abschluss | offen |
+| 3 Installer im Discord-Stil | fertig (oneClick, dunkel, eigene Icons, Setup-Splash, Onboarding, Uninstaller-Frage) |
+| 4 larpActivity | fertig |
+| 5 Lokale Rollen | fertig (eigene Gruppe in der Mitgliederliste bewusst weggelassen, siehe `TODO.md`) |
+| 6 Server umgestalten | fertig |
+| 7 Profil-Musik | fertig |
+| 8 Abschluss | fertig (Preset-Format v2, Export-Warnung, README, Changelog) |
 
 ### Testen
 
 - **Reporter-Build** (`pnpm build --reporter --dev --disable-updater` in `core/`): lädt beim Start alle Lazy-Chunks und meldet jeden Patch, der sein Modul nicht findet („found no module“), nicht greift („had no effect“) oder fehlschlägt („errored“). Vor jedem Commit mit neuen Patches laufen lassen.
+- **Reporter-Builds aktivieren alle Plugins** (`enabled: IS_REPORTER || …`). Meldet der Reporter „had no effect“,
+  kann auch ein Upstream-Plugin dieselbe Stelle zuerst gepatcht haben (z. B. IrcColors bei der Namensfarbe).
+- **Rückverweise (`\1`) gehören nie in ein Lookbehind:** JS wertet Lookbehinds von rechts nach links aus, der
+  Verweis läuft dann ins Leere und der Patch greift nicht.
 - **Ersetzungen direkt nach `return`** brauchen ein führendes Leerzeichen (`return(0,…)` wird sonst zu `return$self…` → Absturz). Laufzeitfehler in Ersetzungen fängt Vencord nicht ab, deshalb Logik immer in `$self`-Funktionen mit try/catch.
 
 ---

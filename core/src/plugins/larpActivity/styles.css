@@ -7,7 +7,7 @@
 
 .larp-activity-item {
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: var(--radius-sm, 8px);
     background: var(--background-secondary, #2b2d31);
     padding: 8px 10px;
 }
@@ -97,7 +97,7 @@
 }
 
 .larp-act-card {
-    border-radius: 8px;
+    border-radius: var(--radius-sm, 8px);
     background: var(--background-secondary, #2b2d31);
     padding: 10px 12px;
 }
@@ -131,7 +131,7 @@
 .larp-act-large {
     width: 60px;
     height: 60px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm, 8px);
     object-fit: cover;
 }
 
@@ -193,7 +193,7 @@
     flex: 1;
     text-align: center;
     padding: 6px 10px;
-    border-radius: 6px;
+    border-radius: var(--radius-xs, 6px);
     background: var(--background-tertiary, #1e1f22);
     font-size: 13px;
 }

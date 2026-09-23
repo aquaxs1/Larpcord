@@ -29,6 +29,30 @@ Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), m
 - Boost-Level (1 bis 3) und Boost-Anzahl frei einstellbar
 - Einstellbar pro Server
 
+### 🎮 Aktivitäten
+- Eigene Aktivitäten erfinden: Spielt, Hört, Schaut, Streamt, Tritt an oder benutzerdefinierter Status
+- Alle Felder frei: Name, Details, Status-Zeile, großes und kleines Bild samt Tooltips, Gruppengröße, Knöpfe
+- Zeitangaben „seit X“ und „noch X“, fest oder mitlaufend, bei Musik mit Fortschrittsleiste
+- **Aktivitäts-Changer:** echte erkannte Aktivitäten lokal umbenennen, neu bebildern oder ganz ausblenden
+- Nur lokal: Es werden keine Presence-Updates gesendet, andere sehen weiterhin deine echte Aktivität
+
+### 🎖️ Lokale Rollen
+- Eigene Rollen pro Server: Name, Farbe, Farbverlauf und Rollen-Icon
+- Rollen-Pillen im eigenen Profil, Namensfarbe in Chat und Mitgliederliste, Icon neben dem Namen
+- Vorlagen für Owner, Admin, Moderator und VIP
+- Reine Anzeige: Larp-Rollen geben keine Rechte und tauchen in Discords Berechtigungen nicht auf
+
+### 🖼️ Server umgestalten
+- Name, Icon und Banner eines Servers lokal ändern (URL oder Datei, GIFs erlaubt)
+- Wirkt überall: Serverleiste, Server-Header, Banner über der Kanalliste, Erwähnungen
+- „Auf Original zurücksetzen“ pro Server, der Server selbst bleibt unangetastet
+
+### 🎵 Profil-Musik
+- Eigener Song im eigenen Profil, als Datei (mp3, ogg, wav, m4a, bis 20 MB) oder als URL
+- Läuft, solange dein Profil offen ist, mit Lautstärke, Startzeit, Schleife und Ein-/Ausblenden
+- Mini-Player im Profil und ein globaler Stumm-Schalter im Hub
+- Larpcord liefert keine Songs mit, nur deine eigenen Dateien
+
 ### 🪪 Name-Änderer
 - Username und Anzeigename lokal sofort ändern, ohne Cooldown
 - Gilt überall: Chat, Profil, Mitgliederliste, User-Panel, Erwähnungen, Tooltips
@@ -46,7 +70,7 @@ Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), m
 ### 🎭 Larp-Extras & Presets
 - Verified-Häkchen und Server-Owner-Krone neben deinem Namen
 - **Larp-Presets**: komplette Setups speichern und per Klick wechseln, z. B. „Discord Staff“, „Nitro-Gönner“, „OG 2015“
-- Import/Export aller Einstellungen als `.larp.json`, zum Teilen mit Freunden
+- Import/Export aller Einstellungen als `.larp.json`, zum Teilen mit Freunden (Song-Dateien lassen sich auf Wunsch einbetten)
 - Optionales „Larpcord“-Wasserzeichen im Profil (standardmäßig aus)
 
 ### 🎨 UI & Themes
@@ -63,7 +87,7 @@ Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), m
 - Kanäle **Stabil** und **Beta**, abschaltbar unter **Larpcord Hub → Updates**
 
 ### ⚙️ Larpcord-Hub
-Alle Einstellungen an einem Ort, mit Live-Vorschau deines Profils: **Einstellungen → Larpcord → Larpcord Hub** (Unter-Tabs Badges, Nitro, Dekorationen, Name, Server, Themes, Layout, Presets, Updates).
+Alle Einstellungen an einem Ort, mit Live-Vorschau deines Profils: **Einstellungen → Larpcord → Larpcord Hub** (Unter-Tabs Badges, Nitro, Dekorationen, Name, Aktivität, Server, Themes, Musik, Layout, Presets, Updates).
 Ladebildschirm, Tray- und App-Icon findest du unter **Einstellungen → Larpcord → Larpcord Desktop → Customize App Assets**.
 
 ---
@@ -77,6 +101,8 @@ Larpcord ist **rein kosmetisch und lokal**. Alles, was Discords Server prüft, b
 - Dein echter Name bleibt: Andere sehen weiterhin deinen echten Username und Anzeigenamen
 - Deine echte Server-Reihenfolge bleibt: Das Layout ist nur in Larpcord sichtbar, im normalen Discord (und auf dem Handy) ist alles wie vorher
 - Dein Account, deine Server und deine Rollen werden nicht verändert
+- Larp-Aktivitäten gehen nie ans Gateway: In deinem Profil sehen andere weiterhin deine echte Aktivität
+- Larp-Rollen geben keine Rechte, und ein lokal umbenannter Server heißt für alle anderen weiter wie vorher
 
 ---
 

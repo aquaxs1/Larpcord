@@ -112,19 +112,19 @@ Wichtig: Muss mit `electron-updater` kompatibel bleiben, also NSIS-Target behalt
 
 ## 8. Abschluss
 
-- [ ] Preset-Format auf `version: 2` anheben, Migration von v1 automatisch
-- [ ] Beim Export mit eingebetteten Dateien (Bilder, Musik) Größenwarnung anzeigen
-- [ ] Alle neuen Patches mit Fallback absichern, einen absichtlich kaputt machen und testen, dass der Client weiterläuft
-- [ ] `pnpm i18n:check` läuft ohne Fehler
-- [ ] `CLAUDE.md` aktualisieren: neue Plugins, neue harte Regeln (keine Presence-Updates, keine Rollen in Berechtigungen), Updater- und Installer-Aufbau
-- [ ] `README.md` aktualisieren: neue Features, Updater, SmartScreen-Hinweis, Sprachen
+- [x] Preset-Format auf `version: 2` anheben, Migration von v1 automatisch
+- [x] Beim Export mit eingebetteten Dateien (Bilder, Musik) Größenwarnung anzeigen
+- [x] Alle neuen Patches mit Fallback absichern, einen absichtlich kaputt machen und testen, dass der Client weiterläuft
+- [x] `pnpm i18n:check` läuft ohne Fehler
+- [x] `CLAUDE.md` aktualisieren: neue Plugins, neue harte Regeln (keine Presence-Updates, keine Rollen in Berechtigungen), Updater- und Installer-Aufbau
+- [x] `README.md` aktualisieren: neue Features, Updater, SmartScreen-Hinweis, Sprachen
 - [ ] Version erhöhen, Changelog in `CHANGELOG.md`, Release-Tag setzen
 
 ---
 
 ## 9. Vom User nachträglich eingefügt
 - [x] bitte baue larpcordlogo.png überall als offizieles Logo ein
-- [ ] achte darauf das der Hintergrund immer mit den einstellungen (Thema, Übergänge, usw.) zusammen passt
+- [x] achte darauf das der Hintergrund immer mit den einstellungen (Thema, Übergänge, usw.) zusammen passt
 - [x] Repository: https://github.com/aquaxs1/Larpcord
 - [x] Der Token für die Updates liegt in `.env` (`GH_TOKEN`, nicht im Repo)
 

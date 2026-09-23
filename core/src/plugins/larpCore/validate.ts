@@ -7,7 +7,7 @@
 import { OFFICIAL_BADGE_IDS } from "./badges";
 import { createDefaultProfile } from "./defaults";
 import { LarpError } from "./i18n";
-import { CustomBadge, LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpActivityType, LarpButtonLayout, LarpExportFile, LarpLayout, LarpMusic, LarpMusicSource, LarpPreset, LarpProfile, LarpRole, LarpSounds, LarpTheme, ServerLarp } from "./types";
+import { CustomBadge, LARP_EXPORT_VERSION, LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpActivityType, LarpButtonLayout, LarpExportFile, LarpLayout, LarpMusic, LarpMusicSource, LarpPreset, LarpProfile, LarpRole, LarpSounds, LarpTheme, ServerLarp } from "./types";
 
 /*
  * Bereinigt beliebige (importierte oder gespeicherte) Daten zu einem gültigen LarpProfile.
@@ -424,7 +424,16 @@ export function sanitizePreset(input: unknown): LarpPreset | undefined {
     return { name, profile: sanitizeProfile(input.profile) };
 }
 
-/** Prüft eine *.larp.json-Datei. Wirft bei ungültigem Format, verwirft einzelne kaputte Presets. */
+/** Formate, die importiert werden können. 1 = vor Aktivitäten, Rollen und Musik. */
+const KNOWN_EXPORT_VERSIONS = [1, 2];
+
+/**
+ * Prüft eine *.larp.json-Datei. Wirft bei ungültigem Format, verwirft einzelne kaputte Presets.
+ *
+ * Migration von Version 1: Die neuen Felder (activities, music, Rollen und Aussehen pro Server)
+ * gab es damals noch nicht. sanitizeProfile lässt sie einfach weg, es ist also nichts umzurechnen –
+ * neue Felder bekommen beim Laden ihre Standardwerte.
+ */
 // Texte laufen über LarpError, deshalb für den i18n-Check:
 // i18n-keys: core.import.errorInvalidJson, core.import.errorNotLarpFile, core.import.errorNoPresets (LarpError)
 export function parseExportFile(json: string): LarpExportFile {
@@ -434,12 +443,12 @@ export function parseExportFile(json: string): LarpExportFile {
     } catch (e) {
         throw new LarpError("core.import.errorInvalidJson");
     }
-    if (!isObj(data) || data.version !== 1 || !Array.isArray(data.presets))
+    if (!isObj(data) || !KNOWN_EXPORT_VERSIONS.includes(data.version as number) || !Array.isArray(data.presets))
         throw new LarpError("core.import.errorNotLarpFile");
 
     const presets = data.presets.slice(0, MAX_PRESETS).map(sanitizePreset).filter(Boolean) as LarpPreset[];
     if (!presets.length) throw new LarpError("core.import.errorNoPresets");
-    return { version: 1, presets };
+    return { version: LARP_EXPORT_VERSION, presets };
 }
 
 function stripUndefined<T>(obj: T): T {

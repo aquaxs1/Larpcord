@@ -224,8 +224,11 @@ export interface LarpPreset {
     builtinId?: BuiltinPresetId;
 }
 
+/** Aktuelles Austauschformat. Version 1 (ohne Aktivitäten, Rollen und Musik) wird beim Import migriert. */
+export const LARP_EXPORT_VERSION = 2;
+
 export interface LarpExportFile {
-    version: 1;
+    version: typeof LARP_EXPORT_VERSION;
     presets: LarpPreset[];
 }
 
