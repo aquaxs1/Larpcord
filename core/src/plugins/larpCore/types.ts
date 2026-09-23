@@ -10,11 +10,27 @@ export interface CustomBadge {
     tooltip: string;
 }
 
+/** Lokale Rolle (larpServers). Reine Anzeige, nie Teil der Berechtigungsberechnung. */
+export interface LarpRole {
+    id: string;
+    name: string;
+    /** Hex-Farbe (#rrggbb) */
+    color: string;
+    /** Zweite Farbe für einen Verlauf */
+    gradient?: string;
+    /** https:- oder data:image/-URL */
+    iconUrl?: string;
+    /** Der eigenen Person zugewiesen */
+    assigned: boolean;
+}
+
 export interface ServerLarp {
     partner?: boolean;
     verified?: boolean;
     boostLevel?: 0 | 1 | 2 | 3;
     boostCount?: number;
+    /** Eigene Rollen, Reihenfolge = Rangfolge (erste ist die höchste) */
+    roles?: LarpRole[];
 }
 
 export interface LarpTheme {

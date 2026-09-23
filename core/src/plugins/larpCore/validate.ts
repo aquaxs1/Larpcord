@@ -7,7 +7,7 @@
 import { OFFICIAL_BADGE_IDS } from "./badges";
 import { createDefaultProfile } from "./defaults";
 import { LarpError } from "./i18n";
-import { CustomBadge, LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpActivityType, LarpButtonLayout, LarpExportFile, LarpLayout, LarpPreset, LarpProfile, LarpSounds, LarpTheme, ServerLarp } from "./types";
+import { CustomBadge, LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpActivityType, LarpButtonLayout, LarpExportFile, LarpLayout, LarpPreset, LarpProfile, LarpRole, LarpSounds, LarpTheme, ServerLarp } from "./types";
 
 /*
  * Bereinigt beliebige (importierte oder gespeicherte) Daten zu einem gültigen LarpProfile.
@@ -77,6 +77,22 @@ function customBadge(v: unknown): CustomBadge | undefined {
     return { id, imageUrl, tooltip };
 }
 
+const MAX_ROLES_PER_GUILD = 20;
+
+function larpRole(v: unknown): LarpRole | undefined {
+    if (!isObj(v)) return undefined;
+    const name = str(v.name, 100);
+    if (!name) return undefined;
+    return {
+        id: str(v.id, 40)?.replace(/[^\w-]/g, "") || Math.random().toString(36).slice(2, 10),
+        name,
+        color: safeColor(v.color) ?? "#99aab5",
+        gradient: safeColor(v.gradient),
+        iconUrl: safeUrl(v.iconUrl),
+        assigned: bool(v.assigned, true)
+    };
+}
+
 function serverLarp(v: unknown): ServerLarp | undefined {
     if (!isObj(v)) return undefined;
     const out: ServerLarp = {};
@@ -85,6 +101,10 @@ function serverLarp(v: unknown): ServerLarp | undefined {
     if ([0, 1, 2, 3].includes(v.boostLevel as number)) out.boostLevel = v.boostLevel as ServerLarp["boostLevel"];
     if (typeof v.boostCount === "number" && Number.isFinite(v.boostCount))
         out.boostCount = Math.max(0, Math.min(999_999, Math.floor(v.boostCount)));
+    if (Array.isArray(v.roles)) {
+        const roles = v.roles.map(larpRole).filter(Boolean).slice(0, MAX_ROLES_PER_GUILD) as LarpRole[];
+        if (roles.length) out.roles = roles;
+    }
     return Object.keys(out).length ? out : undefined;
 }
 

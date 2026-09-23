@@ -12,6 +12,8 @@ import { LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 import { ServerLarp } from "@plugins/larpCore/types";
 import { GuildStore, IconUtils, useState } from "@webpack/common";
 
+import { RolesEditor } from "./RolesEditor";
+
 function setServer(guildId: string, patch: Partial<ServerLarp>) {
     LarpStore.update(p => {
         const merged: ServerLarp = { ...p.servers[guildId], ...patch };
@@ -20,7 +22,8 @@ function setServer(guildId: string, patch: Partial<ServerLarp>) {
             partner: merged.partner || undefined,
             verified: merged.verified || undefined,
             boostLevel: merged.boostLevel,
-            boostCount: merged.boostCount
+            boostCount: merged.boostCount,
+            roles: merged.roles?.length ? merged.roles : undefined
         };
         const empty = Object.values(entry).every(v => v === undefined);
         return { servers: { [guildId]: empty ? undefined : entry } };
@@ -30,6 +33,8 @@ function setServer(guildId: string, patch: Partial<ServerLarp>) {
 function ServerRow({ guild, larp }: { guild: any; larp: ServerLarp | undefined; }) {
     const icon = guild.icon ? IconUtils.getGuildIconURL({ id: guild.id, icon: guild.icon, size: 64, canAnimate: false }) : null;
     const s = larp ?? {};
+    const [open, setOpen] = useState(false);
+    const roleCount = s.roles?.length ?? 0;
 
     return (
         <div className={cl("server", larp && "server-active")}>
@@ -68,8 +73,12 @@ function ServerRow({ guild, larp }: { guild: any; larp: ServerLarp | undefined; 
                         setServer(guild.id, { boostCount: v === "" ? undefined : Math.max(0, Math.min(999_999, Math.floor(Number(v)))) });
                     }}
                 />
-                {larp && <Btn variant="danger" title={t("common.reset")} aria-label={t("common.reset")} onClick={() => setServer(guild.id, { partner: undefined, verified: undefined, boostLevel: undefined, boostCount: undefined })}>✕</Btn>}
+                <Btn variant="secondary" onClick={() => setOpen(!open)}>
+                    {roleCount ? t("roles.buttonCount", { count: roleCount }) : t("roles.button")}
+                </Btn>
+                {larp && <Btn variant="danger" title={t("common.reset")} aria-label={t("common.reset")} onClick={() => setServer(guild.id, { partner: undefined, verified: undefined, boostLevel: undefined, boostCount: undefined, roles: undefined })}>✕</Btn>}
             </div>
+            {open && <RolesEditor guildId={guild.id} roles={s.roles ?? []} />}
         </div>
     );
 }

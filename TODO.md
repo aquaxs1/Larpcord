@@ -77,12 +77,12 @@ Wichtig: Muss mit `electron-updater` kompatibel bleiben, also NSIS-Target behalt
 
 **Harte Regel:** Fake-Rollen nie in Strukturen einfügen, aus denen Discord Berechtigungen berechnet. Nur Anzeige, sonst erscheinen Admin-Buttons, die serverseitig scheitern.
 
-- [ ] Pro Server eigene Rollen anlegen: Name, Farbe, optional Farbverlauf, optional Rollen-Icon (URL oder Datei)
-- [ ] Rollen lassen sich der eigenen Person zuweisen, Reihenfolge festlegbar
-- [ ] Anzeige: Rollen-Pillen im eigenen Profil auf dem Server, Namensfarbe im Chat und in der Mitgliederliste nach höchster Larp-Rolle, Rollen-Icon neben dem Namen
-- [ ] Vorlagen: „Owner“ (Rot), „Admin“, „Moderator“, „VIP“
-- [ ] Optional (nur wenn stabil machbar): eigene Person in der Mitgliederliste in einer eigenen Gruppe oben anzeigen. Sonst in „Offen / Später“
-- [ ] Teil der Presets
+- [x] Pro Server eigene Rollen anlegen: Name, Farbe, optional Farbverlauf, optional Rollen-Icon (URL oder Datei)
+- [x] Rollen lassen sich der eigenen Person zuweisen, Reihenfolge festlegbar
+- [x] Anzeige: Rollen-Pillen im eigenen Profil auf dem Server, Namensfarbe im Chat und in der Mitgliederliste nach höchster Larp-Rolle, Rollen-Icon neben dem Namen
+- [x] Vorlagen: „Owner“ (Rot), „Admin“, „Moderator“, „VIP“
+- [x] Geprüft: eigene Gruppe oben in der Mitgliederliste → nach „Offen / Später“ verschoben (siehe unten)
+- [x] Teil der Presets
 
 ---
 
@@ -141,6 +141,12 @@ _(Hier landen Punkte, die nicht stabil umsetzbar waren, mit kurzer Begründung.)
 - **Standardname beim Server-Erstellen** („<Name>s Server“) nutzt den Larp-Namen. Das Feld ist vor dem Absenden sichtbar und editierbar, deshalb nicht gepatcht.
 - **Mitgliederliste** übernimmt einen geänderten Larp-Namen bei ausgeblendetem Server-Nick erst, wenn Discord die Liste neu aufbaut (z. B. Kanalwechsel). Chat, User-Panel, Profil und Erwähnungen aktualisieren sofort.
 - **Discord-RPC-Nick** (Modul für Spiele/Overlays) wird aus Anzeigefunktionen berechnet. Im Desktop-Client läuft kein RPC-Server, der User selbst wird trotzdem mit echtem Namen serialisiert.
+
+### Lokale Rollen: bewusst weggelassen
+- **Eigene Gruppe oben in der Mitgliederliste:** Die Mitgliederliste bekommt ihre Gruppen (`hoist`) aus einer
+  vorberechneten, virtualisierten Zeilenliste des Servers. Eine zusätzliche Gruppe müsste diese Liste umbauen,
+  inklusive Zeilenhöhen und Zählern – das ist mehr als reine Anzeige und bricht bei jedem Discord-Update.
+  Larp-Rollen erscheinen deshalb als Rollen-Pillen im Profil, als Namensfarbe und als Icon neben dem Namen.
 
 ### larpLayout: spätere Bereiche
 - Kanalliste: Kategorien und Kanäle eines Servers lokal umsortieren oder ausblenden.

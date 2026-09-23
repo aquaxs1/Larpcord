@@ -6,11 +6,14 @@
 
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
 import { t } from "@plugins/larpCore/i18n";
-import { LarpStore, logger } from "@plugins/larpCore/store";
+import { isSelf, LarpStore, logger } from "@plugins/larpCore/store";
 import { ServerLarp } from "@plugins/larpCore/types";
 import { Devs } from "@utils/constants";
+import { getCurrentGuild } from "@utils/discord";
 import definePlugin from "@utils/types";
 
+import { RoleIcon } from "./RoleIcon";
+import { applyRoleColor, ColorProps, isLarpRole, resolveRoleIcon, withLarpRoles } from "./roles";
 import { ServersTab } from "./ServersTab";
 
 /*
@@ -27,6 +30,15 @@ interface GuildLike {
 }
 
 const cache = new WeakMap<object, { version: number; value: any; }>();
+
+/**
+ * Ersetzung für den Rollen-Abschnitt im Profil. Beide Fundstellen (Popout und Fenster)
+ * bauen die Liste gleich auf: `getManyRoles(<guild>, member?.roles ?? []).sort(…)`.
+ */
+const PROFILE_ROLES_REPLACEMENT = {
+    match: /(\{userId:(\i),[^}]*\}=\i[\s\S]{0,600}?)(\i\.\i\.getManyRoles\((\i(?:\.id)?),\i\?\?\[\]\)\.sort\(\i\.\i\))/,
+    replace: "$1$self.withLarpRoles($3,$4,$2)"
+};
 
 function larpFor(guild: GuildLike | null | undefined): ServerLarp | undefined {
     if (!guild?.id) return undefined;
@@ -48,7 +60,12 @@ export default definePlugin({
     tags: ["Larpcord"],
     authors: [Devs.Larpcord],
     enabledByDefault: true,
-    dependencies: ["LarpCore"],
+    dependencies: ["LarpCore", "MessageDecorationsAPI", "MemberListDecoratorsAPI"],
+
+    renderMessageDecoration: ({ channel, message }) =>
+        isSelf(message?.author?.id) ? <RoleIcon guildId={channel?.guild_id} /> : null,
+    renderMemberListDecorator: ({ user, type }) =>
+        type === "guild" && isSelf(user?.id) ? <RoleIcon guildId={getCurrentGuild()?.id} /> : null,
 
     patches: [
         {
@@ -88,6 +105,49 @@ export default definePlugin({
                 match: /(?<=let \i=)(?=(\i)\.features\.has\(\i\.GuildFeatures\.VERIFIED\)\|\|)/,
                 replace: "$self.hasDisplayBadge($1)||"
             }
+        },
+        // Rollen-Abschnitt im eigenen Profil: Popout und Profil-Fenster sind zwei Module mit
+        // gleichem Aufbau, sie unterscheiden sich nur darin, ob sie die Guild oder ihre ID halten.
+        // Ergänzt wird nur die fertig sortierte *Anzeige*-Liste, nie member.roles (harte Regel).
+        {
+            find: /getManyRoles\(\i\.id,\i\?\?\[\]\)\.sort\(/,
+            replacement: PROFILE_ROLES_REPLACEMENT
+        },
+        {
+            find: /getManyRoles\(\i,\i\?\?\[\]\)\.sort\(/,
+            replacement: PROFILE_ROLES_REPLACEMENT
+        },
+        {
+            // Namensfarbe im Chat: nur die Anzeige-Farben des Autors werden ersetzt.
+            // Die rechte Seite darf auch schon ein Aufruf sein (Vencords IrcColors patcht dieselbe Stelle).
+            find: '="SYSTEM_TAG"',
+            replacement: {
+                match: /(\{[^{}]*colorString:\i,colorStrings:\i,colorRoleName:\i[^{}]*\}=)((?:[^,;]|\([^()]*\))+),/,
+                replace: "$1$self.messageColors($2,arguments[0]),"
+            }
+        },
+        {
+            // Namensfarbe in der Mitgliederliste
+            find: /\{colorRoleName:\i,colorString:\i,colorStrings:\i,name:\i,hideClanTag:/,
+            replacement: {
+                match: /(\{colorRoleName:\i,colorString:\i,colorStrings:\i,name:\i,hideClanTag:\i,user:\i,guildId:\i,[^}]*\}=)(\i)/,
+                replace: "$1$self.memberListColors($2)"
+            }
+        },
+        {
+            // Rollen-Icons: "larp:<id>" zur gespeicherten URL auflösen, statt eine CDN-URL zu bauen
+            find: "/role-icons",
+            replacement: [
+                {
+                    match: /let\{id:\i,icon:(\i)\}=\i;if\(null==\1\)return;/,
+                    replace: "$&const larpIcon=$self.roleIconUrl($1);if(larpIcon!=null)return larpIcon;"
+                },
+                {
+                    // Rollen-Icons brauchen normalerweise ein Server-Feature. Für Larp-Rollen nicht.
+                    match: /(\i)\?\.tags\?\.subscription_listing_id!=null\|\|/,
+                    replace: "$self.isLarpRole($1)||$&"
+                }
+            ]
         }
     ],
 
@@ -131,6 +191,39 @@ export default definePlugin({
         } catch (e) {
             logger.error("displayGuild", e);
             return guild;
+        }
+    },
+
+    withLarpRoles,
+    isLarpRole,
+
+    roleIconUrl(icon: unknown) {
+        try {
+            return resolveRoleIcon(icon);
+        } catch {
+            return undefined;
+        }
+    },
+
+    /** Farben des Nachrichten-Autors (Chat) */
+    messageColors<T extends ColorProps>(author: T, props: any): T {
+        try {
+            const userId = props?.userOverride?.id ?? props?.message?.author?.id;
+            const guildId = props?.channel?.guild_id;
+            return applyRoleColor(author, guildId, userId);
+        } catch (e) {
+            logger.error("messageColors", e);
+            return author;
+        }
+    },
+
+    /** Farben eines Eintrags der Mitgliederliste */
+    memberListColors<T extends ColorProps & { user?: { id?: string; }; guildId?: string; }>(props: T): T {
+        try {
+            return applyRoleColor(props, props?.guildId, props?.user?.id);
+        } catch (e) {
+            logger.error("memberListColors", e);
+            return props;
         }
     },
 
