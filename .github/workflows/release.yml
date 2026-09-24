@@ -77,10 +77,18 @@ jobs:
               --notes-file desktop/release-notes.md "${prerelease[@]}" "${files[@]}"
           fi
 
+          # Ein abgebrochener Lauf kann einen Entwurf hinterlassen haben – der wäre für niemanden
+          # sichtbar und der Auto-Updater fände ihn nicht.
+          if [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = "true" ]; then
+            gh release edit "$TAG" --draft=false
+          fi
+
           # Erst wenn alle drei Dateien wirklich am Release hängen, gilt der Schritt als erfolgreich
           uploaded="$(gh release view "$TAG" --json assets --jq '.assets[].name')"
           for f in "${files[@]}"; do
             name="$(basename "$f")"
             grep -qx "$name" <<< "$uploaded" || { echo "::error::Nicht hochgeladen: $name"; exit 1; }
           done
+          [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = "false" ] \
+            || { echo "::error::Release ist noch ein Entwurf"; exit 1; }
           echo "Veröffentlicht: $uploaded"
