@@ -44,9 +44,43 @@ jobs:
           VENCORD_HASH: ${{ github.sha }}
           VENCORD_REMOTE: ${{ github.repository }}
 
-      # Veröffentlicht Larpcord-Setup.exe, .blockmap und latest.yml (publish-Konfiguration in desktop/package.json)
-      - name: Paketieren und veröffentlichen
-        run: pnpm -C desktop exec electron-builder --win --publish always
+      # Bewusst ohne "--publish always": electron-builder lädt dabei nebenher hoch, der Schritt kann
+      # enden, bevor die große .exe und latest.yml oben sind (genau das ist bei v0.2.0 passiert).
+      # Die Update-Datei latest.yml entsteht auch mit "--publish never", weil publish in
+      # desktop/package.json konfiguriert ist.
+      - name: Paketieren
+        run: pnpm -C desktop exec electron-builder --win --publish never
+
+      - name: Veröffentlichen
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EP_PRE_RELEASE: ${{ contains(github.ref_name, '-beta') }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          files=(
+            desktop/dist/Larpcord-Setup.exe
+            desktop/dist/Larpcord-Setup.exe.blockmap
+            desktop/dist/latest.yml
+          )
+          for f in "${files[@]}"; do
+            [ -f "$f" ] || { echo "::error::Datei fehlt nach dem Paketieren: $f"; exit 1; }
+          done
+
+          prerelease=()
+          case "$TAG" in *-beta*) prerelease=(--prerelease);; esac
+
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "${files[@]}" --clobber
+          else
+            gh release create "$TAG" --title "${TAG#v}" \
+              --notes-file desktop/release-notes.md "${prerelease[@]}" "${files[@]}"
+          fi
+
+          # Erst wenn alle drei Dateien wirklich am Release hängen, gilt der Schritt als erfolgreich
+          uploaded="$(gh release view "$TAG" --json assets --jq '.assets[].name')"
+          for f in "${files[@]}"; do
+            name="$(basename "$f")"
+            grep -qx "$name" <<< "$uploaded" || { echo "::error::Nicht hochgeladen: $name"; exit 1; }
+          done
+          echo "Veröffentlicht: $uploaded"
