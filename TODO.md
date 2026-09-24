@@ -118,7 +118,7 @@ Wichtig: Muss mit `electron-updater` kompatibel bleiben, also NSIS-Target behalt
 - [x] `pnpm i18n:check` läuft ohne Fehler
 - [x] `CLAUDE.md` aktualisieren: neue Plugins, neue harte Regeln (keine Presence-Updates, keine Rollen in Berechtigungen), Updater- und Installer-Aufbau
 - [x] `README.md` aktualisieren: neue Features, Updater, SmartScreen-Hinweis, Sprachen
-- [ ] Version erhöhen, Changelog in `CHANGELOG.md`, Release-Tag setzen
+- [x] Version erhöhen, Changelog in `CHANGELOG.md`, Release-Tag setzen (v0.2.0, 2026-09-24)
 
 ---
 
