@@ -120,6 +120,12 @@ Larpcord ist **rein kosmetisch und lokal**. Alles, was Discords Server prüft, b
 Larpcord meldet sich, sobald eine neue Version da ist, und installiert sie auf Wunsch sofort.
 Deinstallieren geht über **Einstellungen → Apps**; dabei fragt Larpcord, ob deine Presets und Einstellungen bleiben sollen.
 
+### Website
+
+Die Projekt-Website liegt in `site/` (reines HTML/CSS/JS, kein Build). Auf Vercel als Root Directory `site`
+wählen, Framework „Other“. Lokal ansehen: `npx serve site`. In `site/datenschutz.html` die Platzhalter
+für den Verantwortlichen ausfüllen.
+
 ### Selbst bauen
 
 Voraussetzungen: [Node.js](https://nodejs.org) 22+, [pnpm](https://pnpm.io) 11+, Git

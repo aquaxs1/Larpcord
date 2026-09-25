@@ -6,6 +6,11 @@ im GitHub-Release und im Update-Hinweis in der App (`scripts/release-notes.mjs`)
 
 ## [Unreleased]
 
+### Neu
+- **Website** im Ordner `site/` (statisch, für Vercel mit Root `site`): neue Tools, Live-Vorschau zum Ausprobieren,
+  Download, Vergleich mit dem normalen Discord und Datenschutz-Seite.
+- Releases enthalten zusätzlich `Larpcord-Setup.zip` (die Setup-.exe als ZIP), auf die die Website verlinkt.
+
 ## [0.2.0] – 2026-09-23
 
 ### Neu
