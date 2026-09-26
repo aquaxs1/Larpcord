@@ -1,5 +1,5 @@
 /*
- * Larpcord – setzt die App-Version in desktop/package.json (z. B. aus einem Git-Tag "v1.2.3").
+ * Larpcord – sets the app version in desktop/package.json (e.g. from a git tag "v1.2.3").
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 import { readFileSync, writeFileSync } from "fs";
@@ -7,7 +7,7 @@ import { join } from "path";
 
 const version = (process.argv[2] ?? "").replace(/^v/, "");
 if (!/^\d+\.\d+\.\d+([-+][\w.-]+)?$/.test(version)) {
-    console.error(`Ungültige Version: "${process.argv[2]}"`);
+    console.error(`Invalid version: "${process.argv[2]}"`);
     process.exit(1);
 }
 

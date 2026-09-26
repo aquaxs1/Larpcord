@@ -2,6 +2,9 @@
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "cleanUrls": true,
     "trailingSlash": false,
+    "redirects": [
+        { "source": "/datenschutz", "destination": "/privacy", "permanent": true }
+    ],
     "headers": [
         {
             "source": "/(.*)",

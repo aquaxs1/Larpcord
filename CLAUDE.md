@@ -1,50 +1,60 @@
-# Larpcord – Bauplan für Claude Code
+# Larpcord – Blueprint for Claude Code
 
-Du baust mit mir **Larpcord**: einen eigenständigen, quelloffenen Discord-Client (eigene .exe), mit dem Nutzer sich lokal Badges, Nitro-Optik, Dekorationen, Server-Badges, andere Namen und ein eigenes Layout geben können. Alles ist **nur auf dem eigenen PC** sichtbar. Lies zuerst `README.md` für die Feature-Übersicht.
+You are building **Larpcord** with me: a standalone, open-source Discord client (its own .exe) that lets users give themselves badges, the Nitro look, decorations, server badges, different names and their own layout – locally. Everything is **visible only on their own PC**. Read `README.md` first for the feature overview.
 
-## Grundansatz
+## Language
 
-Nicht bei null anfangen. Basis:
-- `desktop/` = Fork von Vesktop (liefert die .exe via electron-builder)
-- `core/` = Fork von Vencord (Plugin-System), unsere Plugins in `core/src/plugins/larp*/`
+**English is the main language of the project.** Everything visible on GitHub is written in English: README,
+CHANGELOG (= release notes and the in-app update changelog), TODO, docs, commit messages, pull requests, issues,
+workflow step names and script output. The website in `site/` is English only. Other languages exist **only as a
+selectable language inside the client** (`core/src/plugins/larpCore/i18n/locales/`, reference is `en.json`).
+New code comments are written in English.
 
-Beide als normale Ordner einchecken (kein Submodule, `.git` entfernen), Upstream-Commit-Hashes in `UPSTREAM.md` notieren. Lizenz bleibt GPL-3.0, Copyright-Hinweise behalten.
+## Basic approach
 
----
+Don't start from scratch. Base:
+- `desktop/` = fork of Vesktop (produces the .exe via electron-builder)
+- `core/` = fork of Vencord (plugin system), our plugins in `core/src/plugins/larp*/`
 
-## Harte Regeln (niemals brechen)
-
-1. **Nur lokal:** keine schreibenden Requests an die Discord-API (kein PATCH/POST auf `/users/@me`, `/guilds/...` usw.).
-2. **Nur der eigene User:** Profil- und Namens-Overrides nur für die eigene User-ID (`UserStore.getCurrentUser().id`).
-3. **Server-Badges nur Anzeige:** keine Guild-Features global verändern.
-4. **Kein Selfbot-Verhalten:** keine automatisierten Nachrichten, Reaktionen, Joins.
-5. **Discords eigene Server-Sortierung** (Account-Einstellungen, synchronisiert) nie verändern.
-6. **Jeder Patch braucht einen Fallback:** Matcht ein `find` nicht mehr, darf nichts crashen, Feature wird deaktiviert und geloggt.
-7. **Keine serverseitig geprüften Nitro-Funktionen vortäuschen** (Upload-Limits, Stream-Qualität), keine UI aktivieren, die dann serverseitig scheitert.
-8. **Wenn etwas nur mit schreibenden API-Requests ginge:** weglassen und in `TODO.md` notieren.
-9. **Keine Presence-Updates:** Larp-Aktivitäten entstehen nur beim *Lesen* der Anzeige-Stores. Was Discord ans
-   Gateway schickt (`SelfPresenceStore.getLocalPresence()`), bleibt unangetastet.
-10. **Keine Larp-Rollen in Berechtigungen:** Rollen tauchen nie in `member.roles` oder im `GuildRoleStore` auf,
-    sondern erst in der fertigen Anzeige-Liste – und ohne `permissions`.
-11. **Kein Larp-Wert in einem Formular, das gesendet wird:** Wo Discord ein Formular mit Store-Daten vorausfüllt
-    (Konto, Server-Einstellungen), setzt ein Guard vor dem Request wieder die echten Werte ein.
+Both checked in as plain folders (no submodule, `.git` removed), upstream commit hashes recorded in `UPSTREAM.md`. License stays GPL-3.0, keep the copyright notices.
 
 ---
 
-## Repo-Struktur
+## Hard rules (never break)
+
+1. **Local only:** no write requests to the Discord API (no PATCH/POST on `/users/@me`, `/guilds/...` etc.).
+2. **Own user only:** profile and name overrides only for your own user ID (`UserStore.getCurrentUser().id`).
+3. **Server badges are display only:** never change guild features globally.
+4. **No selfbot behavior:** no automated messages, reactions, joins.
+5. **Never change Discord's own server order** (account settings, synced).
+6. **Every patch needs a fallback:** if a `find` no longer matches, nothing may crash; the feature is disabled and logged.
+7. **Never fake server-checked Nitro features** (upload limits, stream quality), never enable UI that then fails server-side.
+8. **If something would only work with write API requests:** leave it out and note it in `TODO.md`.
+9. **No presence updates:** larp activities only come into existence when *reading* the display stores. What Discord
+   sends to the gateway (`SelfPresenceStore.getLocalPresence()`) stays untouched.
+10. **No larp roles in permissions:** roles never show up in `member.roles` or in `GuildRoleStore`,
+    only in the final display list – and without `permissions`.
+11. **No larp value in a form that gets submitted:** where Discord prefills a form with store data
+    (account, server settings), a guard puts the real values back before the request.
+
+---
+
+## Repo structure
 
 ```
 larpcord/
 ├── README.md
-├── CLAUDE.md                 ← diese Datei
-├── TODO.md                   ← bewusst Weggelassenes, offene Ideen
-├── UPSTREAM.md               ← Upstream-Commit-Hashes
-├── package.json              ← Root-Skripte: build, dev, package
-├── ship.bat                  ← Ein-Klick-Build des Installers unter Windows
+├── CLAUDE.md                 ← this file
+├── TODO.md                   ← deliberately omitted items, open ideas
+├── UPSTREAM.md               ← upstream commit hashes
+├── CHANGELOG.md              ← release notes (English)
+├── package.json              ← root scripts: build, dev, package
+├── ship.bat                  ← one-click installer build on Windows
 ├── scripts/                  ← build.mjs, install.mjs, set-version.mjs, generate-icons.py
-├── core/                     ← Fork von Vencord
+├── site/                     ← project website (static, Vercel root "site", English only)
+├── core/                     ← fork of Vencord
 │   └── src/plugins/
-│       ├── larpCore/         ← Store, Hub, Presets, Import/Export, Wasserzeichen
+│       ├── larpCore/         ← store, hub, presets, import/export, watermark
 │       ├── larpBadges/
 │       ├── larpNitro/
 │       ├── larpDecorations/
@@ -54,151 +64,162 @@ larpcord/
 │       ├── larpMusic/
 │       ├── larpThemes/
 │       └── larpLayout/
-└── desktop/                  ← Fork von Vesktop
+└── desktop/                  ← fork of Vesktop
 ```
 
-Interne Vencord-Bezeichner (`Vencord.*`) **nicht** umbenennen, das macht Upstream-Merges kaputt. Nur sichtbare Namen heißen „Larpcord“.
+Do **not** rename internal Vencord identifiers (`Vencord.*`), that breaks upstream merges. Only visible names are called “Larpcord”.
 
 ---
 
 ## Plugins
 
-- **larpCore:** zentraler Store (Vencord DataStore) mit `get`/`update`/`subscribe`. Enthält Badges, Custom-Badges (Bild + Tooltip), „Mitglied seit“, Clan-Tag, Nitro (seit/Boost seit), Profil-Theme-Farben, Banner, animierter Avatar, Dekoration, Profileffekt, Nameplate, Name-Style, Extras (Verified-Häkchen, Owner-Krone), Namen (`username`, `displayName`), Server-Einstellungen pro guildId (`partner`, `verified`, `boostLevel` 0–3, `boostCount`, lokale Rollen, lokaler Name/Icon/Banner), Aktivitäten, Profil-Musik, Layout, Wasserzeichen (Standard aus). Presets speichern/laden/löschen/umbenennen, mitgeliefert: „Discord Staff“, „Nitro-Gönner“, „OG 2015“. Import/Export als `*.larp.json` (`{ version: 2, presets: [...] }`, Version 1 wird beim Import migriert), beim Import validieren, Bild-URLs nur `https:` oder `data:image/`. Einstellungs-Tab „Larpcord“ mit Unter-Tabs und Live-Vorschau des eigenen Profils. Optionales Wasserzeichen „🎭 Larpcord“ im eigenen Profil-Popout.
-- **larpBadges:** Vencords `@api/Badges` (`addProfileBadge`), nur eigene User-ID. Alle offiziellen Badges (Icons aus Discords Client referenzieren, nichts ins Repo kopieren) plus Custom Badges, Reihenfolge per Drag & Drop. „Mitglied seit“ im Profil.
-- **larpNitro & larpDecorations:** Nitro-Badge mit Datum, Boost-Badge-Stufe aus Datum berechnet, Theme-Farben, Banner, animierter Avatar, Auswahl von Dekorationen/Profileffekten/Nameplates aus Discords Collectibles-Store mit Vorschau. Vorhandene Vencord-Plugins für Profil-Themes und Dekorationen als Vorlage nutzen.
-- **larpName:** Clan-Tag, Verified-Häkchen, Owner-Krone, Name-Styles (Font, Gradient, Glow). **Name-Änderer:** Username und Anzeigename lokal sofort überschreiben, ohne Cooldown, überall (Chat, Profil, Mitgliederliste, User-Panel, Erwähnungen, Tooltips). Option „Larp-Name statt Server-Nicknames anzeigen“ (Standard an). Im Hub beschriften: „Nur lokal sichtbar“.
-- **larpActivity:** Eigene Aktivitäten (alle Typen inklusive benutzerdefiniertem Status) und ein Aktivitäts-Changer
-  für echte, erkannte Aktivitäten. Gepatcht werden nur `SelfPresenceStore.getActivities()` und
-  `PresenceStore.getActivities(id)`; Bilder laufen über einen `larp:`-Schlüssel, den ein Patch auf
-  `getAssetImage` auflöst. Fortschrittsleiste bei „Hört“ gibt es nur, weil Discord die Aktivität dann für
-  Spotify hält (Name „Spotify“, `party.id` mit `spotify:`-Präfix).
-- **larpServers:** Serverliste im Hub, pro Server Partner-/Verified-Icon, Boost-Level und -Anzahl. Nur Anzeige patchen
-  (Header, Tooltip, Boost-Anzeige). Dazu **lokale Rollen** (Name, Farbe, Verlauf, Icon, Rangfolge; Anzeige über den
-  Rollen-Abschnitt im Profil, die Namensfarbe in Chat und Mitgliederliste und ein eigenes Decorator-Icon) und
-  **Server umgestalten** (Name, Icon, Banner): `GuildStore` liefert beim Lesen eine Anzeige-Kopie, die Bild-URLs
-  kommen aus Patches auf `getGuildIconURL`/`getGuildBannerURL`, und `guardGuildBody` hält Larp-Werte aus
-  `PATCH /guilds/<id>` heraus.
-- **larpMusic:** Profil-Musik. Songs liegen als Datei im App-Datenordner (`desktop/src/main/larpMusic.ts`,
-  ausgeliefert über `vesktop://music/<id>`) oder als URL. Kein Patch: Der Mini-Player hängt als Profil-Badge am
-  eigenen Profil, dadurch startet die Wiedergabe beim Öffnen und stoppt beim Schließen.
-- **larpThemes:** Theme-Editor (Farben, Font, Eckenradius) mit Live-Vorschau über Vencords Theme/QuickCSS, Themes in Presets speicherbar, eigene Sounds, Ladebildschirm und App-Icon (im `desktop/`-Teil).
-- **larpLayout** (in Stufen bauen):
-  - **A)** Bearbeitungsmodus per Hub-Toggle und Strg+Shift+L: Rahmen und Griffe, Klicks deaktiviert, Leiste mit „Fertig“, „Zurücksetzen“, „Als Preset speichern“. Elemente über stabile IDs identifizieren (Guild-/Channel-IDs, aria-label), nie über Positionen oder minifizierte Klassen.
-  - **B)** Serverleiste: eigene Reihenfolge beim Rendern anwenden, neue Server ans Ende, Ordner als Ganzes verschiebbar. Discords natives Drag & Drop unberührt lassen.
-  - **C)** DMs: per Rechtsklick „In Larpcord anpinnen“, angepinnte oben in fester Reihenfolge.
-  - **D)** Buttons im User-Panel und Kanal-Header umsortieren/ausblenden per CSS `order`/`display`. Einstellungen-Button nie ausblendbar.
-  - **E)** User-Panel oben oder unten. Weitere Bereiche erst später, Ideen in `TODO.md`.
-  - **Sicherheitsnetz:** Start mit gedrückter Shift-Taste oder Tray-Eintrag setzt Layout zurück.
+- **larpCore:** central store (Vencord DataStore) with `get`/`update`/`subscribe`. Contains badges, custom badges (image + tooltip), “member since”, clan tag, Nitro (since/boosting since), profile theme colors, banner, animated avatar, decoration, profile effect, nameplate, name style, extras (verified check, owner crown), names (`username`, `displayName`), server settings per guildId (`partner`, `verified`, `boostLevel` 0–3, `boostCount`, local roles, local name/icon/banner), activities, profile music, layout, watermark (off by default). Save/load/delete/rename presets, built in: “Discord Staff”, “Nitro Supporter”, “OG 2015”. Import/export as `*.larp.json` (`{ version: 2, presets: [...] }`, version 1 is migrated on import), validate on import, image URLs only `https:` or `data:image/`. Settings tab “Larpcord” with sub-tabs and a live preview of your own profile. Optional watermark “🎭 Larpcord” in your own profile popout.
+- **larpBadges:** Vencord's `@api/Badges` (`addProfileBadge`), own user ID only. All official badges (reference icons from Discord's client, copy nothing into the repo) plus custom badges, order via drag & drop. “Member since” on the profile.
+- **larpNitro & larpDecorations:** Nitro badge with date, boost badge tier computed from the date, theme colors, banner, animated avatar, selecting decorations/profile effects/nameplates from Discord's collectibles store with preview. Use existing Vencord plugins for profile themes and decorations as a template.
+- **larpName:** clan tag, verified check, owner crown, name styles (font, gradient, glow). **Name changer:** override username and display name locally and instantly, no cooldown, everywhere (chat, profile, member list, user panel, mentions, tooltips). Option “Show larp name instead of server nicknames” (on by default). Label it in the hub: “Only visible locally”.
+- **larpActivity:** your own activities (all types including custom status) and an activity changer
+  for real, detected activities. Only `SelfPresenceStore.getActivities()` and
+  `PresenceStore.getActivities(id)` are patched; images go through a `larp:` key that a patch on
+  `getAssetImage` resolves. The progress bar for “Listening” only exists because Discord then treats the activity as
+  Spotify (name “Spotify”, `party.id` with a `spotify:` prefix).
+- **larpServers:** server list in the hub, per server partner/verified icon, boost level and count. Only patch display
+  (header, tooltip, boost display). Plus **local roles** (name, color, gradient, icon, order; shown via the
+  roles section on the profile, the name color in chat and member list and a custom decorator icon) and
+  **restyle servers** (name, icon, banner): `GuildStore` returns a display copy when reading, the image URLs
+  come from patches on `getGuildIconURL`/`getGuildBannerURL`, and `guardGuildBody` keeps larp values out of
+  `PATCH /guilds/<id>`.
+- **larpMusic:** profile music. Songs live as a file in the app data folder (`desktop/src/main/larpMusic.ts`,
+  served via `vesktop://music/<id>`) or as a URL. No patch: the mini player is attached as a profile badge to your
+  own profile, so playback starts when it opens and stops when it closes.
+- **larpThemes:** theme editor (colors, font, corner radius) with live preview via Vencord's Theme/QuickCSS, themes storable in presets, custom sounds, loading screen and app icon (in the `desktop/` part).
+- **larpLayout** (build in stages):
+  - **A)** Edit mode via hub toggle and Ctrl+Shift+L: frames and handles, clicks disabled, toolbar with “Done”, “Reset”, “Save as preset”. Identify elements by stable IDs (guild/channel IDs, aria-label), never by positions or minified classes.
+  - **B)** Server list: apply your own order when rendering, new servers at the end, folders movable as a whole. Leave Discord's native drag & drop untouched.
+  - **C)** DMs: right-click “Pin in Larpcord”, pinned ones at the top in a fixed order.
+  - **D)** Reorder/hide buttons in the user panel and channel header via CSS `order`/`display`. The settings button can never be hidden.
+  - **E)** User panel at the top or bottom. More areas later, ideas in `TODO.md`.
+  - **Safety net:** starting with Shift held down or the tray entry resets the layout.
 
 ---
 
-## Mehrsprachigkeit (i18n)
+## Internationalization (i18n)
 
-Larpcord spricht Deutsch und Englisch und folgt Discords Spracheinstellung, ohne Neustart.
+Larpcord's main language is English; German (and any future language) is selectable. The client follows Discord's
+language setting, without restart.
 
-- **Modul:** `core/src/plugins/larpCore/i18n/` – `t(key, vars?)`, `tNode(key, vars)` für Texte mit React-Elementen,
-  `useLarpLocale()` in Komponenten, `formatLarpDate`/`formatLarpNumber`, `LarpError(key, vars)` + `errorText(e)`
-  für übersetzbare Fehler. Die reine Logik steht in `i18n/translator.ts` (ohne Vencord/Electron).
-- **Sprachdateien:** `core/src/plugins/larpCore/i18n/locales/<sprache>.json`, flache Schlüssel
-  (`"bereich.schluessel": "Text mit {variable}"`), Mehrzahl über `.one`/`.other`. Eine weitere Sprache braucht
-  **nur eine neue JSON-Datei** – das esbuild-Plugin `core/scripts/build/larpLocales.mjs` findet sie automatisch
-  (virtuelles Modul `~larpcord-locales`, auch im Desktop-Build).
-- **Quelle der Sprache:** Discords `LocaleStore` (nicht das System). Der Core meldet sie per IPC an den
-  Main-Prozess (`VesktopNative.larpcord.setLocale`), der sie in `settings.json` merkt und Tray, Menü und eigene
-  Fenster neu aufbaut. Vor dem Login gilt die zuletzt gemeldete bzw. die Systemsprache.
-- **Desktop:** `desktop/src/main/i18n.ts` (gleiche Sprachdateien), Views nutzen `data-i18n="desktop.…"` plus
-  `desktop/static/views/i18n.js`; Schlüssel für Views müssen mit `desktop.` beginnen.
-- **Regeln:** keine übersetzten Texte in Modul-Konstanten einfrieren (Getter oder erst beim Rendern übersetzen),
-  Plugin-Beschreibungen als Getter, Logger-Ausgaben bleiben unübersetzt.
-- **Prüfen:** `pnpm i18n:check` meldet fehlende, überflüssige und abweichende Schlüssel und läuft in CI
-  (`.github/workflows/ci.yml`). Dynamische Schlüssel mit Kommentar `// i18n-keys: prefix.*` anmelden.
+- **Module:** `core/src/plugins/larpCore/i18n/` – `t(key, vars?)`, `tNode(key, vars)` for texts with React elements,
+  `useLarpLocale()` in components, `formatLarpDate`/`formatLarpNumber`, `LarpError(key, vars)` + `errorText(e)`
+  for translatable errors. The pure logic lives in `i18n/translator.ts` (without Vencord/Electron).
+- **Language files:** `core/src/plugins/larpCore/i18n/locales/<language>.json`, flat keys
+  (`"area.key": "Text with {variable}"`), plurals via `.one`/`.other`. `en.json` is the reference and the fallback.
+  Another language needs **only a new JSON file** – the esbuild plugin `core/scripts/build/larpLocales.mjs` finds it
+  automatically (virtual module `~larpcord-locales`, also in the desktop build).
+- **Source of the language:** Discord's `LocaleStore` (not the system). The core reports it via IPC to the
+  main process (`VesktopNative.larpcord.setLocale`), which remembers it in `settings.json` and rebuilds the tray, menu
+  and own windows. Before login, the last reported language or the system language applies (fallback English).
+- **Desktop:** `desktop/src/main/i18n.ts` (same language files), views use `data-i18n="desktop.…"` plus
+  `desktop/static/views/i18n.js`; keys for views must start with `desktop.`.
+- **Rules:** never freeze translated texts in module constants (use getters or translate at render time),
+  plugin descriptions as getters, logger output stays untranslated.
+- **Check:** `pnpm i18n:check` reports missing, unused and mismatching keys and runs in CI
+  (`.github/workflows/ci.yml`). Register dynamic keys with a comment `// i18n-keys: prefix.*`.
 
-## Auto-Updater und Release
+## Auto-updater and release
 
-- **Main-Prozess:** `desktop/src/main/updater.ts` (electron-updater, GitHub-Provider `aquaxs1/Larpcord`).
-  Prüft beim Start und alle 4 Stunden, lädt im Hintergrund, meldet den Status per IPC an den Core.
-  Kanal „Beta“ = `allowPrerelease`. Dev- und portable Builds melden `unsupported`.
-- **Core:** `larpCore/updater/` (Status-Client, Discord-Modal mit Changelog, sichere Release-Notes-Anzeige) und
-  der Hub-Tab „Updates“ (`hub/UpdatesTab.tsx`).
-- **„Später“** heißt `autoInstallOnAppQuit`, nicht „vergessen“. Fehler werden nur geloggt und im Hub gezeigt.
-- **Release:** Tag `v*` → GitHub Action baut, `electron-builder --publish always` lädt `Larpcord-Setup.exe`,
-  `latest.yml` und Blockmap hoch. Tags mit `-beta` werden über `EP_PRE_RELEASE` zum Prerelease.
-  Der Release-Text kommt aus `CHANGELOG.md` (`scripts/release-notes.mjs`) und ist zugleich der Changelog im
-  Update-Hinweis. Lokales Veröffentlichen braucht `GH_TOKEN` aus `.env` (nie committen).
-- **Installer:** NSIS oneClick pro Benutzer (`desktop/build/installer.nsh`), dunkles Farbschema über
-  `MUI_CUSTOMFUNCTION_GUIINIT`, eigene Icons, Deutsch/Englisch. Die Deinstallation fragt nach den Nutzerdaten,
-  aber nicht bei Updates (`${isUpdated}`) und nicht im Silent-Modus.
-- **Testen ohne Risiko:** Testpakete immer mit eigener `appId`, eigenem `extraMetadata.name` **und**
-  `extraMetadata.productName` bauen, sonst teilen sie sich Datenordner und Einzelinstanz-Sperre mit der
-  installierten Larpcord-Version des Users.
+- **Main process:** `desktop/src/main/updater.ts` (electron-updater, GitHub provider `aquaxs1/Larpcord`).
+  Checks on startup and every 4 hours, downloads in the background, reports status to the core via IPC.
+  Channel “Beta” = `allowPrerelease`. Dev and portable builds report `unsupported`.
+- **Core:** `larpCore/updater/` (status client, Discord modal with changelog, safe release notes display) and
+  the hub tab “Updates” (`hub/UpdatesTab.tsx`).
+- **“Later”** means `autoInstallOnAppQuit`, not “forget”. Errors are only logged and shown in the hub.
+- **Release:** tag `v*` → GitHub Action builds, uploads `Larpcord-Setup.exe`, `latest.yml`, the blockmap and
+  `Larpcord-Setup.zip` (the website links to the ZIP). Tags with `-beta` become prereleases.
+  The release text comes from `CHANGELOG.md` (`scripts/release-notes.mjs`, written in English) and is also the
+  changelog in the update notice. Publishing locally needs `GH_TOKEN` from `.env` (never commit it).
+- **Installer:** NSIS oneClick per user (`desktop/build/installer.nsh`), dark color scheme via
+  `MUI_CUSTOMFUNCTION_GUIINIT`, custom icons, English/German. The uninstaller asks about user data,
+  but not on updates (`${isUpdated}`) and not in silent mode.
+- **Testing without risk:** always build test packages with their own `appId`, own `extraMetadata.name` **and**
+  `extraMetadata.productName`, otherwise they share the data folder and single-instance lock with the user's
+  installed Larpcord.
+
+## Website
+
+`site/` is a static site (HTML/CSS/JS, no build) deployed on Vercel with root directory `site`. English only.
+`index.html` (new tools, live “try it” preview, what you can larp, differences to regular Discord, download),
+`privacy.html` (served as `/privacy`), `vercel.json` (clean URLs, security headers/CSP). The download button reads
+the latest release via the GitHub API and prefers the `.zip` asset. No cookies, no tracking, no external fonts.
 
 ## Logo
 
-`assets/larpcordlogo.png` ist die einzige Quelle. `python scripts/generate-icons.py` erzeugt daraus alle
-Icons (EXE, Installer, Tray, Ladebildschirm, Fenster) und `core/src/plugins/larpCore/assets/logo.png`, das im
-Core über `larpCore/logo.ts` als Data-URL eingebettet wird. Ein neues Logo heißt: Datei austauschen, Skript laufen lassen.
+`assets/larpcordlogo.png` is the only source. `python scripts/generate-icons.py` generates all
+icons from it (EXE, installer, tray, loading screen, window) and `core/src/plugins/larpCore/assets/logo.png`, which is
+embedded in the core as a data URL via `larpCore/logo.ts`. A new logo means: replace the file, run the script.
+`site/assets/logo.png` is a copy for the website.
 
-## Phasen
+## Phases
 
-Nacheinander, nach jeder Phase bauen, starten, testen, kurz zusammenfassen.
+One after another; after each phase build, run, test, summarize briefly.
 
-0. **Basis:** Forks anlegen. Root-`package.json` mit `build`, `dev`, `package`. Vesktop so umbauen, dass der mitgelieferte Larpcord-Core aus den App-Ressourcen geladen wird statt Vencord von GitHub herunterzuladen (in `desktop/src/main` nach der Download-Logik suchen). Rebranding: Name „Larpcord“, appId `dev.larpcord.app`, Fenstertitel, Tray, Installer `Larpcord-Setup.exe`, Platzhalter-Icon. Interne Vencord-Bezeichner NICHT umbenennen.
-   *Fertig, wenn:* .exe startet, Login geht, Einstellungs-Bereich „Larpcord“ sichtbar.
-1. **larpCore** (fertig, wenn Hub, Persistenz, Presets, Import/Export funktionieren)
+0. **Base:** create the forks. Root `package.json` with `build`, `dev`, `package`. Change Vesktop so the bundled Larpcord core is loaded from the app resources instead of downloading Vencord from GitHub (look for the download logic in `desktop/src/main`). Rebranding: name “Larpcord”, appId `dev.larpcord.app`, window title, tray, installer `Larpcord-Setup.exe`, placeholder icon. Do NOT rename internal Vencord identifiers.
+   *Done when:* the .exe starts, login works, settings section “Larpcord” is visible.
+1. **larpCore** (done when hub, persistence, presets, import/export work)
 2. **larpBadges**
 3. **larpNitro & larpDecorations**
 4. **larpName**
 5. **larpServers**
 6. **larpThemes**
-7. **larpLayout** (fertig, wenn Server und DMs verschiebbar sind, das nach Neustart bleibt und die echte Reihenfolge im normalen Discord unverändert ist)
-8. **Feinschliff:** alle Larp-Plugins standardmäßig aktiv unter Kategorie „Larpcord“, absichtlich kaputten Patch testen (Client muss weiterlaufen), GitHub Action baut bei Tag `v*` die .exe als Release.
+7. **larpLayout** (done when servers and DMs can be moved, that persists after restart and the real order in regular Discord is unchanged)
+8. **Polish:** all larp plugins enabled by default under category “Larpcord”, test a deliberately broken patch (the client must keep running), GitHub Action builds the .exe as a release on tag `v*`.
 
-### Stand (2026-09-20)
+### Status (2026-09-26)
 
-| Phase | Stand |
+| Phase | Status |
 |---|---|
-| 0 Basis | fertig |
-| 1 larpCore | fertig (inkl. Namen, Layout im Store, Patch-Status im Log) |
-| 2 larpBadges | fertig |
-| 3 larpNitro & larpDecorations | fertig |
-| 4 larpName | fertig (inkl. Name-Änderer und „Larp-Name statt Server-Nicknames“) |
-| 5 larpServers | fertig |
-| 6 larpThemes | fertig |
-| 7 larpLayout | fertig: Stufen A–E und Sicherheitsnetz. Weitere Bereiche siehe `TODO.md` |
-| 8 Feinschliff | fertig: alle Plugins standardmäßig aktiv unter „Larpcord“, Test mit absichtlich kaputten Patches bestanden, Release-Workflow, README |
+| 0 Base | done |
+| 1 larpCore | done (incl. names, layout in the store, patch status in the log) |
+| 2 larpBadges | done |
+| 3 larpNitro & larpDecorations | done |
+| 4 larpName | done (incl. name changer and “Larp name instead of server nicknames”) |
+| 5 larpServers | done |
+| 6 larpThemes | done |
+| 7 larpLayout | done: stages A–E and safety net. More areas see `TODO.md` |
+| 8 Polish | done: all plugins enabled by default under “Larpcord”, broken-patch test passed, release workflow, README |
 
-Danach läuft das große Update aus `TODO.md`:
+After that came the big update from `TODO.md`:
 
-| Abschnitt | Stand |
+| Section | Status |
 |---|---|
-| 1 Mehrsprachigkeit | fertig (de/en, Live-Wechsel, `pnpm i18n:check` in CI) |
-| 2 Auto-Updater | fertig, Ende-zu-Ende-Test mit lokalem Update-Server |
-| 3 Installer im Discord-Stil | fertig (oneClick, dunkel, eigene Icons, Setup-Splash, Onboarding, Uninstaller-Frage) |
-| 4 larpActivity | fertig |
-| 5 Lokale Rollen | fertig (eigene Gruppe in der Mitgliederliste bewusst weggelassen, siehe `TODO.md`) |
-| 6 Server umgestalten | fertig |
-| 7 Profil-Musik | fertig |
-| 8 Abschluss | fertig (Preset-Format v2, Export-Warnung, README, Changelog) |
+| 1 Multiple languages | done (en/de, live switching, `pnpm i18n:check` in CI) |
+| 2 Auto-updater | done, end-to-end test with a local update server |
+| 3 Discord-style installer | done (oneClick, dark, custom icons, setup splash, onboarding, uninstaller question) |
+| 4 larpActivity | done |
+| 5 Local roles | done (own group in the member list deliberately left out, see `TODO.md`) |
+| 6 Restyle servers | done |
+| 7 Profile music | done |
+| 8 Wrap-up | done (preset format v2, export warning, README, changelog) |
+| Website | done (`site/`, English) |
+| English as main language | done for website and repo docs |
 
-### Testen
+### Testing
 
-- **Reporter-Build** (`pnpm build --reporter --dev --disable-updater` in `core/`): lädt beim Start alle Lazy-Chunks und meldet jeden Patch, der sein Modul nicht findet („found no module“), nicht greift („had no effect“) oder fehlschlägt („errored“). Vor jedem Commit mit neuen Patches laufen lassen.
-- **Reporter-Builds aktivieren alle Plugins** (`enabled: IS_REPORTER || …`). Meldet der Reporter „had no effect“,
-  kann auch ein Upstream-Plugin dieselbe Stelle zuerst gepatcht haben (z. B. IrcColors bei der Namensfarbe).
-- **Rückverweise (`\1`) gehören nie in ein Lookbehind:** JS wertet Lookbehinds von rechts nach links aus, der
-  Verweis läuft dann ins Leere und der Patch greift nicht.
-- **Ersetzungen direkt nach `return`** brauchen ein führendes Leerzeichen (`return(0,…)` wird sonst zu `return$self…` → Absturz). Laufzeitfehler in Ersetzungen fängt Vencord nicht ab, deshalb Logik immer in `$self`-Funktionen mit try/catch.
+- **Reporter build** (`pnpm build --reporter --dev --disable-updater` in `core/`): loads all lazy chunks on startup and reports every patch that doesn't find its module (“found no module”), has no effect (“had no effect”) or fails (“errored”). Run it before every commit with new patches.
+- **Reporter builds enable all plugins** (`enabled: IS_REPORTER || …`). If the reporter says “had no effect”,
+  an upstream plugin may have patched the same spot first (e.g. IrcColors for the name color).
+- **Backreferences (`\1`) never belong in a lookbehind:** JS evaluates lookbehinds right to left, the
+  reference then points to nothing and the patch doesn't apply.
+- **Replacements right after `return`** need a leading space (`return(0,…)` otherwise becomes `return$self…` → crash). Vencord doesn't catch runtime errors in replacements, so always put logic into `$self` functions with try/catch.
 
 ---
 
 ## README
 
-Deutsche `README.md`: Beschreibung, Features, Abschnitt „Was Larpcord nicht kann“ (nur kosmetisch/lokal, echter Name und echte Server-Reihenfolge bleiben), Installation und Selbst-bauen (Node 22+, pnpm), Aufbau-Tabelle core/desktop, Hinweis, dass Client-Mods gegen Discords Nutzungsbedingungen verstoßen und die Nutzung auf eigenes Risiko erfolgt, Bitte, andere nicht mit Fake-Badges zu täuschen, GPL-3.0, „nicht mit Discord Inc. verbunden“.
+English `README.md`: description, features, section “What Larpcord can't do” (only cosmetic/local, real name and real server order stay), installation and building it yourself (Node 22+, pnpm), structure table core/desktop/site, note that client mods violate Discord's Terms of Service and use is at your own risk, request not to deceive others with fake badges, GPL-3.0, “not affiliated with Discord Inc.”
 
 ---
 
-## Arbeitsweise
+## Way of working
 
-- **Patch-Stellen** mit Vencords Dev-Tools (Webpack-Suche) über stabile Strings finden, lieber stabile Strings als minifizierte Variablennamen. Bei Unsicherheit bestehende Vencord-Plugins als Referenz nutzen statt zu raten.
-- **Commits:** klein und beschreibend, ein Commit pro Feature.
-- **Bauen:** `pnpm install` (installiert per `postinstall` auch `core/` und `desktop/`), dann `pnpm build`, `pnpm dev` oder `pnpm package`. Unter Windows ohne globales pnpm: `ship.bat` (nutzt corepack).
+- **Patch locations:** find them with Vencord's dev tools (webpack search) via stable strings; prefer stable strings over minified variable names. When unsure, use existing Vencord plugins as a reference instead of guessing.
+- **Commits:** small and descriptive, in English, one commit per feature.
+- **Building:** `pnpm install` (also installs `core/` and `desktop/` via `postinstall`), then `pnpm build`, `pnpm dev` or `pnpm package`. On Windows without a global pnpm: `ship.bat` (uses corepack).

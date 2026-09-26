@@ -1,19 +1,21 @@
-"""Erzeugt alle Larpcord-Icons aus dem offiziellen Logo assets/larpcordlogo.png.
+"""Generates all Larpcord icons from the official logo assets/larpcordlogo.png.
 
-Aufruf: python scripts/generate-icons.py   (benötigt Pillow)
+Usage: python scripts/generate-icons.py   (needs Pillow)
 
-Ziele:
-  desktop/build/icon.ico, icon.png                 App-/EXE-Icon (electron-builder)
-  desktop/build/installerIcon.ico                  NSIS-Installer (wird von electron-builder automatisch gefunden)
-  desktop/build/uninstallerIcon.ico                NSIS-Uninstaller
-  desktop/build/installerHeaderIcon.ico            NSIS oneClick-Fortschrittsfenster
-  desktop/static/icon.png                          Fenster-/Taskleisten-Icon
-  desktop/static/logo.png                          Logo für eigene Fenster (Splash, Onboarding, Updater, About)
-  desktop/static/splash.webp                       Standard-Bild im Ladebildschirm
-  desktop/static/tray/tray.png, trayUnread.png     Tray (mit rotem Punkt bei Ungelesenem)
-  core/src/plugins/larpCore/assets/logo.png        Logo im Core (Hub, Einstellungs-Eintrag, Wasserzeichen)
+Targets:
+  desktop/build/icon.ico, icon.png                 App/EXE icon (electron-builder)
+  desktop/build/installerIcon.ico                  NSIS installer (found automatically by electron-builder)
+  desktop/build/uninstallerIcon.ico                NSIS uninstaller
+  desktop/build/installerHeaderIcon.ico            NSIS oneClick progress window
+  desktop/static/icon.png                          Window/taskbar icon
+  desktop/static/logo.png                          Logo for own windows (splash, onboarding, updater, about)
+  desktop/static/splash.webp                       Default image on the loading screen
+  desktop/static/tray/tray.png, trayUnread.png     Tray (with a red dot for unread)
+  core/src/plugins/larpCore/assets/logo.png        Logo in the core (hub, settings entry, watermark)
+  site/assets/logo.png                             Website logo (copy of the source)
 """
 import os
+import shutil
 
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
@@ -39,7 +41,7 @@ LOGO = load_logo()
 
 
 def render(size, padding=0.04):
-    """Logo quadratisch mit kleinem Rand. Kleine Größen etwas schärfer und kontrastreicher, damit die Textur nicht zu Grau verschwimmt."""
+    """Square logo with a small margin. Small sizes get a bit sharper and more contrast so the texture doesn't blur into grey."""
     inner = max(1, round(size * (1 - 2 * padding)))
     img = LOGO.resize((inner, inner), Image.LANCZOS)
     if size <= 64:
@@ -62,7 +64,7 @@ def with_unread_dot(img):
 
 
 def save_ico(path, sizes=ICO_SIZES):
-    # Jede Größe einzeln rendern (bessere Schärfe als Pillows automatisches Herunterskalieren)
+    # Render every size separately (sharper than Pillow's automatic downscaling)
     frames = [render(s) for s in sizes]
     frames[-1].save(path, format="ICO", sizes=[(s, s) for s in sizes], append_images=frames[:-1])
 
@@ -87,7 +89,9 @@ def main():
     with_unread_dot(render(64)).save(os.path.join(static, "tray", "trayUnread.png"))
 
     render(128, padding=0).save(os.path.join(CORE_ASSETS, "logo.png"), optimize=True)
-    print("Icons aus assets/larpcordlogo.png erzeugt")
+    os.makedirs(os.path.join(REPO, "site", "assets"), exist_ok=True)
+    shutil.copyfile(SOURCE, os.path.join(REPO, "site", "assets", "logo.png"))
+    print("Icons generated from assets/larpcordlogo.png")
 
 
 if __name__ == "__main__":
