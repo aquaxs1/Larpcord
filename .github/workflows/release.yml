@@ -51,6 +51,11 @@ jobs:
       - name: Paketieren
         run: pnpm -C desktop exec electron-builder --win --publish never
 
+      # Die Website (site/) verlinkt auf diese ZIP. Der Auto-Updater nutzt weiter die .exe.
+      - name: Setup als ZIP verpacken
+        shell: pwsh
+        run: Compress-Archive -Path desktop/dist/Larpcord-Setup.exe -DestinationPath desktop/dist/Larpcord-Setup.zip -Force
+
       - name: Veröffentlichen
         shell: bash
         env:
@@ -62,6 +67,7 @@ jobs:
             desktop/dist/Larpcord-Setup.exe
             desktop/dist/Larpcord-Setup.exe.blockmap
             desktop/dist/latest.yml
+            desktop/dist/Larpcord-Setup.zip
           )
           for f in "${files[@]}"; do
             [ -f "$f" ] || { echo "::error::Datei fehlt nach dem Paketieren: $f"; exit 1; }
@@ -83,7 +89,7 @@ jobs:
             gh release edit "$TAG" --draft=false
           fi
 
-          # Erst wenn alle drei Dateien wirklich am Release hängen, gilt der Schritt als erfolgreich
+          # Erst wenn alle Dateien wirklich am Release hängen, gilt der Schritt als erfolgreich
           uploaded="$(gh release view "$TAG" --json assets --jq '.assets[].name')"
           for f in "${files[@]}"; do
             name="$(basename "$f")"
