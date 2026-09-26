@@ -368,14 +368,13 @@
                 $$("[data-version-text]").forEach(el => { el.textContent = version; });
             }
             const zip = (rel.assets || []).find(a => /\.zip$/i.test(a.name));
-            const date = rel.published_at ? dateFmt.format(new Date(rel.published_at)) : "";
             const info = $("#releaseInfo");
             if (zip && /^https:\/\/github\.com\//.test(zip.browser_download_url)) {
                 $("#downloadBtn").href = zip.browser_download_url;
                 const mb = (zip.size / 1048576).toFixed(0);
-                info.textContent = `Version ${version}${date ? ` · ${date}` : ""} · ${zip.name} · ${mb} MB`;
+                info.textContent = `v${version} · ${mb} MB`;
             } else {
-                info.textContent = `Version ${version}${date ? ` · ${date}` : ""} · on GitHub`;
+                info.textContent = `v${version}`;
             }
         })
         .catch(() => { /* Offline or rate-limited: the link to the releases page stays */ });

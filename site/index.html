@@ -38,68 +38,58 @@
         <div class="hero-text">
             <p class="eyebrow"><span class="stamp" data-version>v0.2.0</span> for Windows</p>
             <h1>Be whoever you want.<br><span class="gold">At least on your own screen.</span></h1>
-            <p class="lead">
-                Larpcord is a standalone, open-source Discord client. Give yourself badges, the Nitro look,
-                decorations, a different name, server badges and your own layout – all of it
-                <strong>visible only on your own PC</strong>.
-            </p>
+            <p class="lead">Badges, Nitro look, decorations, a new name. <strong>Only you see it.</strong></p>
             <div class="cta-row">
-                <a class="btn btn-gold" href="#download">⬇ Download for free</a>
-                <a class="btn btn-ghost" href="#ausprobieren">Try it in your browser</a>
+                <a class="btn btn-gold" href="#download">⬇ Download</a>
+                <a class="btn btn-ghost" href="#try">Try it</a>
             </div>
-            <p class="fineprint">No admin rights · Multiple languages · Automatic updates · GPL-3.0</p>
         </div>
     </section>
 
     <!-- NEW -->
     <section id="new" class="section">
         <div class="section-head">
-            <p class="eyebrow">Freshly printed</p>
             <h2>New in <span data-version-text>0.2.0</span></h2>
-            <p>The new tools at a glance. Anything marked <span class="try-pill">▶ Try it</span> can be tested right here on this page.</p>
         </div>
         <div class="cards">
             <article class="card note">
                 <div class="card-icon">🎮</div>
                 <h3>Activities</h3>
-                <p>Make up your own activities – Playing, Listening, Watching, Streaming or a custom status. Plus the activity changer for real games.</p>
+                <p>Play, listen, watch or stream anything.</p>
                 <button class="try" data-try="activity">▶ Try it</button>
             </article>
             <article class="card note">
                 <div class="card-icon">🎖️</div>
                 <h3>Local roles</h3>
-                <p>Your own roles per server with color and icon. Templates for Owner, Admin, Moderator and VIP – without real permissions.</p>
+                <p>Owner, Admin, VIP – any role, any color.</p>
                 <button class="try" data-try="roles">▶ Try it</button>
             </article>
             <article class="card note">
                 <div class="card-icon">🖼️</div>
                 <h3>Restyle servers</h3>
-                <p>Change a server's name, icon and banner locally. The server itself stays untouched.</p>
+                <p>New name, icon and banner.</p>
                 <button class="try" data-try="server">▶ Try it</button>
             </article>
             <article class="card note">
                 <div class="card-icon">🎵</div>
                 <h3>Profile music</h3>
-                <p>Your own song on your profile, with mini player, volume, loop and fade in/out.</p>
+                <p>Your song on your profile.</p>
                 <button class="try" data-try="music">▶ Try it</button>
             </article>
             <article class="card note">
                 <div class="card-icon">🌍</div>
                 <h3>Languages</h3>
-                <p>English by default. Other languages (currently German) can be picked in the client and switch instantly, no restart.</p>
-                <span class="try try-off">In the app</span>
+                <p>English and German, switch anytime.</p>
             </article>
             <article class="card note">
                 <div class="card-icon">🔄</div>
                 <h3>Auto-Updater</h3>
-                <p>New versions download in the background, then a notice with the changelog. Stable and Beta channels.</p>
-                <span class="try try-off">In the app</span>
+                <p>Always up to date, automatically.</p>
             </article>
             <article class="card note">
                 <div class="card-icon">📦</div>
-                <h3>Discord-style installer</h3>
-                <p>One click, dark design, short onboarding on first launch. No admin rights needed.</p>
-                <span class="try try-off">In the app</span>
+                <h3>Installer</h3>
+                <p>One click, no admin rights.</p>
             </article>
         </div>
     </section>
@@ -107,9 +97,8 @@
     <!-- PLAYGROUND -->
     <section id="try" class="section">
         <div class="section-head">
-            <p class="eyebrow">Test drive</p>
             <h2>Try it right here</h2>
-            <p>Change something on the left and see on the right how your profile looks in Larpcord. Use the switch to compare it with what everyone else sees.</p>
+            <p>Tweak it on the left, see it on the right.</p>
         </div>
 
         <div class="playground">
@@ -125,7 +114,6 @@
                 </div>
 
                 <div class="tabpanel" data-panel="badges">
-                    <p class="hint">Official badges and custom badges – sortable via drag &amp; drop in the app.</p>
                     <div class="check-grid" id="badgeChecks"></div>
                     <label class="field">Member since
                         <input type="date" id="memberSince" value="2015-05-13" min="2015-05-13" max="2026-12-31">
@@ -168,7 +156,6 @@
                 </div>
 
                 <div class="tabpanel" data-panel="name" hidden>
-                    <p class="hint">Only visible locally. Your real name on Discord stays unchanged.</p>
                     <label class="field">Display name <input type="text" id="displayName" value="The Boss" maxlength="32"></label>
                     <label class="field">Username <input type="text" id="username" value="theboss" maxlength="32"></label>
                     <label class="field">Clan tag <input type="text" id="clanTag" value="CASH" maxlength="4"></label>
@@ -185,7 +172,6 @@
                 </div>
 
                 <div class="tabpanel" data-panel="activity" hidden>
-                    <p class="hint">No presence updates: others still see your real activity.</p>
                     <label class="field">Type
                         <select id="actType">
                             <option value="playing">Playing</option>
@@ -202,7 +188,6 @@
                 </div>
 
                 <div class="tabpanel" data-panel="roles" hidden>
-                    <p class="hint">Display only: larp roles grant no permissions.</p>
                     <div class="chip-row" id="roleTemplates"></div>
                     <div class="field-row">
                         <label class="field grow">Custom role <input type="text" id="roleName" placeholder="e.g. Millionaire" maxlength="24"></label>
@@ -213,7 +198,6 @@
                 </div>
 
                 <div class="tabpanel" data-panel="server" hidden>
-                    <p class="hint">Rename a server locally and give it badges. For everyone else nothing changes.</p>
                     <label class="field">Server name <input type="text" id="serverName" value="Golden Vaults" maxlength="32"></label>
                     <label class="field">Server badge
                         <select id="serverBadge">
@@ -229,7 +213,6 @@
                 </div>
 
                 <div class="tabpanel" data-panel="music" hidden>
-                    <p class="hint">In the app you load your own file or a URL. Here you get a little demo tune.</p>
                     <label class="switch"><input type="checkbox" id="musicOn" checked><span></span> Mini player on profile</label>
                     <label class="field">Song title <input type="text" id="songTitle" value="Money Money Money (Demo)" maxlength="40"></label>
                     <label class="field">Volume <input type="range" id="volume" min="0" max="100" value="40"></label>
@@ -317,86 +300,43 @@
     <!-- LARP -->
     <section id="larp" class="section">
         <div class="section-head">
-            <p class="eyebrow">The full catalogue</p>
             <h2>Everything you can larp</h2>
         </div>
         <div class="larp-grid">
-            <div class="larp-item"><h3>🏅 Badges</h3><ul>
-                <li>All official badges: Staff, Partner, HypeSquad, Early Supporter, Bug Hunter, Active Developer …</li>
-                <li>Custom badges with your own image and tooltip</li>
-                <li>Any “Member since” date</li>
-            </ul></div>
-            <div class="larp-item"><h3>💎 Nitro look</h3><ul>
-                <li>Nitro badge with subscription length, boost badge tiers</li>
-                <li>Profile theme, banner, animated avatar</li>
-                <li>Every decoration, profile effect and nameplate from the shop</li>
-            </ul></div>
-            <div class="larp-item"><h3>🪪 Name</h3><ul>
-                <li>Username and display name without cooldown</li>
-                <li>Clan tag, verified check, owner crown</li>
-                <li>Name styles: fonts, gradients, glow</li>
-            </ul></div>
-            <div class="larp-item"><h3>🎮 Activities</h3><ul>
-                <li>Playing, Listening, Watching, Streaming, Competing, custom status</li>
-                <li>Images, buttons, party size, timestamps</li>
-                <li>Rename or hide real activities</li>
-            </ul></div>
-            <div class="larp-item"><h3>🏰 Server</h3><ul>
-                <li>Partner or verified badge</li>
-                <li>Boost level 1–3 and boost count</li>
-                <li>Restyle name, icon and banner</li>
-            </ul></div>
-            <div class="larp-item"><h3>🎖️ Local roles</h3><ul>
-                <li>Name, color, gradient, role icon</li>
-                <li>Name color in chat and member list</li>
-                <li>Templates: Owner, Admin, Moderator, VIP</li>
-            </ul></div>
-            <div class="larp-item"><h3>🎵 Profile music</h3><ul>
-                <li>Your own song as a file or URL</li>
-                <li>Volume, start time, loop, fades</li>
-                <li>Global mute switch</li>
-            </ul></div>
-            <div class="larp-item"><h3>🧩 Layout &amp; Themes</h3><ul>
-                <li>Sort the server list freely, pin DMs</li>
-                <li>Reorder or hide buttons, user panel at top/bottom</li>
-                <li>Theme editor, custom sounds, loading screen, app icon</li>
-            </ul></div>
-            <div class="larp-item"><h3>🎭 Presets</h3><ul>
-                <li>Save complete setups and switch with one click</li>
-                <li>Built in: “Discord Staff”, “Nitro Supporter”, “OG 2015”</li>
-                <li>Import/export as <code>.larp.json</code> to share</li>
-            </ul></div>
+            <div class="larp-item"><h3>🏅 Badges</h3><ul><li>All official badges</li><li>Custom badges</li></ul></div>
+            <div class="larp-item"><h3>💎 Nitro look</h3><ul><li>Theme, banner, animated avatar</li><li>Decorations &amp; effects</li></ul></div>
+            <div class="larp-item"><h3>🪪 Name</h3><ul><li>New name, no cooldown</li><li>Clan tag, styles, check mark</li></ul></div>
+            <div class="larp-item"><h3>🎮 Activities</h3><ul><li>Any game, song or stream</li><li>Rename real ones</li></ul></div>
+            <div class="larp-item"><h3>🏰 Servers</h3><ul><li>Partner &amp; verified badge</li><li>Boosts, name, icon, banner</li></ul></div>
+            <div class="larp-item"><h3>🎖️ Roles</h3><ul><li>Any role per server</li><li>Colored names</li></ul></div>
+            <div class="larp-item"><h3>🎵 Music</h3><ul><li>Your song on your profile</li></ul></div>
+            <div class="larp-item"><h3>🧩 Layout &amp; themes</h3><ul><li>Sort servers, pin DMs</li><li>Colors, fonts, sounds</li></ul></div>
+            <div class="larp-item"><h3>🎭 Presets</h3><ul><li>Switch setups in one click</li><li>Share as <code>.larp.json</code></li></ul></div>
         </div>
     </section>
 
     <!-- DIFFERENCES -->
     <section id="differences" class="section">
         <div class="section-head">
-            <p class="eyebrow">The fine print, in large type</p>
-            <h2>Larpcord vs. regular Discord</h2>
-            <p>Larpcord is purely cosmetic and local. Everything Discord's servers check stays exactly as it is.</p>
+            <h2>Larpcord vs. Discord</h2>
         </div>
         <div class="table-wrap">
             <table class="compare-table">
                 <thead>
-                    <tr><th scope="col">Topic</th><th scope="col">Regular Discord</th><th scope="col">Larpcord</th></tr>
+                    <tr><th scope="col"></th><th scope="col">Discord</th><th scope="col">Larpcord</th></tr>
                 </thead>
                 <tbody>
-                    <tr><th scope="row">App</th><td>Official client</td><td>Its own .exe, open source (GPL-3.0), based on Vesktop &amp; Vencord</td></tr>
-                    <tr><th scope="row">Badges &amp; Nitro look</th><td>Only what you really have</td><td>Anything you want – <em>only you</em> see it</td></tr>
-                    <tr><th scope="row">Name</th><td>Changes have a cooldown and are visible to everyone</td><td>Instant, no cooldown – local only; others see your real name</td></tr>
-                    <tr><th scope="row">Server order</th><td>Synced across devices</td><td>Your own layout only in Larpcord; regular Discord and your phone stay as before</td></tr>
-                    <tr><th scope="row">Activity</th><td>Your real activity</td><td>Your own activity locally – the gateway still gets the real one</td></tr>
-                    <tr><th scope="row">Roles &amp; servers</th><td>Real roles and server names</td><td>Larp roles without permissions; locally renamed servers keep their name for everyone else</td></tr>
-                    <tr><th scope="row">Uploads &amp; streaming</th><td>Based on your real subscription</td><td>Unchanged – no bigger uploads, no real HD streaming, no real boosts</td></tr>
-                    <tr><th scope="row">Your account</th><td>–</td><td>Never changed: no write requests to Discord for larp values</td></tr>
-                    <tr><th scope="row">Layout rescue</th><td>–</td><td>Hold Shift on startup to reset the layout</td></tr>
+                    <tr><th scope="row">Badges &amp; Nitro</th><td>What you paid for</td><td>Anything – only you see it</td></tr>
+                    <tr><th scope="row">Name</th><td>Cooldown</td><td>Instant, local only</td></tr>
+                    <tr><th scope="row">Server order</th><td>Synced</td><td>Your own, only in Larpcord</td></tr>
+                    <tr><th scope="row">Activity &amp; roles</th><td>Real</td><td>Anything, local only</td></tr>
+                    <tr><th scope="row">Uploads &amp; streaming</th><td>Your plan</td><td>Unchanged</td></tr>
+                    <tr><th scope="row">Your account</th><td>–</td><td>Never touched</td></tr>
                 </tbody>
             </table>
         </div>
         <div class="warn">
-            <strong>Important:</strong> Client mods violate Discord's Terms of Service. Use at your own risk.
-            And please: don't trick other people with fake badges – Larpcord is for your own fun.
+            Client mods break Discord's Terms of Service – use at your own risk. Don't fool people with fake badges.
         </div>
     </section>
 
@@ -408,17 +348,15 @@
             <div class="download-inner">
                 <img src="/assets/logo.png" alt="" width="120" height="120" class="bn-portrait">
                 <div>
-                    <p class="eyebrow">Download</p>
                     <h2>Larpcord for Windows</h2>
-                    <p class="release-line"><span id="releaseInfo">Latest version from GitHub</span></p>
-                    <a class="btn btn-gold btn-big" id="downloadBtn" href="https://github.com/aquaxs1/Larpcord/releases/latest">⬇ Download Larpcord (.zip)</a>
-                    <p class="fineprint">Windows 10/11 (64-bit) · The ZIP contains <code>Larpcord-Setup.exe</code></p>
+                    <p class="release-line"><span id="releaseInfo">Windows 10/11</span></p>
+                    <a class="btn btn-gold btn-big" id="downloadBtn" href="https://github.com/aquaxs1/Larpcord/releases/latest">⬇ Download (.zip)</a>
                 </div>
             </div>
             <ol class="steps">
-                <li><strong>Extract the ZIP</strong> and run <code>Larpcord-Setup.exe</code> – one click, no admin rights.</li>
-                <li><strong>SmartScreen?</strong> Larpcord is not code-signed: “More info” → “Run anyway”.</li>
-                <li><strong>Log in</strong> and get started under Settings → <em>Larpcord</em> → <em>Larpcord Hub</em>.</li>
+                <li>Unzip and run <code>Larpcord-Setup.exe</code></li>
+                <li>SmartScreen: “More info” → “Run anyway”</li>
+                <li>Log in → Settings → <em>Larpcord</em></li>
             </ol>
         </div>
     </section>
@@ -429,7 +367,7 @@
         <img src="/assets/logo.png" alt="" width="40" height="40">
         <div>
             <strong>Larpcord</strong>
-            <p>Not affiliated with Discord Inc. Open source under GPL-3.0.</p>
+            <p>Not affiliated with Discord Inc. · GPL-3.0</p>
         </div>
     </div>
     <nav class="quicklinks" aria-label="Quick links">
