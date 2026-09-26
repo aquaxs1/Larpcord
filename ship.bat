@@ -1,15 +1,15 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Larpcord bauen
+title Build Larpcord
 
 rem ====================================================================
-rem  Larpcord - baut den fertigen Windows-Installer Larpcord-Setup.exe
+rem  Larpcord - builds the finished Windows installer Larpcord-Setup.exe
 rem  SPDX-License-Identifier: GPL-3.0-or-later
 rem
-rem    ship.bat           baut mit der Version aus desktop\package.json
-rem    ship.bat 1.2.3     setzt vorher die Version (wie der Release-Workflow)
+rem    ship.bat           builds with the version from desktop\package.json
+rem    ship.bat 1.2.3     sets the version first (like the release workflow)
 rem
-rem  LARPCORD_NO_PAUSE=1 unterdrueckt das "Beliebige Taste druecken" am Ende.
+rem  LARPCORD_NO_PAUSE=1 suppresses the "Press any key" at the end.
 rem ====================================================================
 
 cd /d "%~dp0"
@@ -17,29 +17,29 @@ set "STEP=Start"
 
 echo.
 echo  ============================================
-echo    Larpcord - Installer bauen
+echo    Larpcord - build installer
 echo  ============================================
 echo.
 
 rem ---- 1/5  Node.js --------------------------------------------------
-set "STEP=Node.js pruefen"
+set "STEP=Check Node.js"
 where node >nul 2>&1
 if errorlevel 1 (
-    echo  [FEHLER] Node.js wurde nicht gefunden.
-    echo           Node.js 22 oder neuer installieren: https://nodejs.org
+    echo  [ERROR] Node.js was not found.
+    echo           Install Node.js 22 or newer: https://nodejs.org
     goto :fail
 )
 set "NODEMAJOR="
 for /f "tokens=1 delims=." %%V in ('node -v') do set "NODEMAJOR=%%V"
 set "NODEMAJOR=!NODEMAJOR:v=!"
 if !NODEMAJOR! LSS 22 (
-    echo  [FEHLER] Node.js !NODEMAJOR! ist zu alt, benoetigt wird 22 oder neuer.
+    echo  [ERROR] Node.js !NODEMAJOR! is too old, 22 or newer is required.
     goto :fail
 )
 echo  [1/5] Node.js v!NODEMAJOR!
 
-rem ---- 2/5  Quellen vollstaendig? ------------------------------------
-set "STEP=Quellen pruefen"
+rem ---- 2/5  Sources complete? ----------------------------------------
+set "STEP=Check sources"
 set "MISSING=0"
 where git >nul 2>&1
 if not errorlevel 1 (
@@ -50,33 +50,33 @@ if not errorlevel 1 (
     )
 )
 if !MISSING! GTR 0 (
-    echo  [FEHLER] !MISSING! eingecheckte Dateien fehlen im Arbeitsverzeichnis.
-    echo           Wiederherstellen mit:   git restore .
-    echo           Liste der fehlenden Dateien: %TEMP%\larpcord-missing.txt
+    echo  [ERROR] !MISSING! committed files are missing from the working tree.
+    echo           Restore them with:   git restore .
+    echo           List of missing files: %TEMP%\larpcord-missing.txt
     goto :fail
 )
 if not exist "core\src\plugins\larpCore\index.tsx" (
-    echo  [FEHLER] core\src\plugins\larpCore\index.tsx fehlt - Repo unvollstaendig.
+    echo  [ERROR] core\src\plugins\larpCore\index.tsx is missing - repo incomplete.
     goto :fail
 )
 if not exist "desktop\src\main\index.ts" (
-    echo  [FEHLER] desktop\src\main\index.ts fehlt - Repo unvollstaendig.
+    echo  [ERROR] desktop\src\main\index.ts is missing - repo incomplete.
     goto :fail
 )
-echo  [2/5] Quellen vollstaendig
+echo  [2/5] Sources complete
 
 rem ---- 3/5  pnpm -----------------------------------------------------
-set "STEP=pnpm bereitstellen"
+set "STEP=Provide pnpm"
 set "COREPACK_ENABLE_DOWNLOAD_PROMPT=0"
 where pnpm >nul 2>&1
 if errorlevel 1 (
     where corepack >nul 2>&1
     if errorlevel 1 (
-        echo  [FEHLER] Weder pnpm noch corepack gefunden.
-        echo           Einmalig ausfuehren:   npm install -g pnpm@11.9.0
+        echo  [ERROR] Neither pnpm nor corepack found.
+        echo           Run once:   npm install -g pnpm@11.9.0
         goto :fail
     )
-    rem Kleiner Wrapper, damit auch scripts\install.mjs und scripts\build.mjs "pnpm" finden
+    rem Small wrapper so scripts\install.mjs and scripts\build.mjs find "pnpm" too
     set "SHIM=%TEMP%\larpcord-pnpm"
     if not exist "!SHIM!" mkdir "!SHIM!"
     > "!SHIM!\pnpm.cmd" echo @echo off
@@ -86,47 +86,47 @@ if errorlevel 1 (
 set "PNPMV="
 for /f "delims=" %%V in ('pnpm --version 2^>nul') do set "PNPMV=%%V"
 if not defined PNPMV (
-    echo  [FEHLER] pnpm liess sich nicht starten.
+    echo  [ERROR] pnpm could not be started.
     goto :fail
 )
 echo  [3/5] pnpm v!PNPMV!
 
-rem ---- optional: Version aus dem Argument ----------------------------
+rem ---- optional: version from the argument --------------------------
 if not "%~1"=="" (
-    set "STEP=Version setzen"
+    set "STEP=Set version"
     node scripts\set-version.mjs %~1
     if errorlevel 1 goto :fail
 )
 
-rem ---- 4/5  Abhaengigkeiten ------------------------------------------
-set "STEP=Abhaengigkeiten installieren"
+rem ---- 4/5  Dependencies ---------------------------------------------
+set "STEP=Install dependencies"
 echo.
-echo  [4/5] Abhaengigkeiten installieren - beim ersten Mal dauert das einige Minuten
+echo  [4/5] Installing dependencies - the first time this takes a few minutes
 echo.
 call pnpm install --frozen-lockfile
 if errorlevel 1 (
     echo.
-    echo  [FEHLER] pnpm install ist fehlgeschlagen.
+    echo  [ERROR] pnpm install failed.
     goto :fail
 )
 
-rem ---- 5/5  Bauen und paketieren -------------------------------------
-set "STEP=Core und Desktop bauen, Installer paketieren"
+rem ---- 5/5  Build and package ----------------------------------------
+set "STEP=Build core and desktop, package installer"
 echo.
-echo  [5/5] Core bauen, in die App kopieren, Desktop bauen, Installer paketieren
+echo  [5/5] Building core, copying it into the app, building desktop, packaging installer
 echo.
 call pnpm package
 if errorlevel 1 (
     echo.
-    echo  [FEHLER] Build bzw. electron-builder ist fehlgeschlagen.
+    echo  [ERROR] Build or electron-builder failed.
     goto :fail
 )
 
-rem ---- Ergebnis ------------------------------------------------------
-set "STEP=Ergebnis pruefen"
+rem ---- Result --------------------------------------------------------
+set "STEP=Check result"
 set "EXE=%CD%\desktop\dist\Larpcord-Setup.exe"
 if not exist "!EXE!" (
-    echo  [FEHLER] Der Installer wurde nicht erzeugt:
+    echo  [ERROR] The installer was not created:
     echo           !EXE!
     goto :fail
 )
@@ -135,17 +135,17 @@ for %%F in ("!EXE!") do set /a SIZEMB=%%~zF / 1048576
 
 echo.
 echo  ============================================
-echo    Fertig - Larpcord-Setup.exe ^(!SIZEMB! MB^)
+echo    Done - Larpcord-Setup.exe ^(!SIZEMB! MB^)
 echo  ============================================
 echo    Installer : !EXE!
-echo    Ohne Setup: %CD%\desktop\dist\win-unpacked\larpcord.exe
+echo    No setup : %CD%\desktop\dist\win-unpacked\larpcord.exe
 echo.
 if not "%LARPCORD_NO_PAUSE%"=="1" pause
 exit /b 0
 
 :fail
 echo.
-echo  Abgebrochen bei: !STEP!
+echo  Aborted at: !STEP!
 echo.
 if not "%LARPCORD_NO_PAUSE%"=="1" pause
 exit /b 1

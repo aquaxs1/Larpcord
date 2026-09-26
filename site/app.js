@@ -1,5 +1,5 @@
-// Larpcord – Website: Geldregen, Live-Vorschau zum Ausprobieren und Download-Link aus dem neuesten Release.
-// Kein Tracking, keine Cookies. Eingaben landen nur per textContent in der Seite.
+// Larpcord website: money rain, live "try it" preview and the download link from the latest release.
+// No tracking, no cookies. User input only ever reaches the page via textContent.
 
 (() => {
     "use strict";
@@ -8,7 +8,7 @@
     const $$ = sel => [...document.querySelectorAll(sel)];
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    /* ---------- Geldregen ---------- */
+    /* ---------- Money rain ---------- */
     const billSvg = `<svg viewBox="0 0 120 52" xmlns="http://www.w3.org/2000/svg">
         <rect x="1" y="1" width="118" height="50" rx="4" fill="#cfd8b8" stroke="#1d3d2a" stroke-width="2"/>
         <rect x="6" y="6" width="108" height="40" rx="2" fill="none" stroke="#2b5a3d" stroke-width="1" stroke-dasharray="3 2"/>
@@ -50,10 +50,10 @@
     $$("[data-try]").forEach(btn => btn.addEventListener("click", () => {
         selectTab(btn.dataset.try, true);
         setView("larp");
-        $("#ausprobieren").scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+        $("#try").scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
     }));
 
-    /* ---------- Vorher/Nachher ---------- */
+    /* ---------- Before/after ---------- */
     const discord = $("#discord");
     function setView(view) {
         discord.dataset.view = view;
@@ -63,7 +63,7 @@
     $$(".compare button").forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
 
     /* ---------- Badges ---------- */
-    // Eigene, schlichte Symbole – keine Grafiken aus Discords Client.
+    // Simple custom symbols – no graphics taken from Discord's client.
     const BADGES = [
         { id: "staff", label: "Discord Staff", icon: "🛠", bg: "#5865f2", on: true },
         { id: "partner", label: "Partner", icon: "∞", bg: "#4f5ee8", on: true },
@@ -73,11 +73,11 @@
         { id: "balance", label: "HypeSquad Balance", icon: "⚖", bg: "#45ddc0" },
         { id: "early", label: "Early Supporter", icon: "🪙", bg: "#b877ff", on: true },
         { id: "bug1", label: "Bug Hunter", icon: "🐞", bg: "#3ba55c" },
-        { id: "bug2", label: "Bug Hunter Stufe 2", icon: "🐛", bg: "#d4af37" },
+        { id: "bug2", label: "Bug Hunter Level 2", icon: "🐛", bg: "#d4af37" },
         { id: "dev", label: "Active Developer", icon: "</>", bg: "#23a55a", on: true },
         { id: "mod", label: "Moderator Alumni", icon: "🛡", bg: "#e67e22" },
         { id: "botdev", label: "Early Verified Bot Developer", icon: "⚙", bg: "#3e70dd" },
-        { id: "custom", label: "Eigenes Badge: Millionär", icon: "💰", bg: "#1d3d2a", on: true },
+        { id: "custom", label: "Custom badge: Millionaire", icon: "💰", bg: "#1d3d2a", on: true },
     ];
     const badgeChecks = $("#badgeChecks");
     for (const b of BADGES) {
@@ -91,14 +91,14 @@
         badgeChecks.appendChild(label);
     }
 
-    /* ---------- Rollen ---------- */
+    /* ---------- Roles ---------- */
     const TEMPLATES = [
         { name: "Owner", color: "#f1c40f" },
         { name: "Admin", color: "#e74c3c" },
         { name: "Moderator", color: "#3498db" },
         { name: "VIP", color: "#9b59b6" },
     ];
-    let roles = [{ name: "Owner", color: "#f1c40f" }, { name: "Millionär", color: "#85bb65" }];
+    let roles = [{ name: "Owner", color: "#f1c40f" }, { name: "Millionaire", color: "#85bb65" }];
     const roleTemplates = $("#roleTemplates");
     for (const t of TEMPLATES) {
         const chip = document.createElement("button");
@@ -122,7 +122,7 @@
     });
     $("#roleName").addEventListener("keydown", e => { if (e.key === "Enter") $("#addRole").click(); });
 
-    /* ---------- Musik (kleine WebAudio-Demo) ---------- */
+    /* ---------- Music (small WebAudio demo) ---------- */
     let audio = null;
     function stopMusic() {
         if (!audio) return;
@@ -130,7 +130,7 @@
         audio.ctx.close();
         audio = null;
         $("#playBtn").textContent = "▶";
-        $("#playBtn").setAttribute("aria-label", "Demo abspielen");
+        $("#playBtn").setAttribute("aria-label", "Play demo");
         $("#musicBar").style.width = "0";
     }
     function playMusic() {
@@ -165,14 +165,14 @@
             if (p >= 1) stopMusic();
         }, 100);
         $("#playBtn").textContent = "■";
-        $("#playBtn").setAttribute("aria-label", "Demo stoppen");
+        $("#playBtn").setAttribute("aria-label", "Stop demo");
     }
     $("#playBtn").addEventListener("click", () => (audio ? stopMusic() : playMusic()));
     $("#volume").addEventListener("input", () => { if (audio) audio.gain.gain.value = $("#volume").value / 250; });
 
-    /* ---------- Rendern ---------- */
-    const REAL = { displayName: "Max", username: "max_mustermann", memberSince: "2021-03-14", server: "Gaming Treff" };
-    const dateFmt = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "short", year: "numeric" });
+    /* ---------- Render ---------- */
+    const REAL = { displayName: "Max", username: "max_mustermann", memberSince: "2021-03-14", server: "Gaming Hangout" };
+    const dateFmt = new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short", year: "numeric" });
     const val = id => $(`#${id}`).value;
     const on = id => $(`#${id}`).checked;
 
@@ -185,7 +185,7 @@
         const larp = discord.dataset.view === "larp";
         const profile = $("#profile");
 
-        // Theme, Banner, Effekt
+        // Theme, banner, effect
         if (larp) {
             profile.style.setProperty("--p1", val("theme1"));
             profile.style.setProperty("--p2", val("theme2"));
@@ -197,7 +197,7 @@
         }
         renderEffect(larp ? val("effect") : "none");
 
-        // Dekoration
+        // Decoration
         const deco = $("#pDeco");
         deco.className = `p-deco ${val("decoration")}`;
         deco.replaceChildren();
@@ -215,7 +215,7 @@
         badges.replaceChildren();
         const chosen = $$("#badgeChecks input").filter(i => i.checked).map(i => BADGES.find(b => b.id === i.dataset.badge));
         if (on("nitroOn")) chosen.splice(1, 0, nitroBadge(+val("nitroSince")));
-        chosen.push({ label: `Server-Booster seit ${boostLabel(+val("nitroSince"))}`, icon: "💎", bg: "#ff73fa" });
+        chosen.push({ label: `Server booster since ${boostLabel(+val("nitroSince"))}`, icon: "💎", bg: "#ff73fa" });
         for (const b of chosen) {
             const el = document.createElement("span");
             el.className = "badge";
@@ -235,15 +235,15 @@
         $("#pCrown").hidden = !on("crown");
         $("#pSince").textContent = formatDate(larp ? val("memberSince") : REAL.memberSince);
 
-        // Aktivität
+        // Activity
         renderActivity(larp);
 
-        // Musik
+        // Music
         $("#pMusic").hidden = !on("musicOn");
-        $("#pSong").textContent = `♪ ${val("songTitle").trim() || "Mein Song"}`;
+        $("#pSong").textContent = `♪ ${val("songTitle").trim() || "My song"}`;
         if (!on("musicOn") || !larp) stopMusic();
 
-        // Rollen
+        // Roles
         const roleWrap = $("#pRoles");
         roleWrap.replaceChildren();
         const shownRoles = larp ? roles : [];
@@ -257,7 +257,7 @@
                 const x = document.createElement("button");
                 x.type = "button";
                 x.textContent = "×";
-                x.setAttribute("aria-label", `Rolle ${r.name} entfernen`);
+                x.setAttribute("aria-label", `Remove role ${r.name}`);
                 x.style.cssText = "background:none;border:0;color:#949ba4;cursor:pointer;padding:0 0 0 2px;font:inherit";
                 x.addEventListener("click", () => { roles = roles.filter(o => o !== r); render(); });
                 pill.appendChild(x);
@@ -287,15 +287,15 @@
         const sb = $("#guildBadge");
         sb.className = `d-sbadge ${val("serverBadge")}`;
         sb.textContent = val("serverBadge") === "none" ? "" : "✓";
-        sb.title = { partner: "Partner-Server", verified: "Verifizierter Server" }[val("serverBadge")] || "";
+        sb.title = { partner: "Partner server", verified: "Verified server" }[val("serverBadge")] || "";
         const lvl = +val("boostLevel");
-        $("#guildBoost").textContent = lvl > 0 ? `💎 Level ${lvl} · ${Math.max(0, +val("boostCount") || 0)} Boosts` : "";
+        $("#guildBoost").textContent = lvl > 0 ? `💎 Level ${lvl} · ${Math.max(0, +val("boostCount") || 0)} boosts` : "";
     }
 
     function nitroBadge(months) {
-        const tiers = [[72, "Opal"], [60, "Rubin"], [36, "Smaragd"], [24, "Diamant"], [12, "Platin"], [6, "Gold"], [3, "Silber"], [1, "Bronze"]];
+        const tiers = [[72, "Opal"], [60, "Ruby"], [36, "Emerald"], [24, "Diamond"], [12, "Platinum"], [6, "Gold"], [3, "Silver"], [1, "Bronze"]];
         const tier = tiers.find(([m]) => months >= m)[1];
-        return { label: `Nitro-Abonnent seit ${sinceLabel(months)} (${tier})`, icon: "N", bg: "linear-gradient(135deg,#ff73fa,#7b61ff)" };
+        return { label: `Nitro subscriber since ${sinceLabel(months)} (${tier})`, icon: "N", bg: "linear-gradient(135deg,#ff73fa,#7b61ff)" };
     }
     function sinceLabel(months) {
         const d = new Date();
@@ -331,23 +331,24 @@
         }
     }
 
-    const ACT_ICONS = { Spielt: "🎲", Hört: "🎧", Schaut: "📺", Streamt: "📡", custom: "💬" };
+    const ACT_ICONS = { playing: "🎲", listening: "🎧", watching: "📺", streaming: "📡", custom: "💬" };
+    const ACT_LABELS = { playing: "Playing", listening: "Listening to", watching: "Watching", streaming: "Streaming", custom: "Status" };
     function renderActivity(larp) {
         const box = $("#pActivity");
-        // „Was andere sehen“: deine echte Aktivität
-        const type = larp ? val("actType") : "Spielt";
+        // "What others see": your real activity
+        const type = larp ? val("actType") : "playing";
         box.hidden = type === "none";
-        box.classList.toggle("listening", type === "Hört");
+        box.classList.toggle("listening", type === "listening");
         box.classList.toggle("custom", type === "custom");
-        $("#pActLabel").textContent = type === "custom" ? "Status" : type === "Streamt" ? "Streamt" : type;
+        $("#pActLabel").textContent = ACT_LABELS[type] || "";
         $("#pActImg").textContent = ACT_ICONS[type] || "🎲";
         if (larp) {
-            $("#pActName").textContent = val("actName").trim() || "Irgendwas";
+            $("#pActName").textContent = val("actName").trim() || "Something";
             $("#pActDetails").textContent = type === "custom" ? "" : val("actDetails").trim();
             $("#pActState").textContent = type === "custom" ? "" : val("actState").trim();
         } else {
             $("#pActName").textContent = "Minecraft";
-            $("#pActDetails").textContent = "Baut ein Holzhaus";
+            $("#pActDetails").textContent = "Building a wooden house";
             $("#pActState").textContent = "";
         }
     }
@@ -355,8 +356,8 @@
     $$(".controls input, .controls select").forEach(el => el.addEventListener("input", render));
     render();
 
-    /* ---------- Download-Link aus dem neuesten Release ---------- */
-    // Nimmt die .zip des neuesten Releases. Gibt es (noch) keine, bleibt der Link auf der Release-Seite.
+    /* ---------- Download link from the latest release ---------- */
+    // Uses the .zip of the latest release. If there is none (yet), the link stays on the releases page.
     const REPO = "aquaxs1/Larpcord";
     fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { Accept: "application/vnd.github+json" } })
         .then(r => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
@@ -372,10 +373,10 @@
             if (zip && /^https:\/\/github\.com\//.test(zip.browser_download_url)) {
                 $("#downloadBtn").href = zip.browser_download_url;
                 const mb = (zip.size / 1048576).toFixed(0);
-                info.textContent = `Version ${version}${date ? ` vom ${date}` : ""} · ${zip.name} · ${mb} MB`;
+                info.textContent = `Version ${version}${date ? ` · ${date}` : ""} · ${zip.name} · ${mb} MB`;
             } else {
-                info.textContent = `Version ${version}${date ? ` vom ${date}` : ""} · auf GitHub`;
+                info.textContent = `Version ${version}${date ? ` · ${date}` : ""} · on GitHub`;
             }
         })
-        .catch(() => { /* Offline oder Rate-Limit: Link auf die Release-Seite bleibt bestehen */ });
+        .catch(() => { /* Offline or rate-limited: the link to the releases page stays */ });
 })();

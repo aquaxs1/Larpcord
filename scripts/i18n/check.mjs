@@ -5,16 +5,16 @@
  */
 
 // pnpm i18n:check
-// Prüft alle Sprachdateien gegen en.json (Referenz) und den Quellcode:
-//  - fehlende Schlüssel je Sprache (Fehler)
-//  - überflüssige Schlüssel je Sprache, die es in en.json nicht gibt (Fehler)
-//  - Schlüssel, die im Code benutzt werden, aber in en.json fehlen (Fehler)
-//  - Schlüssel in en.json, die im Code nirgends benutzt werden (Fehler)
-//  - abweichende Platzhalter {name} zwischen en und anderen Sprachen (Fehler)
-//  - leere oder nicht-String-Werte (Fehler)
-// Mehrzahl-Schlüssel (x.one / x.other ...) gelten als Gruppe: jede Sprache braucht x.other, weitere Kategorien sind frei.
-// Dynamische Schlüssel im Code (t(`prefix.${id}`)) markieren alle Schlüssel mit diesem Präfix als benutzt.
-// Zusätzlich kann ein Kommentar "i18n-keys: prefix.*" oder "i18n-keys: a.b, c.d" Schlüssel als benutzt markieren.
+// Checks all language files against en.json (reference) and the source code:
+//  - missing keys per language (error)
+//  - unused keys per language that don't exist in en.json (error)
+//  - keys used in the code but missing in en.json (error)
+//  - keys in en.json that are not used anywhere in the code (error)
+//  - mismatching placeholders {name} between en and other languages (error)
+//  - empty or non-string values (error)
+// Plural keys (x.one / x.other ...) count as a group: every language needs x.other, other categories are optional.
+// Dynamic keys in the code (t(`prefix.${id}`)) mark every key with that prefix as used.
+// A comment "i18n-keys: prefix.*" or "i18n-keys: a.b, c.d" can also mark keys as used.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -32,10 +32,10 @@ const SOURCE_DIRS = [
     "desktop/src",
     "desktop/static/views"
 ];
-// Nur Larpcord-Dateien scannen (Upstream-Plugins nutzen kein t())
+// Only scan Larpcord files (upstream plugins don't use t())
 const SOURCE_FILTER = p =>
     (/[\\/]plugins[\\/]larp/.test(p) || /[\\/]desktop[\\/]/.test(p) || /[\\/]_core[\\/]settings/.test(p))
-    // i18n-Infrastruktur selbst (enthält nur Beispiel-Schlüssel in Kommentaren)
+    // the i18n infrastructure itself (only contains example keys in comments)
     && !/[\\/]larpCore[\\/]i18n[\\/]/.test(p) && !/[\\/]views[\\/]i18n\.js$/.test(p);
 
 const errors = [];
@@ -50,15 +50,15 @@ function loadLocales() {
         try {
             data = JSON.parse(readFileSync(join(LOCALES_DIR, file), "utf8"));
         } catch (e) {
-            err(`${file}: ungültiges JSON (${e.message})`);
+            err(`${file}: invalid JSON (${e.message})`);
             continue;
         }
         if (!data || typeof data !== "object" || Array.isArray(data)) {
-            err(`${file}: Wurzel muss ein Objekt sein`);
+            err(`${file}: root must be an object`);
             continue;
         }
         for (const [k, v] of Object.entries(data)) {
-            if (typeof v !== "string") err(`${file}: "${k}" ist kein String`);
+            if (typeof v !== "string") err(`${file}: "${k}" is not a string`);
             else if (!v.trim()) err(`${file}: "${k}" ist leer`);
         }
         out[name] = data;
@@ -73,7 +73,7 @@ function pluralBase(key) {
     return PLURAL.includes(key.slice(i + 1)) ? key.slice(0, i) : null;
 }
 
-/** Normalisierte Schlüsselmenge: Mehrzahl-Gruppen als "base#plural" */
+/** Normalized key set: plural groups as "base#plural" */
 function logicalKeys(dict) {
     const keys = new Set();
     for (const k of Object.keys(dict)) {
@@ -92,7 +92,7 @@ function placeholdersOf(dict, logical) {
         const base = logical.slice(0, -"#plural".length);
         const set = new Set();
         for (const cat of PLURAL) for (const p of placeholders(dict[`${base}.${cat}`] ?? "")) set.add(p);
-        set.delete("count"); // count darf in einzelnen Kategorien fehlen ("ein Preset")
+        set.delete("count"); // count may be missing in single categories ("one preset")
         return [...set].sort();
     }
     return placeholders(dict[logical] ?? "");
@@ -153,14 +153,14 @@ function scanSources() {
 const locales = loadLocales();
 const ref = locales[REFERENCE];
 if (!ref) {
-    console.error(`Referenzsprache ${REFERENCE}.json fehlt in ${LOCALES_DIR}`);
+    console.error(`Reference language ${REFERENCE}.json missing in ${LOCALES_DIR}`);
     process.exit(1);
 }
-if (!locales.de) err("de.json fehlt (Pflichtsprache)");
+if (!locales.de) err("de.json missing (required language)");
 
 const refKeys = logicalKeys(ref);
 for (const key of refKeys) {
-    if (key.endsWith("#plural") && ref[`${key.slice(0, -7)}.other`] == null) err(`en.json: Mehrzahl-Gruppe "${key.slice(0, -7)}" braucht ".other"`);
+    if (key.endsWith("#plural") && ref[`${key.slice(0, -7)}.other`] == null) err(`en.json: plural group "${key.slice(0, -7)}" needs ".other"`);
 }
 
 for (const [name, dict] of Object.entries(locales)) {
@@ -168,7 +168,7 @@ for (const [name, dict] of Object.entries(locales)) {
     const keys = logicalKeys(dict);
     for (const key of refKeys) {
         const label = key.replace("#plural", " (Mehrzahl)");
-        if (!keys.has(key)) err(`${name}.json: fehlender Schlüssel "${label}"`);
+        if (!keys.has(key)) err(`${name}.json: missing key "${label}"`);
         else {
             if (key.endsWith("#plural") && dict[`${key.slice(0, -7)}.other`] == null) err(`${name}.json: Mehrzahl-Gruppe "${key.slice(0, -7)}" braucht ".other"`);
             const a = placeholdersOf(ref, key).join(",");
@@ -177,26 +177,26 @@ for (const [name, dict] of Object.entries(locales)) {
         }
     }
     for (const key of keys) {
-        if (!refKeys.has(key)) err(`${name}.json: überflüssiger Schlüssel "${key.replace("#plural", " (Mehrzahl)")}" (nicht in en.json)`);
+        if (!refKeys.has(key)) err(`${name}.json: unused key "${key.replace("#plural", " (plural)")}" (not in en.json)`);
     }
 }
 
 const { used, prefixes } = scanSources();
 const refPlain = new Set([...refKeys].map(k => k.replace("#plural", "")));
 for (const [key, where] of used) {
-    if (!refPlain.has(key)) err(`Code benutzt "${key}" (${where}), der Schlüssel fehlt in en.json`);
+    if (!refPlain.has(key)) err(`Code uses "${key}" (${where}), the key is missing in en.json`);
 }
 for (const key of refPlain) {
     if (used.has(key)) continue;
     if ([...prefixes.keys()].some(p => key.startsWith(p))) continue;
-    err(`en.json: Schlüssel "${key}" wird im Code nirgends benutzt (überflüssig)`);
+    err(`en.json: key "${key}" is not used anywhere in the code (unused)`);
 }
 
 const langs = Object.keys(locales);
 for (const w of warnings) console.warn(`Warnung: ${w}`);
 if (errors.length) {
     for (const e of errors) console.error(`✗ ${e}`);
-    console.error(`\ni18n-Check fehlgeschlagen: ${errors.length} Problem(e) in ${langs.length} Sprachdatei(en) [${langs.join(", ")}]`);
+    console.error(`\ni18n check failed: ${errors.length} problem(s) in ${langs.length} language file(s) [${langs.join(", ")}]`);
     process.exit(1);
 }
-console.log(`✓ i18n-Check bestanden: ${refKeys.size} Schlüssel, ${langs.length} Sprachen [${langs.join(", ")}], ${used.size} direkte Verwendungen im Code`);
+console.log(`✓ i18n check passed: ${refKeys.size} keys, ${langs.length} languages [${langs.join(", ")}], ${used.size} direct uses in code`);

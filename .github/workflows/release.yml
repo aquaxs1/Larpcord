@@ -1,6 +1,6 @@
-# Baut bei jedem Tag "v*" die Windows-.exe und veröffentlicht sie als GitHub-Release inklusive
-# latest.yml und .blockmap, damit der Auto-Updater (electron-updater) neue Versionen findet.
-# Tags mit "-beta" (z. B. v0.3.0-beta.1) werden als Prerelease veröffentlicht und nur vom Kanal „Beta“ installiert.
+# On every "v*" tag, builds the Windows .exe and publishes it as a GitHub release including
+# latest.yml and .blockmap, so the auto-updater (electron-updater) finds new versions.
+# Tags with "-beta" (e.g. v0.3.0-beta.1) are published as prereleases and only installed by the "Beta" channel.
 name: Release
 
 on:
@@ -24,39 +24,39 @@ jobs:
         with:
           node-version: 22
 
-      - name: Übersetzungen prüfen
+      - name: Check translations
         run: node scripts/i18n/check.mjs
 
-      # postinstall installiert core/ und desktop/ (inkl. Electron-Binary)
-      - name: Abhängigkeiten installieren
+      # postinstall installs core/ and desktop/ (incl. the Electron binary)
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Version aus dem Tag übernehmen
+      - name: Take version from tag
         run: node scripts/set-version.mjs ${{ github.ref_name }}
 
-      # Abschnitt aus CHANGELOG.md → Release-Text → Changelog im Update-Hinweis
-      - name: Release-Notes aus CHANGELOG.md
+      # Section from CHANGELOG.md → release text → changelog in the update notice
+      - name: Release notes from CHANGELOG.md
         run: node scripts/release-notes.mjs ${{ github.ref_name }}
 
-      - name: Core und Desktop bauen
+      - name: Build core and desktop
         run: node scripts/build.mjs
         env:
           VENCORD_HASH: ${{ github.sha }}
           VENCORD_REMOTE: ${{ github.repository }}
 
-      # Bewusst ohne "--publish always": electron-builder lädt dabei nebenher hoch, der Schritt kann
-      # enden, bevor die große .exe und latest.yml oben sind (genau das ist bei v0.2.0 passiert).
-      # Die Update-Datei latest.yml entsteht auch mit "--publish never", weil publish in
-      # desktop/package.json konfiguriert ist.
-      - name: Paketieren
+      # Deliberately without "--publish always": electron-builder uploads in the background and the step can
+      # finish before the large .exe and latest.yml are up (exactly what happened with v0.2.0).
+      # The update file latest.yml is created with "--publish never" too, because publish is configured
+      # in desktop/package.json.
+      - name: Package
         run: pnpm -C desktop exec electron-builder --win --publish never
 
-      # Die Website (site/) verlinkt auf diese ZIP. Der Auto-Updater nutzt weiter die .exe.
-      - name: Setup als ZIP verpacken
+      # The website (site/) links to this ZIP. The auto-updater keeps using the .exe.
+      - name: Pack setup as ZIP
         shell: pwsh
         run: Compress-Archive -Path desktop/dist/Larpcord-Setup.exe -DestinationPath desktop/dist/Larpcord-Setup.zip -Force
 
-      - name: Veröffentlichen
+      - name: Publish
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -70,7 +70,7 @@ jobs:
             desktop/dist/Larpcord-Setup.zip
           )
           for f in "${files[@]}"; do
-            [ -f "$f" ] || { echo "::error::Datei fehlt nach dem Paketieren: $f"; exit 1; }
+            [ -f "$f" ] || { echo "::error::File missing after packaging: $f"; exit 1; }
           done
 
           prerelease=()
@@ -83,18 +83,18 @@ jobs:
               --notes-file desktop/release-notes.md "${prerelease[@]}" "${files[@]}"
           fi
 
-          # Ein abgebrochener Lauf kann einen Entwurf hinterlassen haben – der wäre für niemanden
-          # sichtbar und der Auto-Updater fände ihn nicht.
+          # An aborted run may have left a draft behind – nobody could see it
+          # and the auto-updater wouldn't find it.
           if [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = "true" ]; then
             gh release edit "$TAG" --draft=false
           fi
 
-          # Erst wenn alle Dateien wirklich am Release hängen, gilt der Schritt als erfolgreich
+          # The step only succeeds once every file is really attached to the release
           uploaded="$(gh release view "$TAG" --json assets --jq '.assets[].name')"
           for f in "${files[@]}"; do
             name="$(basename "$f")"
-            grep -qx "$name" <<< "$uploaded" || { echo "::error::Nicht hochgeladen: $name"; exit 1; }
+            grep -qx "$name" <<< "$uploaded" || { echo "::error::Not uploaded: $name"; exit 1; }
           done
           [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = "false" ] \
-            || { echo "::error::Release ist noch ein Entwurf"; exit 1; }
-          echo "Veröffentlicht: $uploaded"
+            || { echo "::error::Release is still a draft"; exit 1; }
+          echo "Published: $uploaded"

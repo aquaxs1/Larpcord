@@ -2,187 +2,190 @@
 
 # Larpcord
 
-**Der Discord-Client, in dem du alles sein darfst. Zumindest auf deinem eigenen Bildschirm.**
+**The Discord client where you can be anyone. At least on your own screen.**
 
-Larpcord ist ein quelloffener, eigenständiger Discord-Client (eigene `.exe`), mit dem du dir lokal Badges, Nitro-Optik, Avatar-Dekorationen, Profileffekte, Server-Badges, einen anderen Namen und ein eigenes Layout gibst. Alles, was Larpcord verändert, ist **nur auf deinem PC sichtbar**. Niemand sonst sieht es, und dein Account wird nicht verändert.
+Larpcord is an open-source, standalone Discord client (its own `.exe`) that lets you give yourself badges, the Nitro look, avatar decorations, profile effects, server badges, a different name and your own layout – locally. Everything Larpcord changes is **visible only on your PC**. Nobody else sees it, and your account is never changed.
 
-> Larp (Live Action Role Play): so tun als ob. Genau das macht Larpcord.
+> Larp (Live Action Role Play): pretending. That's exactly what Larpcord does.
+
+🌐 **Website:** try Larpcord in your browser and download it from the project website (source in [`site/`](site/)).
 
 ---
 
 ## ✨ Features
 
-### 🏅 Badges & Profil
-- Alle offiziellen Badges lokal: Discord Staff, Partner, HypeSquad (Events, Bravery, Brilliance, Balance), Early Supporter, Bug Hunter (Stufe 1 & 2), Active Developer, Moderator Alumni, Early Verified Bot Developer
-- Eigene Badges mit eigenem Bild (PNG/GIF/SVG) und Tooltip-Text
-- „Mitglied seit“-Datum frei wählbar
-- Eigener Clan-Tag neben deinem Namen
+### 🏅 Badges & profile
+- All official badges, locally: Discord Staff, Partner, HypeSquad (Events, Bravery, Brilliance, Balance), Early Supporter, Bug Hunter (level 1 & 2), Active Developer, Moderator Alumni, Early Verified Bot Developer
+- Custom badges with your own image (PNG/GIF/SVG) and tooltip text
+- Any “Member since” date
+- Your own clan tag next to your name
 
-### 💎 Nitro-Look
-- Nitro-Badge mit frei wählbarer Abo-Dauer (inkl. Boost-Badge-Stufen)
-- Profil-Themes mit Farbverlauf, eigenes Banner, animierter Avatar (lokales GIF)
-- Alle Avatar-Dekorationen, Profileffekte und Nameplates aus dem Shop lokal auswählbar
-- Display-Name-Styles: Schriftarten, Farbverläufe, Glow
+### 💎 Nitro look
+- Nitro badge with any subscription length (including boost badge tiers)
+- Profile themes with gradients, custom banner, animated avatar (local GIF)
+- Every avatar decoration, profile effect and nameplate from the shop, selectable locally
+- Display name styles: fonts, gradients, glow
 
-### 🏰 Server-Badges
-- Partner- oder Verified-Abzeichen für beliebige Server
-- Boost-Level (1 bis 3) und Boost-Anzahl frei einstellbar
-- Einstellbar pro Server
+### 🏰 Server badges
+- Partner or verified badge for any server
+- Boost level (1 to 3) and boost count, freely adjustable
+- Configurable per server
 
-### 🎮 Aktivitäten
-- Eigene Aktivitäten erfinden: Spielt, Hört, Schaut, Streamt, Tritt an oder benutzerdefinierter Status
-- Alle Felder frei: Name, Details, Status-Zeile, großes und kleines Bild samt Tooltips, Gruppengröße, Knöpfe
-- Zeitangaben „seit X“ und „noch X“, fest oder mitlaufend, bei Musik mit Fortschrittsleiste
-- **Aktivitäts-Changer:** echte erkannte Aktivitäten lokal umbenennen, neu bebildern oder ganz ausblenden
-- Nur lokal: Es werden keine Presence-Updates gesendet, andere sehen weiterhin deine echte Aktivität
+### 🎮 Activities
+- Make up your own activities: Playing, Listening, Watching, Streaming, Competing or a custom status
+- Every field is yours: name, details, state line, large and small image with tooltips, party size, buttons
+- “Elapsed” and “remaining” timestamps, fixed or running, with a progress bar for music
+- **Activity changer:** rename real detected activities locally, give them new images or hide them completely
+- Local only: no presence updates are sent, others keep seeing your real activity
 
-### 🎖️ Lokale Rollen
-- Eigene Rollen pro Server: Name, Farbe, Farbverlauf und Rollen-Icon
-- Rollen-Pillen im eigenen Profil, Namensfarbe in Chat und Mitgliederliste, Icon neben dem Namen
-- Vorlagen für Owner, Admin, Moderator und VIP
-- Reine Anzeige: Larp-Rollen geben keine Rechte und tauchen in Discords Berechtigungen nicht auf
+### 🎖️ Local roles
+- Your own roles per server: name, color, gradient and role icon
+- Role pills on your own profile, name color in chat and member list, icon next to your name
+- Templates for Owner, Admin, Moderator and VIP
+- Display only: larp roles grant no permissions and never show up in Discord's permission system
 
-### 🖼️ Server umgestalten
-- Name, Icon und Banner eines Servers lokal ändern (URL oder Datei, GIFs erlaubt)
-- Wirkt überall: Serverleiste, Server-Header, Banner über der Kanalliste, Erwähnungen
-- „Auf Original zurücksetzen“ pro Server, der Server selbst bleibt unangetastet
+### 🖼️ Restyle servers
+- Change a server's name, icon and banner locally (URL or file, GIFs allowed)
+- Works everywhere: server list, server header, banner above the channel list, mentions
+- “Reset to original” per server; the server itself stays untouched
 
-### 🎵 Profil-Musik
-- Eigener Song im eigenen Profil, als Datei (mp3, ogg, wav, m4a, bis 20 MB) oder als URL
-- Läuft, solange dein Profil offen ist, mit Lautstärke, Startzeit, Schleife und Ein-/Ausblenden
-- Mini-Player im Profil und ein globaler Stumm-Schalter im Hub
-- Larpcord liefert keine Songs mit, nur deine eigenen Dateien
+### 🎵 Profile music
+- Your own song on your own profile, as a file (mp3, ogg, wav, m4a, up to 20 MB) or as a URL
+- Plays while your profile is open, with volume, start time, loop and fade in/out
+- Mini player on the profile and a global mute switch in the hub
+- Larpcord ships no songs, only your own files
 
-### 🪪 Name-Änderer
-- Username und Anzeigename lokal sofort ändern, ohne Cooldown
-- Gilt überall: Chat, Profil, Mitgliederliste, User-Panel, Erwähnungen, Tooltips
-- Optional: Larp-Name statt Server-Nicknames anzeigen (standardmäßig an)
-- Dein echter Name bleibt bei Discord unverändert. Selbst wenn Discords Konto-Formular den Larp-Namen vorausfüllt, sendet Larpcord ihn nie an Discord.
+### 🪪 Name changer
+- Change your username and display name locally, instantly, without cooldown
+- Applies everywhere: chat, profile, member list, user panel, mentions, tooltips
+- Optional: show your larp name instead of server nicknames (on by default)
+- Your real name on Discord stays unchanged. Even when Discord's account form is prefilled with the larp name, Larpcord never sends it to Discord.
 
-### 🧩 Eigenes Layout
-- Bearbeitungsmodus im Hub oder per **Strg+Shift+L**: Elemente ziehen, Leiste mit „Fertig“, „Zurücksetzen“ und „Als Preset speichern“
-- Serverleiste frei sortieren (Ordner als Ganzes), neue Server landen automatisch am Ende
-- DMs per Rechtsklick „In Larpcord anpinnen“, angepinnte DMs stehen oben in fester Reihenfolge
-- Buttons im User-Panel und Kanal-Header umsortieren oder ausblenden (der Einstellungen-Button bleibt immer sichtbar)
-- User-Panel oben oder unten
-- Sicherheitsnetz: **Shift beim Start gedrückt halten** oder im Tray-Menü „Layout zurücksetzen“ wählen
+### 🧩 Custom layout
+- Edit mode in the hub or with **Ctrl+Shift+L**: drag elements, toolbar with “Done”, “Reset” and “Save as preset”
+- Sort the server list freely (folders as a whole), new servers are added at the end automatically
+- Right-click a DM → “Pin in Larpcord”; pinned DMs stay at the top in a fixed order
+- Reorder or hide buttons in the user panel and channel header (the settings button always stays visible)
+- User panel at the top or bottom
+- Safety net: **hold Shift on startup** or pick “Reset layout” in the tray menu
 
-### 🎭 Larp-Extras & Presets
-- Verified-Häkchen und Server-Owner-Krone neben deinem Namen
-- **Larp-Presets**: komplette Setups speichern und per Klick wechseln, z. B. „Discord Staff“, „Nitro-Gönner“, „OG 2015“
-- Import/Export aller Einstellungen als `.larp.json`, zum Teilen mit Freunden (Song-Dateien lassen sich auf Wunsch einbetten)
-- Optionales „Larpcord“-Wasserzeichen im Profil (standardmäßig aus)
+### 🎭 Larp extras & presets
+- Verified check and server owner crown next to your name
+- **Larp presets**: save complete setups and switch with one click, e.g. “Discord Staff”, “Nitro Supporter”, “OG 2015”
+- Import/export all settings as `.larp.json` to share with friends (song files can be embedded on request)
+- Optional “Larpcord” watermark on your profile (off by default)
 
-### 🎨 UI & Themes
-- Theme-Editor mit Live-Vorschau (Farben, Schriftarten, Rundungen)
-- Eigene Sounds, eigener Ladebildschirm, eigenes App-Icon
+### 🎨 UI & themes
+- Theme editor with live preview (colors, fonts, corner radius)
+- Custom sounds, custom loading screen, custom app icon
 
-### 🌍 Sprache
-- Deutsch und Englisch, Larpcord folgt automatisch deiner Discord-Spracheinstellung
-- Umschalten wirkt sofort, ohne Neustart
+### 🌍 Language
+- English by default. Other languages (currently German) can be picked in the client: Larpcord follows your Discord language setting
+- Switching takes effect immediately, no restart
 
 ### 🔄 Updates
-- Larpcord aktualisiert sich selbst über die offiziellen GitHub-Releases (beim Start und alle 4 Stunden)
-- Update wird im Hintergrund geladen, danach ein Hinweis mit Changelog: **Jetzt neu starten** oder **Später**
-- Kanäle **Stabil** und **Beta**, abschaltbar unter **Larpcord Hub → Updates**
+- Larpcord updates itself from the official GitHub releases (on startup and every 4 hours)
+- Updates download in the background, followed by a notice with the changelog: **Restart now** or **Later**
+- **Stable** and **Beta** channels, can be turned off under **Larpcord Hub → Updates**
 
-### ⚙️ Larpcord-Hub
-Alle Einstellungen an einem Ort, mit Live-Vorschau deines Profils: **Einstellungen → Larpcord → Larpcord Hub** (Unter-Tabs Badges, Nitro, Dekorationen, Name, Aktivität, Server, Themes, Musik, Layout, Presets, Updates).
-Ladebildschirm, Tray- und App-Icon findest du unter **Einstellungen → Larpcord → Larpcord Desktop → Customize App Assets**.
+### ⚙️ Larpcord Hub
+All settings in one place, with a live preview of your profile: **Settings → Larpcord → Larpcord Hub** (sub-tabs Badges, Nitro, Decorations, Name, Activity, Servers, Themes, Music, Layout, Presets, Updates).
+Loading screen, tray and app icon are under **Settings → Larpcord → Larpcord Desktop → Customize App Assets**.
 
 ---
 
-## ❗ Was Larpcord nicht kann
+## ❗ What Larpcord can't do
 
-Larpcord ist **rein kosmetisch und lokal**. Alles, was Discords Server prüft, bleibt so, wie es ist:
+Larpcord is **purely cosmetic and local**. Everything Discord's servers check stays exactly as it is:
 
-- Keine größeren Uploads, kein echtes HD-Streaming, keine echten Server-Boosts
-- Andere Nutzer sehen deine Larp-Badges, -Dekorationen und deinen Larp-Namen **nicht**
-- Dein echter Name bleibt: Andere sehen weiterhin deinen echten Username und Anzeigenamen
-- Deine echte Server-Reihenfolge bleibt: Das Layout ist nur in Larpcord sichtbar, im normalen Discord (und auf dem Handy) ist alles wie vorher
-- Dein Account, deine Server und deine Rollen werden nicht verändert
-- Larp-Aktivitäten gehen nie ans Gateway: In deinem Profil sehen andere weiterhin deine echte Aktivität
-- Larp-Rollen geben keine Rechte, und ein lokal umbenannter Server heißt für alle anderen weiter wie vorher
+- No bigger uploads, no real HD streaming, no real server boosts
+- Other users do **not** see your larp badges, decorations or larp name
+- Your real name stays: others keep seeing your real username and display name
+- Your real server order stays: the layout only exists in Larpcord; regular Discord (and your phone) look the same as before
+- Your account, your servers and your roles are never changed
+- Larp activities never reach the gateway: others keep seeing your real activity on your profile
+- Larp roles grant no permissions, and a locally renamed server keeps its name for everyone else
 
 ---
 
 ## 🚀 Installation
 
-1. Neuestes Release unter [Releases](https://github.com/aquaxs1/Larpcord/releases) herunterladen
-2. `Larpcord-Setup.exe` ausführen – ein Klick, kurzer Fortschritt, fertig (Installation nur für dich, keine Adminrechte nötig)
-3. Beim ersten Start führt dich ein kurzes Onboarding durch die wichtigsten Einstellungen
-4. Mit deinem Discord-Account einloggen und unter Einstellungen → **Larpcord** loslegen
+1. Download the latest release from [Releases](https://github.com/aquaxs1/Larpcord/releases) (`Larpcord-Setup.zip` or `Larpcord-Setup.exe`)
+2. Run `Larpcord-Setup.exe` – one click, a short progress bar, done (installed just for you, no admin rights needed)
+3. On first launch a short onboarding walks you through the most important settings
+4. Log in with your Discord account and get started under Settings → **Larpcord**
 
-> **Windows SmartScreen:** Larpcord ist nicht code-signiert (Zertifikate kosten Geld). Beim ersten Start meldet
-> Windows deshalb „Der Computer wurde durch Windows geschützt“ → **Weitere Informationen** → **Trotzdem ausführen**.
-> Automatische Updates laufen danach ohne diese Warnung durch.
+> **Windows SmartScreen:** Larpcord is not code-signed (certificates cost money). On first launch Windows therefore
+> shows “Windows protected your PC” → **More info** → **Run anyway**.
+> Automatic updates install without this warning afterwards.
 
-Larpcord meldet sich, sobald eine neue Version da ist, und installiert sie auf Wunsch sofort.
-Deinstallieren geht über **Einstellungen → Apps**; dabei fragt Larpcord, ob deine Presets und Einstellungen bleiben sollen.
+Larpcord lets you know as soon as a new version is available and installs it right away if you want.
+Uninstall via **Settings → Apps**; Larpcord then asks whether your presets and settings should be kept.
+
+### Build it yourself
+
+Requirements: [Node.js](https://nodejs.org) 22+, [pnpm](https://pnpm.io) 11+, Git
+
+```bash
+git clone https://github.com/aquaxs1/Larpcord.git
+cd Larpcord
+pnpm install      # also installs core/ and desktop/
+pnpm build        # builds core and desktop
+pnpm package      # creates desktop/dist/Larpcord-Setup.exe
+```
+
+More commands:
+
+| Command | Purpose |
+|---|---|
+| `pnpm dev` | Build a dev build and start Larpcord straight from source |
+| `pnpm icons` | Regenerate all icons from `assets/larpcordlogo.png` (needs Python + Pillow) |
+| `pnpm i18n:check` | Checks the language files for missing or unused keys |
+
+A release is created automatically as soon as a `v*` tag is pushed (see `.github/workflows/release.yml`):
+it builds `Larpcord-Setup.exe` plus `latest.yml` (so the auto-updater finds the version) and `Larpcord-Setup.zip`
+(linked from the website). Tags with `-beta` (e.g. `v0.3.0-beta.1`) are published as prereleases on the **Beta** channel.
+
+**Contributing a language:** copy `core/src/plugins/larpCore/i18n/locales/en.json` under the language code
+(e.g. `fr.json`), translate it and run `pnpm i18n:check` – that's all it takes. English is the reference language.
 
 ### Website
 
-Die Projekt-Website liegt in `site/` (reines HTML/CSS/JS, kein Build). Auf Vercel als Root Directory `site`
-wählen, Framework „Other“. Lokal ansehen: `npx serve site`. In `site/datenschutz.html` die Platzhalter
-für den Verantwortlichen ausfüllen.
-
-### Selbst bauen
-
-Voraussetzungen: [Node.js](https://nodejs.org) 22+, [pnpm](https://pnpm.io) 11+, Git
-
-```bash
-git clone https://github.com/DEIN-NAME/larpcord.git
-cd larpcord
-pnpm install      # installiert core/ und desktop/
-pnpm build        # baut Core und Desktop
-pnpm package      # erzeugt desktop/dist/Larpcord-Setup.exe
-```
-
-Weitere Befehle:
-
-| Befehl | Zweck |
-|---|---|
-| `pnpm dev` | Dev-Build bauen und Larpcord direkt aus dem Quellcode starten |
-| `pnpm icons` | Alle Icons aus `assets/larpcordlogo.png` neu erzeugen (braucht Python + Pillow) |
-| `pnpm i18n:check` | Prüft die Sprachdateien auf fehlende oder überflüssige Schlüssel |
-
-Ein Release entsteht automatisch, sobald ein Tag `v*` gepusht wird (siehe `.github/workflows/release.yml`):
-gebaut wird `Larpcord-Setup.exe` plus `latest.yml`, damit der Auto-Updater die Version findet.
-Tags mit `-beta` (z. B. `v0.3.0-beta.1`) landen als Vorabversion im Kanal **Beta**.
-
-**Eine weitere Sprache beisteuern:** eine Kopie von `core/src/plugins/larpCore/i18n/locales/en.json` unter dem
-Sprachkürzel anlegen (z. B. `fr.json`), übersetzen, `pnpm i18n:check` ausführen – mehr braucht es nicht.
+The project website lives in `site/` (plain HTML/CSS/JS, no build step). On Vercel, choose `site` as the
+Root Directory and “Other” as the framework. Preview locally with `npx serve site`. Fill in the controller
+placeholders in `site/privacy.html` before publishing.
 
 ---
 
-## 🧱 Aufbau
+## 🧱 Structure
 
-Larpcord steht auf den Schultern von zwei großartigen Open-Source-Projekten:
+Larpcord stands on the shoulders of two great open-source projects:
 
-| Ordner | Basis | Aufgabe |
+| Folder | Based on | Role |
 |---|---|---|
-| `core/` | [Vencord](https://github.com/Vendicated/Vencord) | Client-Mod mit allen Larpcord-Plugins |
-| `desktop/` | [Vesktop](https://github.com/Vencord/Vesktop) | Eigenständige Desktop-App (`.exe`) |
+| `core/` | [Vencord](https://github.com/Vendicated/Vencord) | Client mod with all Larpcord plugins |
+| `desktop/` | [Vesktop](https://github.com/Vencord/Vesktop) | Standalone desktop app (`.exe`) |
+| `site/` | – | Project website |
 
-Die Larpcord-Plugins liegen in `core/src/plugins/larp*/`.
-
----
-
-## ⚠️ Hinweis zu Discords Nutzungsbedingungen
-
-Modifizierte Discord-Clients verstoßen gegen die [Nutzungsbedingungen von Discord](https://discord.com/terms). Sperren wegen rein kosmetischer Mods sind selten, aber möglich. **Die Nutzung erfolgt auf eigenes Risiko.**
-
-Larpcord sendet keine automatisierten Anfragen an Discord und verändert nichts an deinem Account.
-
-**Bitte nutze Larpcord nicht, um andere zu täuschen**, etwa mit Screenshots von Fake-Staff-Badges. Dafür gibt es das optionale Wasserzeichen.
+The Larpcord plugins live in `core/src/plugins/larp*/`.
 
 ---
 
-## 🤝 Mitmachen
+## ⚠️ About Discord's Terms of Service
 
-Pull Requests sind willkommen! Neue Badges, Themes oder Presets? Einfach ein Issue aufmachen.
+Modified Discord clients violate [Discord's Terms of Service](https://discord.com/terms). Bans for purely cosmetic mods are rare, but possible. **Use at your own risk.**
 
-## 📄 Lizenz
+Larpcord sends no automated requests to Discord and changes nothing on your account.
 
-GPL-3.0, wie Vencord und Vesktop, auf denen Larpcord basiert.
-Larpcord ist nicht mit Discord Inc. verbunden.
+**Please don't use Larpcord to deceive others**, for example with screenshots of fake Staff badges. That's what the optional watermark is for.
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome! New badges, themes or presets? Just open an issue.
+
+## 📄 License
+
+GPL-3.0, like Vencord and Vesktop, which Larpcord is based on.
+Larpcord is not affiliated with Discord Inc.

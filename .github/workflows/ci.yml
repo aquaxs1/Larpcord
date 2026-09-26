@@ -1,4 +1,4 @@
-# Schnelle Prüfungen bei jedem Push und Pull Request (ohne Build).
+# Quick checks on every push and pull request (no build).
 name: CI
 
 on:
@@ -16,6 +16,6 @@ jobs:
         with:
           node-version: 22
 
-      # Braucht keine Abhängigkeiten: prüft Sprachdateien und Schlüssel im Code
-      - name: Übersetzungen prüfen
+      # Needs no dependencies: checks language files and keys used in the code
+      - name: Check translations
         run: node scripts/i18n/check.mjs

@@ -1,166 +1,168 @@
-# Larpcord – TODO: Großes Update
+# Larpcord – TODO: Big update
 
-In dieser Reihenfolge abarbeiten. Nach jedem Abschnitt bauen, starten, testen und Häkchen setzen.
-Neue Erkenntnisse, Probleme und verschobene Punkte unten unter „Offen / Später“ eintragen.
-
----
-
-## 1. Mehrsprachigkeit (zuerst, weil alle neuen Texte darauf aufbauen)
-
-- [x] i18n-Modul in `larpCore/i18n/` mit `t(key, vars?)`
-- [x] Sprachdateien `locales/de.json` und `locales/en.json` (Pflicht), Fallback immer `en`
-- [x] Discord-Sprache über Discords Locale-Store auslesen, nicht über das System
-- [x] Sprachwechsel in Discord live übernehmen, ohne Neustart (auf Locale-Änderung subscriben, UI neu rendern)
-- [x] Alle bestehenden Larpcord-Texte (Hub, Plugins, Presets, Tooltips, Fehlermeldungen) auf `t()` umstellen
-- [x] Desktop-Teil (Tray, Updater-Dialoge, Onboarding, Splash): Renderer schickt Locale per IPC an den Main-Prozess, vor dem Login Systemsprache nutzen
-- [x] Mitgelieferte Preset-Namen übersetzen (Anzeige über Schlüssel, nicht als fester Text)
-- [x] Check-Skript `pnpm i18n:check`: meldet fehlende oder überflüssige Schlüssel in allen Sprachdateien, läuft in CI
-- [x] Struktur so, dass weitere Sprachen nur eine neue JSON-Datei brauchen
-
-**Fertig, wenn:** Discord auf Englisch umstellen → alle Larpcord-Texte sofort Englisch, zurück auf Deutsch → sofort Deutsch.
+Work through these in order. After each section: build, run, test and tick the boxes.
+Add new findings, problems and postponed items below under “Open / Later”.
 
 ---
 
-## 2. Auto-Updater (sehr wichtig)
+## 1. Multiple languages (first, because all new texts build on it)
 
-- [x] `electron-updater` mit GitHub-Provider (eigenes Larpcord-Repo) im Desktop-Teil einrichten
-- [x] Vesktops eigenen Update-Check und alle Vencord-Update-/Download-Mechanismen entfernen bzw. auf Larpcord umleiten. Es darf nichts mehr von Vencord- oder Vesktop-Servern geladen werden
-- [x] Core wird mit der App ausgeliefert, also aktualisiert ein App-Update alles auf einmal
-- [x] Prüfen beim Start und alle 4 Stunden
-- [x] Update im Hintergrund laden, dann Hinweis im Discord-Style: Version, Changelog (aus den Release-Notes), Buttons „Jetzt neu starten“ und „Später“
-- [x] Bei „Später“ automatisch beim nächsten Beenden installieren
-- [x] Einstellungen im Hub: Auto-Update an/aus, Kanal „Stabil“ / „Beta“ (Beta = GitHub-Prereleases), Button „Jetzt nach Updates suchen“, aktuelle Version anzeigen
-- [x] Fehler (kein Internet, Rate-Limit, kaputter Download) still loggen, nie den Client blockieren
-- [x] GitHub Action anpassen: bei Tag `v*` bauen und mit `latest.yml` veröffentlichen (`--publish always`, `GH_TOKEN`), Tags mit `-beta` als Prerelease
-- [x] In README dokumentieren: ohne Code-Signing zeigt Windows SmartScreen eine Warnung, Updates funktionieren trotzdem
-- [x] Test: Version `0.0.1` installieren, `0.0.2` releasen → Update wird erkannt, geladen und installiert
+- [x] i18n module in `larpCore/i18n/` with `t(key, vars?)`
+- [x] Language files `locales/en.json` and `locales/de.json` (required), fallback is always `en`
+- [x] Read Discord's language from Discord's locale store, not from the system
+- [x] Apply language changes in Discord live, without restart (subscribe to locale changes, re-render the UI)
+- [x] Move all existing Larpcord texts (hub, plugins, presets, tooltips, error messages) to `t()`
+- [x] Desktop part (tray, updater dialogs, onboarding, splash): the renderer sends the locale to the main process via IPC; before login use the system language
+- [x] Translate built-in preset names (displayed via keys, not as fixed text)
+- [x] Check script `pnpm i18n:check`: reports missing or unused keys in all language files, runs in CI
+- [x] Structure it so that further languages only need a new JSON file
 
-**Fertig, wenn:** Der Testlauf oben vollständig klappt.
+**Done when:** switching Discord to English → all Larpcord texts are English immediately; back to German → German immediately.
 
 ---
 
-## 3. Neuer Installer im Discord-Style
+## 2. Auto-updater (very important)
 
-Wichtig: Muss mit `electron-updater` kompatibel bleiben, also NSIS-Target behalten (kein Squirrel).
+- [x] Set up `electron-updater` with the GitHub provider (own Larpcord repo) in the desktop part
+- [x] Remove Vesktop's own update check and all Vencord update/download mechanisms or redirect them to Larpcord. Nothing may be loaded from Vencord or Vesktop servers anymore
+- [x] The core ships with the app, so one app update updates everything at once
+- [x] Check on startup and every 4 hours
+- [x] Download updates in the background, then a Discord-style notice: version, changelog (from the release notes), buttons “Restart now” and “Later”
+- [x] With “Later”, install automatically on the next quit
+- [x] Hub settings: auto-update on/off, channel “Stable” / “Beta” (Beta = GitHub prereleases), “Check for updates now” button, show the current version
+- [x] Log errors (no internet, rate limit, broken download) quietly, never block the client
+- [x] Adjust the GitHub Action: on tag `v*` build and publish with `latest.yml` (`--publish always`, `GH_TOKEN`), tags with `-beta` as prerelease
+- [x] Document in the README: without code signing Windows SmartScreen shows a warning, updates still work
+- [x] Test: install version `0.0.1`, release `0.0.2` → the update is detected, downloaded and installed
 
-- [x] NSIS `oneClick` mit Installation pro Benutzer: keine altmodischen Wizard-Seiten, nur kurzer Fortschritt
-- [x] Eigene Icons für Installer, Uninstaller und Header, dunkles Farbschema
-- [x] Optional geprüft: randloses Splash-Fenster während der Installation → nach „Offen / Später“ verschoben (siehe unten)
-- [x] Nach der Installation startet Larpcord direkt in einen modernen Splash-Screen („Larpcord wird eingerichtet…“) im Discord-Look: dunkler Hintergrund, abgerundete Ecken, animiertes Larpcord-Logo, Fortschrittstext
-- [x] Onboarding beim ersten Start (eigenes Fenster, Discord-Style, 3 bis 4 Schritte): Willkommen, Hinweis „Alles nur lokal sichtbar“ plus Nutzungsbedingungen-Hinweis, Start-Preset wählen, Wasserzeichen an/aus
-- [x] Uninstaller fragt: „Einstellungen und Presets behalten?“
-- [x] Installer-Texte auf Deutsch und Englisch (NSIS-Mehrsprachigkeit, nach Systemsprache)
-- [x] Eigenes Larpcord-Logo verwenden, **kein** Discord-Logo und kein Discord-Schriftzug. Discord-ähnliche Farben und Formen sind okay
-
-**Fertig, wenn:** Installation fühlt sich an wie bei Discord: klicken, kurzer Fortschritt, direkt schöner Splash und Onboarding.
-
----
-
-## 4. Aktivitäten: Fake-Aktivität & Aktivitäts-Changer (neues Plugin `larpActivity`)
-
-**Harte Regel:** Nur lokale Anzeige. Keine Presence-Updates über das Gateway, keine Rich-Presence-Anmeldung. Anders als Vencords CustomRPC darf diese Aktivität für andere nicht sichtbar sein. Umsetzung durch Patchen der Aktivitäten, die der Client für die eigene User-ID anzeigt.
-
-- [x] Eigene Aktivitäten erstellen, mehrere gleichzeitig möglich
-- [x] Typ: Spielt, Hört, Schaut, Streamt, Tritt an, Benutzerdefinierter Status
-- [x] Alle Felder bearbeitbar: Name, Details, Status-Zeile, großes Bild, kleines Bild, Tooltip-Texte beider Bilder, Gruppengröße (z. B. 2 von 4), Buttons (nur Anzeige, ohne Aktion)
-- [x] Bilder als URL oder hochgeladene Datei
-- [x] Zeit: „seit X“ (Startzeit), „noch X“ (Endzeit), fester Wert oder live laufend. Bei „Hört“ Fortschrittsleiste wie bei Spotify
-- [x] Benutzerdefinierter Status mit Emoji und Text
-- [x] **Aktivitäts-Changer:** echte erkannte Aktivitäten (z. B. ein laufendes Spiel) lokal verändern: Icon, Texte, Zeit überschreiben oder ganz ausblenden. Regeln pro Anwendung speichern
-- [x] Editor im Hub mit Live-Vorschau, wie die Aktivität im Profil und in der Mitgliederliste aussieht
-- [x] Anzeige überall, wo die eigene Aktivität erscheint: Profil-Popout, Profil-Fenster, Mitgliederliste, DM-Liste, User-Panel
-- [x] Aktivitäten sind Teil der Presets
+**Done when:** the test run above works end to end.
 
 ---
 
-## 5. Lokale Rollen (Erweiterung von `larpServers`)
+## 3. New Discord-style installer
 
-**Harte Regel:** Fake-Rollen nie in Strukturen einfügen, aus denen Discord Berechtigungen berechnet. Nur Anzeige, sonst erscheinen Admin-Buttons, die serverseitig scheitern.
+Important: must stay compatible with `electron-updater`, so keep the NSIS target (no Squirrel).
 
-- [x] Pro Server eigene Rollen anlegen: Name, Farbe, optional Farbverlauf, optional Rollen-Icon (URL oder Datei)
-- [x] Rollen lassen sich der eigenen Person zuweisen, Reihenfolge festlegbar
-- [x] Anzeige: Rollen-Pillen im eigenen Profil auf dem Server, Namensfarbe im Chat und in der Mitgliederliste nach höchster Larp-Rolle, Rollen-Icon neben dem Namen
-- [x] Vorlagen: „Owner“ (Rot), „Admin“, „Moderator“, „VIP“
-- [x] Geprüft: eigene Gruppe oben in der Mitgliederliste → nach „Offen / Später“ verschoben (siehe unten)
-- [x] Teil der Presets
+- [x] NSIS `oneClick` with per-user installation: no old-fashioned wizard pages, just a short progress bar
+- [x] Custom icons for installer, uninstaller and header, dark color scheme
+- [x] Optionally checked: borderless splash window during installation → moved to “Open / Later” (see below)
+- [x] After installation Larpcord starts straight into a modern splash screen (“Setting up Larpcord…”) in the Discord look: dark background, rounded corners, animated Larpcord logo, progress text
+- [x] Onboarding on first launch (own window, Discord style, 3 to 4 steps): welcome, note “Everything is only visible locally” plus Terms of Service note, choose a starting preset, watermark on/off
+- [x] Uninstaller asks: “Keep settings and presets?”
+- [x] Installer texts in English and German (NSIS multi-language, based on system language)
+- [x] Use the Larpcord logo, **no** Discord logo and no Discord wordmark. Discord-like colors and shapes are fine
 
----
-
-## 6. Server umgestalten (Erweiterung von `larpServers`)
-
-- [x] Pro Server lokal ändern: Name, Icon, Banner
-- [x] Icon und Banner als URL oder Datei, GIFs erlaubt
-- [x] Anzeige überall: Serverleiste inklusive Tooltip, Server-Header, Banner oben in der Kanalliste, Server-Einstellungsübersicht, Erwähnungen des Servers
-- [x] Umsetzung über die Funktionen, die Icon- und Banner-URLs erzeugen, sowie die Namensanzeige. Guild-Objekte im Store nicht dauerhaft verändern
-- [x] „Auf Original zurücksetzen“ pro Server
-- [x] Teil der Presets
+**Done when:** installing feels like Discord: click, short progress, straight into a nice splash and onboarding.
 
 ---
 
-## 7. Profil-Musik (neues Plugin `larpMusic`)
+## 4. Activities: fake activity & activity changer (new plugin `larpActivity`)
 
-- [x] Song als lokale Datei (mp3, ogg, wav, m4a) oder URL
-- [x] Dateien im App-Datenordner speichern (über IPC im Desktop-Teil), nicht im DataStore (Größe). Maximal 20 MB pro Datei
-- [x] Wiedergabe beim Öffnen des eigenen Profil-Popouts oder Profil-Fensters, stoppt beim Schließen
-- [x] Einstellungen: Lautstärke, Startzeitpunkt im Song, Schleife, Ein- und Ausblenden
-- [x] Kleiner Mini-Player im Profil (Titel, Pause, Stumm)
-- [x] Globaler Stumm-Schalter im Hub
-- [x] Keine Songs mitliefern, nur eigene Dateien der Nutzer
-- [x] Teil der Presets (Verweis auf die Datei, Einbetten beim Export siehe Abschnitt 8)
+**Hard rule:** local display only. No presence updates over the gateway, no Rich Presence registration. Unlike Vencord's CustomRPC, this activity must not be visible to others. Implemented by patching the activities the client displays for your own user ID.
 
----
-
-## 8. Abschluss
-
-- [x] Preset-Format auf `version: 2` anheben, Migration von v1 automatisch
-- [x] Beim Export mit eingebetteten Dateien (Bilder, Musik) Größenwarnung anzeigen
-- [x] Alle neuen Patches mit Fallback absichern, einen absichtlich kaputt machen und testen, dass der Client weiterläuft
-- [x] `pnpm i18n:check` läuft ohne Fehler
-- [x] `CLAUDE.md` aktualisieren: neue Plugins, neue harte Regeln (keine Presence-Updates, keine Rollen in Berechtigungen), Updater- und Installer-Aufbau
-- [x] `README.md` aktualisieren: neue Features, Updater, SmartScreen-Hinweis, Sprachen
-- [x] Version erhöhen, Changelog in `CHANGELOG.md`, Release-Tag setzen (v0.2.0, 2026-09-24)
+- [x] Create your own activities, several at once
+- [x] Type: Playing, Listening, Watching, Streaming, Competing, custom status
+- [x] Every field editable: name, details, state line, large image, small image, tooltip texts for both images, party size (e.g. 2 of 4), buttons (display only, no action)
+- [x] Images as URL or uploaded file
+- [x] Time: “elapsed X” (start time), “X left” (end time), fixed value or running live. For “Listening” a Spotify-like progress bar
+- [x] Custom status with emoji and text
+- [x] **Activity changer:** change real detected activities (e.g. a running game) locally: override icon, texts, time or hide them entirely. Rules stored per application
+- [x] Editor in the hub with a live preview of how the activity looks on the profile and in the member list
+- [x] Shown wherever your own activity appears: profile popout, profile modal, member list, DM list, user panel
+- [x] Activities are part of presets
 
 ---
 
-## 9. Vom User nachträglich eingefügt
-- [x] bitte baue larpcordlogo.png überall als offizieles Logo ein
-- [x] achte darauf das der Hintergrund immer mit den einstellungen (Thema, Übergänge, usw.) zusammen passt
+## 5. Local roles (extension of `larpServers`)
+
+**Hard rule:** never insert fake roles into structures Discord computes permissions from. Display only, otherwise admin buttons appear that fail server-side.
+
+- [x] Create your own roles per server: name, color, optional gradient, optional role icon (URL or file)
+- [x] Roles can be assigned to yourself, order is configurable
+- [x] Display: role pills on your own profile on the server, name color in chat and member list from the highest larp role, role icon next to the name
+- [x] Templates: “Owner” (red), “Admin”, “Moderator”, “VIP”
+- [x] Checked: own group at the top of the member list → moved to “Open / Later” (see below)
+- [x] Part of presets
+
+---
+
+## 6. Restyle servers (extension of `larpServers`)
+
+- [x] Change locally per server: name, icon, banner
+- [x] Icon and banner as URL or file, GIFs allowed
+- [x] Shown everywhere: server list including tooltip, server header, banner at the top of the channel list, server settings overview, server mentions
+- [x] Implemented via the functions that build icon and banner URLs plus the name display. Never permanently modify guild objects in the store
+- [x] “Reset to original” per server
+- [x] Part of presets
+
+---
+
+## 7. Profile music (new plugin `larpMusic`)
+
+- [x] Song as a local file (mp3, ogg, wav, m4a) or URL
+- [x] Store files in the app data folder (via IPC in the desktop part), not in the DataStore (size). At most 20 MB per file
+- [x] Plays when opening your own profile popout or profile modal, stops when closing
+- [x] Settings: volume, start position in the song, loop, fade in and out
+- [x] Small mini player on the profile (title, pause, mute)
+- [x] Global mute switch in the hub
+- [x] Ship no songs, only users' own files
+- [x] Part of presets (reference to the file, embedding on export see section 8)
+
+---
+
+## 8. Wrap-up
+
+- [x] Bump the preset format to `version: 2`, migrate v1 automatically
+- [x] Show a size warning when exporting with embedded files (images, music)
+- [x] Guard all new patches with a fallback, deliberately break one and check that the client keeps running
+- [x] `pnpm i18n:check` passes
+- [x] Update `CLAUDE.md`: new plugins, new hard rules (no presence updates, no roles in permissions), updater and installer structure
+- [x] Update `README.md`: new features, updater, SmartScreen note, languages
+- [x] Bump the version, changelog in `CHANGELOG.md`, set the release tag (v0.2.0, 2026-09-24)
+
+---
+
+## 9. Added later by the user
+- [x] Use larpcordlogo.png everywhere as the official logo
+- [x] Make sure the background always matches the settings (theme, transitions, etc.)
 - [x] Repository: https://github.com/aquaxs1/Larpcord
-- [x] Der Token für die Updates liegt in `.env` (`GH_TOKEN`, nicht im Repo)
+- [x] The token for updates lives in `.env` (`GH_TOKEN`, not in the repo)
+- [x] Website in `site/` (Vercel root `site`)
+- [x] English is the main language (website, README, changelog, repo docs); other languages only selectable in the client
 
-## Offen / Später
+## Open / Later
 
-_(Hier landen Punkte, die nicht stabil umsetzbar waren, mit kurzer Begründung.)_
+_(Items that could not be implemented reliably end up here, with a short reason.)_
 
-### Nicht umsetzbar ohne schreibende Requests / Server-Prüfung
-- **Echte Nitro-Funktionen** (größere Uploads, HD-Streaming, Emojis/Sticker überall): prüft Discords Server. Larpcord setzt `premiumType` nur am *Anzeige*-Profil, nie am User-Objekt.
-- **Server-Boost-Fortschrittsleiste** in der Kanalliste: Die Komponente synchronisiert Boost-Zähler in einen lokalen Store und öffnet Boost-Kauf-Modals. Ein Patch wäre mehr als reine Anzeige (Regel 3). Die Boost-Anzeige läuft stattdessen über Header-Gem und Guild-Infos.
-- **Natives Server-Tag (`primaryGuild`) als Clan-Tag**: Discord lädt beim Anklicken Daten der Tag-Guild nach. Mit einem erfundenen Tag entstünden Requests für nicht existierende Server. Larpcord zeigt den Clan-Tag deshalb als eigene Dekoration an.
+### Not possible without write requests / server-side checks
+- **Real Nitro features** (bigger uploads, HD streaming, emojis/stickers everywhere): checked by Discord's servers. Larpcord only sets `premiumType` on the *display* profile, never on the user object.
+- **Server boost progress bar** in the channel list: the component syncs boost counters into a local store and opens boost purchase modals. A patch would be more than pure display (rule 3). Boosts are shown via the header gem and guild info instead.
+- **Native server tag (`primaryGuild`) as clan tag**: when clicked, Discord fetches data of the tag's guild. A made-up tag would cause requests for servers that don't exist. Larpcord therefore shows the clan tag as its own decoration.
 
-### Name-Änderer: bekannte Grenzen
-- **Standardname beim Server-Erstellen** („<Name>s Server“) nutzt den Larp-Namen. Das Feld ist vor dem Absenden sichtbar und editierbar, deshalb nicht gepatcht.
-- **Mitgliederliste** übernimmt einen geänderten Larp-Namen bei ausgeblendetem Server-Nick erst, wenn Discord die Liste neu aufbaut (z. B. Kanalwechsel). Chat, User-Panel, Profil und Erwähnungen aktualisieren sofort.
-- **Discord-RPC-Nick** (Modul für Spiele/Overlays) wird aus Anzeigefunktionen berechnet. Im Desktop-Client läuft kein RPC-Server, der User selbst wird trotzdem mit echtem Namen serialisiert.
+### Name changer: known limits
+- **Default name when creating a server** (“<Name>'s server”) uses the larp name. The field is visible and editable before submitting, so it is not patched.
+- **Member list** picks up a changed larp name with a hidden server nick only once Discord rebuilds the list (e.g. switching channels). Chat, user panel, profile and mentions update immediately.
+- **Discord RPC nick** (module for games/overlays) is computed from display functions. The desktop client runs no RPC server, and the user is still serialized with the real name.
 
-### Lokale Rollen: bewusst weggelassen
-- **Eigene Gruppe oben in der Mitgliederliste:** Die Mitgliederliste bekommt ihre Gruppen (`hoist`) aus einer
-  vorberechneten, virtualisierten Zeilenliste des Servers. Eine zusätzliche Gruppe müsste diese Liste umbauen,
-  inklusive Zeilenhöhen und Zählern – das ist mehr als reine Anzeige und bricht bei jedem Discord-Update.
-  Larp-Rollen erscheinen deshalb als Rollen-Pillen im Profil, als Namensfarbe und als Icon neben dem Namen.
+### Local roles: deliberately left out
+- **Own group at the top of the member list:** the member list gets its groups (`hoist`) from a precomputed,
+  virtualized row list of the server. An extra group would have to rebuild that list, including row heights
+  and counters – that is more than pure display and breaks with every Discord update.
+  Larp roles therefore appear as role pills on the profile, as name color and as an icon next to the name.
 
-### larpLayout: spätere Bereiche
-- Kanalliste: Kategorien und Kanäle eines Servers lokal umsortieren oder ausblenden.
-- Mitgliederliste links statt rechts, Breite der Seitenleisten speichern.
-- Titelleiste (Posteingang, Hilfe) und Chat-Eingabe-Buttons (Geschenk, GIF, Sticker, Emoji) umsortieren/ausblenden.
-- Server innerhalb von Ordnern lokal umsortieren (bewusst weggelassen: Ordner werden nur als Ganzes verschoben, damit Discords Ordnerstruktur unangetastet bleibt).
-- Umschalter, deren Label je nach Zustand wechselt und die Discord nicht als Paar übersetzt (z. B. Mitgliederliste ein/aus), rutschen nach dem Umschalten ans Ende der Reihenfolge.
+### larpLayout: later areas
+- Channel list: reorder or hide a server's categories and channels locally.
+- Member list on the left instead of the right, save sidebar widths.
+- Title bar (inbox, help) and chat input buttons (gift, GIF, sticker, emoji): reorder/hide.
+- Reorder servers inside folders locally (deliberately left out: folders only move as a whole so Discord's folder structure stays untouched).
+- Toggles whose label changes with their state and that Discord doesn't translate as a pair (e.g. member list on/off) move to the end of the order after toggling.
 
-### Installer: bewusst weggelassen
-- **Animiertes Splash-Fenster während der NSIS-Installation** (`nsisSplash`/`newadvsplash`): bräuchte ein zusätzliches
-  NSIS-Plugin im Build und läuft nur wenige Sekunden, während der oneClick-Installer ohnehin schon einen Fortschritt zeigt.
-  Der Splash direkt nach der Installation („Larpcord wird eingerichtet …“) deckt den sichtbaren Teil ab.
-- **Dunkles Farbschema im Deinstallations-Fenster:** MUI definiert `un.onGUIInit` selbst; nur der Installer wird eingefärbt.
+### Installer: deliberately left out
+- **Animated splash window during the NSIS installation** (`nsisSplash`/`newadvsplash`): would need an extra
+  NSIS plugin in the build and only runs for a few seconds while the oneClick installer already shows progress.
+  The splash right after installation (“Setting up Larpcord …”) covers the visible part.
+- **Dark color scheme in the uninstall window:** MUI defines `un.onGUIInit` itself; only the installer is themed.
 
-### Offene Ideen
-- Clan-Tag, Häkchen und Krone im Profil direkt neben dem Namen statt in der Badge-Zeile (braucht einen zusätzlichen Profil-Patch).
-- Vorschau im Hub mit Discords echter Profil-Komponente statt eigener Karte.
+### Open ideas
+- Clan tag, check mark and crown on the profile right next to the name instead of in the badge row (needs an extra profile patch).
+- Hub preview using Discord's real profile component instead of a custom card.

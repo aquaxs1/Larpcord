@@ -2,7 +2,7 @@
     "name": "larpcord-root",
     "private": true,
     "version": "0.1.0",
-    "description": "Larpcord – eigenständiger Discord-Client für rein lokales, kosmetisches Larpen",
+    "description": "Larpcord – a standalone Discord client for purely local, cosmetic larping",
     "license": "GPL-3.0-or-later",
     "scripts": {
         "postinstall": "node scripts/install.mjs",
