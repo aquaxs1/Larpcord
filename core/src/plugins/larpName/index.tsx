@@ -13,6 +13,7 @@ import { t, useLarpLocale } from "@plugins/larpCore/i18n";
 import { isSelf, LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { useEffect, useReducer } from "@webpack/common";
 
 import { getGlobalName, getUsername, guardAccountBody, overrideMember, realName, realUserView, refreshOwnUser, resetSelfIdCache } from "./names";
 import { toDisplayNameStyles } from "./nameStyles";
@@ -62,16 +63,45 @@ export function NameExtras({ className }: { className?: string; }) {
 
 const SafeNameExtras = ErrorBoundary.wrap(NameExtras, { noop: true });
 
+/*
+ * Profile: clan tag, check mark and crown sit right next to the name (patch on the name row,
+ * the same spot Vencord's UserVoiceShow uses). Until that patch has rendered once, and if it ever
+ * stops matching after a Discord update, they fall back to the badge row (rule 6).
+ */
+let inlineRendered = false;
+const inlineListeners = new Set<() => void>();
+
+function markInlineRendered() {
+    if (inlineRendered) return;
+    inlineRendered = true;
+    for (const fn of inlineListeners) fn();
+}
+
+function ProfileInlineExtras({ userId }: { userId?: string; }) {
+    useEffect(markInlineRendered, []);
+    if (!isSelf(userId)) return null;
+    return <SafeNameExtras className="larp-name-extras-inline" />;
+}
+
+function ProfileBadgeFallback() {
+    const [, forceUpdate] = useReducer(x => x + 1, 0);
+    useEffect(() => {
+        inlineListeners.add(forceUpdate);
+        return () => void inlineListeners.delete(forceUpdate);
+    }, []);
+    return inlineRendered ? null : <SafeNameExtras className="larp-name-extras-profile" />;
+}
+
 const ProfileExtrasBadge: ProfileBadge = {
     id: "larpcord_name_extras",
     key: "larpcord_name_extras",
     position: BadgePosition.START,
     shouldShow: ({ userId }) => {
-        if (!isSelf(userId)) return false;
+        if (!isSelf(userId) || inlineRendered) return false;
         const { clanTag, extras } = LarpStore.get();
         return !!clanTag || extras.verifiedCheck || extras.ownerCrown;
     },
-    component: () => <SafeNameExtras className="larp-name-extras-profile" />
+    component: () => <ProfileBadgeFallback />
 };
 
 let stylesCache: { key: string; value: unknown; } | undefined;
@@ -93,6 +123,15 @@ export default definePlugin({
     renderMemberListDecorator: ({ user }) => isSelf(user?.id) ? <SafeNameExtras /> : null,
 
     patches: [
+        {
+            // Profile popout / modal / DM side profile: extras right after the display name.
+            // Also matches when UserVoiceShow already turned `trailing` into an array.
+            find: "#{intl::USER_PROFILE_PRONOUNS}",
+            replacement: {
+                match: /(user:(\i).{0,100}onClickDisplayName:\i,trailing:)(\[[^\]]*\]|\i)/,
+                replace: "$1[$self.ProfileInlineExtras({userId:$2.id}),$3]"
+            }
+        },
         {
             // displayNameStyles am User-Modell wird zu Getter/Setter. Discord klont User per {...this},
             // daher merkt sich der Konstruktor zusätzlich den Originalwert aus _larpDNS.
@@ -169,6 +208,8 @@ export default definePlugin({
         }
     ],
 
+    ProfileInlineExtras: ErrorBoundary.wrap(ProfileInlineExtras, { noop: true }),
+
     getUsername,
     getGlobalName,
     overrideMember,
@@ -196,12 +237,14 @@ export default definePlugin({
     start() {
         registerHubTab({ id: "name", title: "Name", Component: NameTab });
 
-        // Bei geänderten Namen das eigene User-Objekt austauschen, damit Discord sofort neu rendert
-        let lastNames = JSON.stringify(LarpStore.get().names);
+        // Replace the own user object when names or the name style change, so Discord re-renders
+        // right away (the style is read through a getter, which React can't observe on its own)
+        const snapshot = () => JSON.stringify([LarpStore.get().names, LarpStore.get().nameStyle ?? null]);
+        let lastNames = snapshot();
         unsubscribeNames = LarpStore.subscribe(() => {
-            const names = JSON.stringify(LarpStore.get().names);
-            if (names === lastNames) return;
-            lastNames = names;
+            const now = snapshot();
+            if (now === lastNames) return;
+            lastNames = now;
             refreshOwnUser();
         });
     },
