@@ -148,7 +148,8 @@ More commands:
 | `pnpm icons` | Regenerate all icons from `assets/larpcordlogo.png` (needs Python + Pillow) |
 | `pnpm i18n:check` | Checks the language files for missing or unused keys |
 
-A release is created automatically as soon as a `v*` tag is pushed (see `.github/workflows/release.yml`):
+To publish a release, add a `## [x.y.z]` section to `CHANGELOG.md`, then run **Actions → Release → Run workflow**
+on `main` with that version (or push a `v*` tag). See `.github/workflows/release.yml`:
 it builds `Larpcord-Setup.exe` plus `latest.yml` (so the auto-updater finds the version) and `Larpcord-Setup.zip`
 (linked from the website). Tags with `-beta` (e.g. `v0.3.0-beta.1`) are published as prereleases on the **Beta** channel.
 

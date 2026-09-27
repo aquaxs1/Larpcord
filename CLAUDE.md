@@ -136,7 +136,8 @@ language setting, without restart.
 - **Core:** `larpCore/updater/` (status client, Discord modal with changelog, safe release notes display) and
   the hub tab “Updates” (`hub/UpdatesTab.tsx`).
 - **“Later”** means `autoInstallOnAppQuit`, not “forget”. Errors are only logged and shown in the hub.
-- **Release:** tag `v*` → GitHub Action builds, uploads `Larpcord-Setup.exe`, `latest.yml`, the blockmap and
+- **Release:** `CHANGELOG.md` section `## [x.y.z]`, then Actions → Release → “Run workflow” with the version
+  (creates tag `v<version>`) or push a tag `v*` → GitHub Action builds, uploads `Larpcord-Setup.exe`, `latest.yml`, the blockmap and
   `Larpcord-Setup.zip` (the website links to the ZIP). Tags with `-beta` become prereleases.
   The release text comes from `CHANGELOG.md` (`scripts/release-notes.mjs`, written in English) and is also the
   changelog in the update notice. Publishing locally needs `GH_TOKEN` from `.env` (never commit it).
