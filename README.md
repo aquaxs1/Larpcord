@@ -151,7 +151,7 @@ More commands:
 To publish a release, add a `## [x.y.z]` section to `CHANGELOG.md`, then run **Actions → Release → Run workflow**
 on `main` with that version (or push a `v*` tag). See `.github/workflows/release.yml`:
 it builds `Larpcord-Setup.exe` plus `latest.yml` (so the auto-updater finds the version) and `Larpcord-Setup.zip`
-(linked from the website). Tags with `-beta` (e.g. `v0.3.0-beta.1`) are published as prereleases on the **Beta** channel.
+(optional; the website links to the .exe). Tags with `-beta` (e.g. `v0.3.0-beta.1`) are published as prereleases on the **Beta** channel.
 
 **Contributing a language:** copy `core/src/plugins/larpCore/i18n/locales/en.json` under the language code
 (e.g. `fr.json`), translate it and run `pnpm i18n:check` – that's all it takes. English is the reference language.

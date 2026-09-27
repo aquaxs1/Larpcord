@@ -91,7 +91,7 @@ jobs:
       - name: Package
         run: pnpm -C desktop exec electron-builder --win --publish never
 
-      # The website (site/) links to this ZIP. The auto-updater keeps using the .exe.
+      # Optional ZIP of the setup for people who prefer it (the website and the auto-updater use the .exe).
       - name: Pack setup as ZIP
         shell: pwsh
         run: Compress-Archive -Path desktop/dist/Larpcord-Setup.exe -DestinationPath desktop/dist/Larpcord-Setup.zip -Force
