@@ -1,0 +1,58 @@
+.larp-conn-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 8px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.larp-conn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.larp-conn-item {
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm, 8px);
+    background: var(--background-secondary, #2b2d31);
+    padding: 8px 10px;
+}
+
+.larp-conn-item-on {
+    border-color: var(--brand-500, #5865f2);
+}
+
+.larp-conn-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.larp-conn-head > .larp-check {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.larp-conn-head > .larp-btn {
+    flex: none;
+}
+
+.larp-conn-title {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.larp-conn-editor {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--background-modifier-accent, #3f4147);
+}

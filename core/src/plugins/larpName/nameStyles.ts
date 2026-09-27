@@ -15,23 +15,23 @@ import { LarpProfile } from "@plugins/larpCore/types";
  * (labelKey), damit sie erst beim Rendern in der aktuellen Sprache aufgelöst werden.
  */
 
-export const NAME_FONTS: Record<string, { id: number; label?: string; labelKey?: string; css: string; }> = {
+export const NAME_FONTS: Record<string, { id: number; label?: string; labelKey?: string; css: string; google?: boolean; }> = {
     DEFAULT: { id: 11, labelKey: "common.default", css: "var(--font-display)" },
-    BANGERS: { id: 1, label: "Bangers", css: "Bangers" },
-    BIO_RHYME: { id: 2, label: "BioRhyme", css: "BioRhyme" },
-    CHERRY_BOMB: { id: 3, label: "Cherry Bomb", css: "Cherry Bomb One" },
-    CHICLE: { id: 4, label: "Chicle", css: "Chicle" },
+    BANGERS: { id: 1, label: "Bangers", css: "Bangers", google: true },
+    BIO_RHYME: { id: 2, label: "BioRhyme", css: "BioRhyme", google: true },
+    CHERRY_BOMB: { id: 3, label: "Cherry Bomb", css: "Cherry Bomb One", google: true },
+    CHICLE: { id: 4, label: "Chicle", css: "Chicle", google: true },
     COMPAGNON: { id: 5, label: "Compagnon", css: "Compagnon" },
-    MUSEO_MODERNO: { id: 6, label: "MuseoModerno", css: "MuseoModerno" },
+    MUSEO_MODERNO: { id: 6, label: "MuseoModerno", css: "MuseoModerno", google: true },
     NEO_CASTEL: { id: 7, label: "Neo-Castel", css: "Neo Castel" },
-    PIXELIFY: { id: 8, label: "Pixelify", css: "Pixelify Sans" },
+    PIXELIFY: { id: 8, label: "Pixelify", css: "Pixelify Sans", google: true },
     RIBES: { id: 9, label: "Ribes", css: "Ribes" },
     SINISTRE: { id: 10, label: "Sinistre", css: "Sinistre" },
-    ZILLA_SLAB: { id: 12, label: "Zilla Slab", css: "Zilla Slab" },
-    PLAYPEN_SANS: { id: 13, label: "Playpen Sans", css: "Playpen Sans" },
-    ORBITRON: { id: 14, label: "Orbitron", css: "Orbitron" },
-    NEW_ROCKER: { id: 15, label: "New Rocker", css: "New Rocker" },
-    KALAM: { id: 16, label: "Kalam", css: "Kalam" },
+    ZILLA_SLAB: { id: 12, label: "Zilla Slab", css: "Zilla Slab", google: true },
+    PLAYPEN_SANS: { id: 13, label: "Playpen Sans", css: "Playpen Sans", google: true },
+    ORBITRON: { id: 14, label: "Orbitron", css: "Orbitron", google: true },
+    NEW_ROCKER: { id: 15, label: "New Rocker", css: "New Rocker", google: true },
+    KALAM: { id: 16, label: "Kalam", css: "Kalam", google: true },
 };
 
 export const NAME_EFFECTS: Record<string, { id: number; labelKey: string; }> = {
@@ -44,6 +44,30 @@ export const NAME_EFFECTS: Record<string, { id: number; labelKey: string; }> = {
     PRISM: { id: 7, labelKey: "name.effect.prism" },
     GUMMY: { id: 8, labelKey: "name.effect.gummy" },
 };
+
+const FONT_LINK_ID = "larpcord-name-fonts";
+
+/**
+ * Loads the name fonts for Larpcord's own previews (hub). Discord only loads them where it
+ * renders a styled name itself, so without this the preview would fall back to the default font.
+ * Google Fonts is allowed by the CSP (fonts.googleapis.com / fonts.gstatic.com); fonts that are
+ * not available there keep Discord's own font or the fallback.
+ */
+export function ensureNameFontsLoaded() {
+    try {
+        if (document.getElementById(FONT_LINK_ID)) return;
+        const families = Object.values(NAME_FONTS)
+            .filter(f => f.google)
+            .map(f => "family=" + encodeURIComponent(f.css).replace(/%20/g, "+"));
+        const link = document.createElement("link");
+        link.id = FONT_LINK_ID;
+        link.rel = "stylesheet";
+        link.href = `https://fonts.googleapis.com/css2?${families.join("&")}&display=swap`;
+        document.head.appendChild(link);
+    } catch {
+        // Preview only: without the fonts the fallback font is shown
+    }
+}
 
 /** Anzeigename einer Schrift in der aktuellen Sprache */
 export function fontLabel(font: string) {

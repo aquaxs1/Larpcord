@@ -177,6 +177,25 @@ export interface LarpMusic {
     fade: number;
 }
 
+/** A local, made-up connected account (larpConnections). Never linked to a real account. */
+export interface LarpConnection {
+    id: string;
+    enabled: boolean;
+    /** Discord platform type, e.g. "steam", "spotify", "github" */
+    type: string;
+    /** Shown account name */
+    name: string;
+    /** Optional account ID Discord uses to build the profile link (defaults to the name) */
+    accountId?: string;
+    verified: boolean;
+}
+
+export interface LarpConnections {
+    list: LarpConnection[];
+    /** Hide the real connections on the own profile (display only) */
+    hideReal: boolean;
+}
+
 export interface LarpProfile {
     badges: { builtin: string[]; custom: CustomBadge[]; };
     /** Reihenfolge aller Badges (builtin-ID oder "custom:<id>"). Fehlende IDs werden hinten angehängt. */
@@ -205,6 +224,8 @@ export interface LarpProfile {
     activities?: LarpActivities;
     /** Profil-Musik (larpMusic) */
     music?: LarpMusic;
+    /** Made-up connected accounts on the own profile (larpConnections) */
+    connections?: LarpConnections;
     /** Eigenes Layout (larpLayout). Fehlt = Discords Standard-Layout */
     layout?: LarpLayout;
     /** Standard: false */

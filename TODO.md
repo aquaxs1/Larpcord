@@ -122,6 +122,13 @@ Important: must stay compatible with `electron-updater`, so keep the NSIS target
 
 ---
 
+## 10. Bug fixes and LarpConnections (2026-09-27)
+- [x] Name style (font, effect, colors) updates live in the hub preview; name fonts load for the preview
+- [x] Activities: store hooks no longer depend on Discord's exact method signature, hub preview shows the activity
+- [x] Open idea finished: clan tag, check mark and crown next to the name on the profile
+- [x] New plugin `larpConnections`: made-up connected accounts on the own profile, display only
+- [x] Music file references no longer get lost when saving (ID sanitizing bug)
+
 ## 9. Added later by the user
 - [x] Use larpcordlogo.png everywhere as the official logo
 - [x] Make sure the background always matches the settings (theme, transitions, etc.)
@@ -164,5 +171,7 @@ _(Items that could not be implemented reliably end up here, with a short reason.
 - **Dark color scheme in the uninstall window:** MUI defines `un.onGUIInit` itself; only the installer is themed.
 
 ### Open ideas
-- Clan tag, check mark and crown on the profile right next to the name instead of in the badge row (needs an extra profile patch).
+- ~~Clan tag, check mark and crown on the profile right next to the name instead of in the badge row~~ – done:
+  patch on the profile name row (`#{intl::USER_PROFILE_PRONOUNS}`), badge row stays as fallback. Known limit: if
+  Vencord's UserVoiceShow is also enabled, its profile indicator no longer matches that spot.
 - Hub preview using Discord's real profile component instead of a custom card.

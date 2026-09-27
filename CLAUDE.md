@@ -62,6 +62,7 @@ larpcord/
 │       ├── larpActivity/
 │       ├── larpServers/
 │       ├── larpMusic/
+│       ├── larpConnections/
 │       ├── larpThemes/
 │       └── larpLayout/
 └── desktop/                  ← fork of Vesktop
@@ -88,6 +89,9 @@ Do **not** rename internal Vencord identifiers (`Vencord.*`), that breaks upstre
   **restyle servers** (name, icon, banner): `GuildStore` returns a display copy when reading, the image URLs
   come from patches on `getGuildIconURL`/`getGuildBannerURL`, and `guardGuildBody` keeps larp values out of
   `PATCH /guilds/<id>`.
+- **larpConnections:** made-up connected accounts (platform type, name, optional account ID, verified) on the own
+  profile. Display only: added to the display copy in `larpCore/profileOverride.ts` (`connectedAccounts`), option to
+  hide the real ones there. `ConnectedAccountsStore` (Settings → Connections) is never touched.
 - **larpMusic:** profile music. Songs live as a file in the app data folder (`desktop/src/main/larpMusic.ts`,
   served via `vesktop://music/<id>`) or as a URL. No patch: the mini player is attached as a profile badge to your
   own profile, so playback starts when it opens and stops when it closes.
@@ -200,6 +204,7 @@ After that came the big update from `TODO.md`:
 | 8 Wrap-up | done (preset format v2, export warning, README, changelog) |
 | Website | done (`site/`, English) |
 | English as main language | done for website and repo docs |
+| Fixes + larpConnections | done (name style preview, activities, profile name extras, connections) |
 
 ### Testing
 

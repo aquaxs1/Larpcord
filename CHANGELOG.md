@@ -7,9 +7,21 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 ## [Unreleased]
 
 ### Added
+- **Connections (new):** add made-up connected accounts (Steam, Spotify, GitHub, Twitch, Xbox and more) to your
+  profile with any name, an optional account ID and a verified check. Optionally hide your real connections.
+  Not linked to any real account, only visible on your PC.
+- Clan tag, verified check and owner crown now sit right next to your name on your profile.
+- The hub preview now also shows your activity and connections.
 - **Website** in `site/` (static, deploy on Vercel with root `site`): new tools, a live “try it” preview,
   download, comparison with regular Discord and a privacy page.
 - Releases additionally include `Larpcord-Setup.zip` (the setup .exe as a ZIP), which the website links to.
+
+### Fixed
+- Name style: changing the font, effect or colors now updates the hub preview right away, and Discord re-renders
+  your name immediately.
+- Activities didn't show up in the client after a Discord update changed the presence store; they now hook in
+  independently of Discord's exact method signature.
+- Profile music files could get lost after saving because their ID was sanitized incorrectly.
 
 ### Changed
 - English is now the main language of the project: website, README, changelog, release notes and repository
