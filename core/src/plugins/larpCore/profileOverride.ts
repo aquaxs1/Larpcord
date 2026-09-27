@@ -59,6 +59,18 @@ export function overrideProfile(userId: string, profile: any) {
             patch.profileEffect = { skuId: larp.profileEffect };
         }
 
+        // Made-up connected accounts: only in this display copy, never in ConnectedAccountsStore
+        // (that one backs the settings page, which can send requests)
+        if (enabled("LarpConnections") && larp.connections) {
+            const own = larp.connections.list
+                .filter(c => c.enabled)
+                .map(c => ({ type: c.type, id: c.accountId ?? c.name, name: c.name, verified: c.verified, metadata: {} }));
+            if (own.length || larp.connections.hideReal) {
+                const real = larp.connections.hideReal || !Array.isArray(profile.connectedAccounts) ? [] : profile.connectedAccounts;
+                patch.connectedAccounts = [...real, ...own];
+            }
+        }
+
         // virtualMerge liest nicht überschriebene Felder live aus dem Original (Discord mutiert Profile teils in-place)
         const result = Object.keys(patch).length ? virtualMerge(profile, patch) : profile;
         cache.set(profile, { version: LarpStore.version, result });

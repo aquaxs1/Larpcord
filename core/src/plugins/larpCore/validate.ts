@@ -7,7 +7,7 @@
 import { OFFICIAL_BADGE_IDS } from "./badges";
 import { createDefaultProfile } from "./defaults";
 import { LarpError } from "./i18n";
-import { CustomBadge, LARP_EXPORT_VERSION, LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpActivityType, LarpButtonLayout, LarpExportFile, LarpLayout, LarpMusic, LarpMusicSource, LarpPreset, LarpProfile, LarpRole, LarpSounds, LarpTheme, ServerLarp } from "./types";
+import { CustomBadge, LARP_EXPORT_VERSION, LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpActivityType, LarpButtonLayout, LarpConnection, LarpConnections, LarpExportFile, LarpLayout, LarpMusic, LarpMusicSource, LarpPreset, LarpProfile, LarpRole, LarpSounds, LarpTheme, ServerLarp } from "./types";
 
 /*
  * Bereinigt beliebige (importierte oder gespeicherte) Daten zu einem gültigen LarpProfile.
@@ -275,6 +275,30 @@ function activities(v: unknown): LarpActivities | undefined {
     return { enabled: bool(v.enabled, true), list, rules };
 }
 
+const MAX_CONNECTIONS = 20;
+
+/** Platform types as Discord names them (lowercase letters, digits, dots, e.g. "leagueoflegends") */
+const CONNECTION_TYPE = /^[a-z0-9.]{2,32}$/;
+
+function connection(v: unknown): LarpConnection | undefined {
+    if (!isObj(v)) return undefined;
+    const type = str(v.type, 32)?.toLowerCase();
+    const name = str(v.name, 64);
+    if (!type || !CONNECTION_TYPE.test(type) || !name) return undefined;
+    const out: LarpConnection = { id: entryId(v.id), enabled: bool(v.enabled, true), type, name, verified: bool(v.verified, true) };
+    const accountId = str(v.accountId, 64);
+    if (accountId) out.accountId = accountId;
+    return out;
+}
+
+function connections(v: unknown): LarpConnections | undefined {
+    if (!isObj(v)) return undefined;
+    const list = Array.isArray(v.list) ? v.list.map(connection).filter(Boolean).slice(0, MAX_CONNECTIONS) as LarpConnection[] : [];
+    const hideReal = bool(v.hideReal);
+    if (!list.length && !hideReal) return undefined;
+    return { list, hideReal };
+}
+
 function musicSource(v: unknown): LarpMusicSource | undefined {
     if (!isObj(v)) return undefined;
     const title = str(v.title, 120);
@@ -283,7 +307,7 @@ function musicSource(v: unknown): LarpMusicSource | undefined {
         return url ? { kind: "url", url, title } : undefined;
     }
     // Datei-IDs zeigen auf den Datenordner: nur harmlose Zeichen zulassen
-    const id = str(v.id, 64)?.replace(/[^w-]/g, "");
+    const id = str(v.id, 64)?.replace(/[^\w-]/g, "");
     return id ? { kind: "file", id, title } : undefined;
 }
 
@@ -405,6 +429,9 @@ export function sanitizeProfile(input: unknown): LarpProfile {
 
     const m = music(input.music);
     if (m) p.music = m;
+
+    const c = connections(input.connections);
+    if (c) p.connections = c;
 
     const t = theme(input.theme);
     if (t) p.theme = t;

@@ -55,6 +55,12 @@ Larpcord is an open-source, standalone Discord client (its own `.exe`) that lets
 - Mini player on the profile and a global mute switch in the hub
 - Larpcord ships no songs, only your own files
 
+### 🔗 Connections
+- Add made-up connected accounts to your profile: Steam, Spotify, GitHub, Twitch, Xbox, PlayStation and more
+- Any account name, optional account ID for the link, verified check on or off
+- Optionally hide your real connections on your own profile
+- Not linked to any real account and only visible on your PC
+
 ### 🪪 Name changer
 - Change your username and display name locally, instantly, without cooldown
 - Applies everywhere: chat, profile, member list, user panel, mentions, tooltips
@@ -89,7 +95,7 @@ Larpcord is an open-source, standalone Discord client (its own `.exe`) that lets
 - **Stable** and **Beta** channels, can be turned off under **Larpcord Hub → Updates**
 
 ### ⚙️ Larpcord Hub
-All settings in one place, with a live preview of your profile: **Settings → Larpcord → Larpcord Hub** (sub-tabs Badges, Nitro, Decorations, Name, Activity, Servers, Themes, Music, Layout, Presets, Updates).
+All settings in one place, with a live preview of your profile: **Settings → Larpcord → Larpcord Hub** (sub-tabs Badges, Nitro, Decorations, Name, Activity, Connections, Servers, Themes, Music, Layout, Presets, Updates).
 Loading screen, tray and app icon are under **Settings → Larpcord → Larpcord Desktop → Customize App Assets**.
 
 ---
@@ -102,7 +108,7 @@ Larpcord is **purely cosmetic and local**. Everything Discord's servers check st
 - Other users do **not** see your larp badges, decorations or larp name
 - Your real name stays: others keep seeing your real username and display name
 - Your real server order stays: the layout only exists in Larpcord; regular Discord (and your phone) look the same as before
-- Your account, your servers and your roles are never changed
+- Your account, your servers, your roles and your real connections are never changed
 - Larp activities never reach the gateway: others keep seeing your real activity on your profile
 - Larp roles grant no permissions, and a locally renamed server keeps its name for everyone else
 
