@@ -1,20 +1,60 @@
-# On every "v*" tag, builds the Windows .exe and publishes it as a GitHub release including
-# latest.yml and .blockmap, so the auto-updater (electron-updater) finds new versions.
-# Tags with "-beta" (e.g. v0.3.0-beta.1) are published as prereleases and only installed by the "Beta" channel.
+# Builds the Windows .exe and publishes it as a GitHub release including latest.yml and .blockmap,
+# so the auto-updater (electron-updater) in every installed Larpcord finds the new version.
+#
+# Two ways to start a release:
+#   1. Actions → Release → "Run workflow" on main, enter the version (e.g. 0.3.0). The tag v<version> is
+#      created on that commit by the release itself.
+#   2. Push a tag "v*" by hand.
+# CHANGELOG.md needs a "## [<version>]" section; it becomes the release text and the in-app changelog.
+# Versions with "-beta" (e.g. 0.3.0-beta.1) are published as prereleases and only installed by the "Beta" channel.
 name: Release
 
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. 0.3.0 or 0.3.0-beta.1 (without the v)"
+        required: true
+        type: string
 
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   windows:
     runs-on: windows-latest
+    env:
+      # Tag of this release: from the pushed tag, or "v" + the version entered in "Run workflow"
+      TAG: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
+
+      # Fail early instead of after a 15-minute build
+      - name: Check version and changelog
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Invalid version: $version (expected e.g. 0.3.0 or 0.3.0-beta.1)"; exit 1
+          fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            [ "${{ github.ref_name }}" = "main" ] || { echo "::error::Run the release from main"; exit 1; }
+            if git ls-remote --exit-code --tags origin "refs/tags/$TAG" > /dev/null; then
+              echo "::error::Tag $TAG already exists - pick a new version"; exit 1
+            fi
+          fi
+          grep -Eq "^## \[?v?${version//./\\.}\]?( |$)" CHANGELOG.md \
+            || { echo "::error::CHANGELOG.md has no section '## [$version]'"; exit 1; }
+          echo "Releasing $TAG"
 
       - uses: pnpm/action-setup@v4
         with:
@@ -32,11 +72,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Take version from tag
-        run: node scripts/set-version.mjs ${{ github.ref_name }}
+        run: node scripts/set-version.mjs $env:TAG
 
       # Section from CHANGELOG.md → release text → changelog in the update notice
       - name: Release notes from CHANGELOG.md
-        run: node scripts/release-notes.mjs ${{ github.ref_name }}
+        run: node scripts/release-notes.mjs $env:TAG
 
       - name: Build core and desktop
         run: node scripts/build.mjs
@@ -60,7 +100,6 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           files=(
@@ -79,7 +118,8 @@ jobs:
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" "${files[@]}" --clobber
           else
-            gh release create "$TAG" --title "${TAG#v}" \
+            # --target creates the tag on this commit when it doesn't exist yet ("Run workflow")
+            gh release create "$TAG" --title "${TAG#v}" --target "$GITHUB_SHA" \
               --notes-file desktop/release-notes.md "${prerelease[@]}" "${files[@]}"
           fi
 

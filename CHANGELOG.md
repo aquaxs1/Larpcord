@@ -6,6 +6,8 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+## [0.3.0] – 2026-09-27
+
 ### Added
 - **Connections (new):** add made-up connected accounts (Steam, Spotify, GitHub, Twitch, Xbox and more) to your
   profile with any name, an optional account ID and a verified check. Optionally hide your real connections.
