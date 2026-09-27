@@ -357,7 +357,8 @@
     render();
 
     /* ---------- Download link from the latest release ---------- */
-    // Uses the .zip of the latest release. If there is none (yet), the link stays on the releases page.
+    // Uses the setup .exe of the latest release (the auto-updater's blockmap and latest.yml are skipped).
+    // If there is none, the link stays on the releases page.
     const REPO = "aquaxs1/Larpcord";
     fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { Accept: "application/vnd.github+json" } })
         .then(r => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
@@ -367,11 +368,11 @@
                 $$("[data-version]").forEach(el => { el.textContent = `v${version}`; });
                 $$("[data-version-text]").forEach(el => { el.textContent = version; });
             }
-            const zip = (rel.assets || []).find(a => /\.zip$/i.test(a.name));
+            const exe = (rel.assets || []).find(a => /\.exe$/i.test(a.name));
             const info = $("#releaseInfo");
-            if (zip && /^https:\/\/github\.com\//.test(zip.browser_download_url)) {
-                $("#downloadBtn").href = zip.browser_download_url;
-                const mb = (zip.size / 1048576).toFixed(0);
+            if (exe && /^https:\/\/github\.com\//.test(exe.browser_download_url)) {
+                $("#downloadBtn").href = exe.browser_download_url;
+                const mb = (exe.size / 1048576).toFixed(0);
                 info.textContent = `v${version} · ${mb} MB`;
             } else {
                 info.textContent = `v${version}`;

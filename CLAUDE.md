@@ -138,7 +138,7 @@ language setting, without restart.
 - **“Later”** means `autoInstallOnAppQuit`, not “forget”. Errors are only logged and shown in the hub.
 - **Release:** `CHANGELOG.md` section `## [x.y.z]`, then Actions → Release → “Run workflow” with the version
   (creates tag `v<version>`) or push a tag `v*` → GitHub Action builds, uploads `Larpcord-Setup.exe`, `latest.yml`, the blockmap and
-  `Larpcord-Setup.zip` (the website links to the ZIP). Tags with `-beta` become prereleases.
+  `Larpcord-Setup.zip` (optional ZIP; the website links to the .exe). Tags with `-beta` become prereleases.
   The release text comes from `CHANGELOG.md` (`scripts/release-notes.mjs`, written in English) and is also the
   changelog in the update notice. Publishing locally needs `GH_TOKEN` from `.env` (never commit it).
 - **Installer:** NSIS oneClick per user (`desktop/build/installer.nsh`), dark color scheme via
@@ -153,7 +153,7 @@ language setting, without restart.
 `site/` is a static site (HTML/CSS/JS, no build) deployed on Vercel with root directory `site`. English only.
 `index.html` (new tools, live “try it” preview, what you can larp, differences to regular Discord, download),
 `privacy.html` (served as `/privacy`), `vercel.json` (clean URLs, security headers/CSP). The download button reads
-the latest release via the GitHub API and prefers the `.zip` asset. No cookies, no tracking, no external fonts.
+the latest release via the GitHub API and links the setup `.exe` asset; a GitHub button sits next to it. No cookies, no tracking, no external fonts.
 
 ## Logo
 

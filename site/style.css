@@ -96,6 +96,10 @@ img { max-width: 100%; }
 .btn:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; }
 .btn-small { padding: .45em 1em; font-size: .9rem; }
 .btn-big { padding: 1em 1.8em; font-size: 1.1rem; }
+.btn-dark { background: #1f2328; color: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .15) inset; }
+.btn-dark:hover { background: #2d333b; }
+.gh-icon { flex: none; }
+.download-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
 .btn-gold { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: #2a1f00; box-shadow: 0 0 0 1px rgba(255, 255, 255, .2) inset; }
 .btn-ghost { background: transparent; color: var(--text); border-color: var(--line); }
 
