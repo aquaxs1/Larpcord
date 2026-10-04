@@ -26,7 +26,8 @@ import { ActivityTab } from "./ActivityTab";
  * display from are wrapped:
  *   - SelfPresenceStore.getActivities()          → own activities in profile, member list, user panel
  *   - PresenceStore.getActivities(id, …)          → places that also go through the global store for the own user
- *   - PresenceStore.getPrimaryActivity / findActivity for the own user (derived from getActivities)
+ *   PresenceStore.findActivity(id, …) for the own user only sees the real activities: Discord uses it for
+ *   functional lookups such as Go Live. getPrimaryActivity stays untouched.
  * Nobody but the own client sees the activity. getUnfilteredActivities stays untouched too, so
  * Discord's activity privacy settings keep showing the real applications.
  *
@@ -89,27 +90,20 @@ function hookSelfPresenceStore(store: any) {
 }
 
 function hookPresenceStore(store: any) {
+    const realGetActivities: AnyFn = store?.getActivities;
     wrapMethod(store, "PresenceStore", "getActivities", orig => function (this: unknown, ...args: unknown[]) {
         const real = orig.apply(this, args);
         return isSelf(args[0] as string) ? override(real) : real;
     });
-    // Derived lookups: for the own user they are answered from the (wrapped) activity list
-    wrapMethod(store, "PresenceStore", "getPrimaryActivity", orig => function (this: any, ...args: unknown[]) {
-        try {
-            if (isSelf(args[0] as string) && activityConfig()) {
-                const list = store.getActivities(args[0], ...args.slice(1)) as DiscordActivity[];
-                return list.find(a => a.type !== 4) ?? list[0] ?? orig.apply(this, args);
-            }
-        } catch (e) {
-            logger.warn("getPrimaryActivity-Override fehlgeschlagen", e);
-        }
-        return orig.apply(this, args);
-    });
+    // findActivity is a functional lookup (e.g. Go Live looks for the running game to stream). For the own
+    // user it only ever sees the real activities: a made-up one has no application behind it and made
+    // "Share your screen" silently do nothing. getPrimaryActivity stays untouched as well.
     wrapMethod(store, "PresenceStore", "findActivity", orig => function (this: any, ...args: unknown[]) {
         try {
             const [userId, predicate, ...rest] = args;
-            if (isSelf(userId as string) && typeof predicate === "function" && activityConfig()) {
-                return (store.getActivities(userId, ...rest) as DiscordActivity[]).find(predicate as AnyFn);
+            if (isSelf(userId as string) && typeof predicate === "function" && typeof realGetActivities === "function") {
+                const real = realGetActivities.apply(store, [userId, ...rest]);
+                if (Array.isArray(real)) return real.filter(a => !isOwnActivity(a)).find(predicate as AnyFn);
             }
         } catch (e) {
             logger.warn("findActivity-Override fehlgeschlagen", e);
