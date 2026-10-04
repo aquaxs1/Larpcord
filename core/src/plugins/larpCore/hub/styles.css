@@ -651,3 +651,19 @@
     height: 10px;
     border-radius: 50%;
 }
+
+/* Hub notice while the real profile (no larp account) is active */
+.larp-real-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm, 8px);
+    border: 1px solid var(--info-warning-foreground, #f0b232);
+    background: rgb(240 178 50 / 10%);
+}
+
+.larp-real-banner > span {
+    flex: 1 1 auto;
+}

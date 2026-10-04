@@ -1,0 +1,144 @@
+/* Loading screen when switching larp accounts (Discord-style) */
+.larp-switch-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: var(--background-base-low, var(--background-primary, #313338));
+    color: var(--text-normal, #dbdee1);
+    font-family: var(--font-primary, "gg sans", "Noto Sans", sans-serif);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: all;
+}
+
+.larp-switch-screen.larp-switch-visible {
+    opacity: 1;
+}
+
+.larp-switch-cubes {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 18px;
+}
+
+.larp-switch-cubes span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    background: var(--brand-500, #5865f2);
+    animation: larp-switch-cube 1.8s ease-in-out infinite;
+}
+
+.larp-switch-cubes span:last-child {
+    animation-delay: -0.9s;
+}
+
+@keyframes larp-switch-cube {
+    25% { transform: translateX(22px) rotate(-90deg) scale(0.5); }
+    50% { transform: translateX(22px) translateY(22px) rotate(-179deg); }
+    50.1% { transform: translateX(22px) translateY(22px) rotate(-180deg); }
+    75% { transform: translateX(0) translateY(22px) rotate(-270deg) scale(0.5); }
+    100% { transform: rotate(-360deg); }
+}
+
+.larp-switch-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--header-secondary, #b5bac1);
+}
+
+.larp-switch-tip {
+    max-width: 420px;
+    padding: 0 16px;
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+/* Account rows: avatar + names, like Discord's real account rows */
+.larp-account-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.larp-account-row img,
+.larp-account-avatar-empty {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--background-modifier-accent, #4e5058);
+}
+
+.larp-account-row-small img,
+.larp-account-row-small .larp-account-avatar-empty {
+    width: 24px;
+    height: 24px;
+}
+
+.larp-account-names {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.larp-account-names strong,
+.larp-account-names small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.larp-account-names small {
+    color: var(--text-muted, #949ba4);
+    font-size: 12px;
+}
+
+.larp-account-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.larp-account-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm, 8px);
+    background: var(--background-secondary, #2b2d31);
+}
+
+.larp-account-item-active {
+    border-color: var(--brand-500, #5865f2);
+}
+
+.larp-account-item > .larp-account-row {
+    flex: 1 1 auto;
+}
+
+.larp-account-item > .larp-btn {
+    flex: none;
+}
+
+.larp-account-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-positive, #23a55a);
+}

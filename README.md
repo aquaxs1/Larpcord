@@ -55,6 +55,13 @@ Larpcord is an open-source, standalone Discord client (its own `.exe`) that lets
 - Mini player on the profile and a global mute switch in the hub
 - Larpcord ships no songs, only your own files
 
+### 👥 Larp accounts
+- Several complete larp profiles, each with its own settings - switch between them like between real accounts
+- They sit in Discord's own account switcher, right below your real accounts, and look just like them
+- Optional Discord-style loading screen when switching, so it feels like a real account switch
+- Presets are shared by all larp accounts; your real profile is always one click away
+- Only the local profile changes: no real account switch, nothing is sent to Discord
+
 ### 🔗 Connections
 - Add made-up connected accounts to your profile: Steam, Spotify, GitHub, Twitch, Xbox, PlayStation and more
 - Any account name, optional account ID for the link, verified check on or off
@@ -95,7 +102,7 @@ Larpcord is an open-source, standalone Discord client (its own `.exe`) that lets
 - **Stable** and **Beta** channels, can be turned off under **Larpcord Hub → Updates**
 
 ### ⚙️ Larpcord Hub
-All settings in one place, with a live preview of your profile: **Settings → Larpcord → Larpcord Hub** (sub-tabs Badges, Nitro, Decorations, Name, Activity, Connections, Servers, Themes, Music, Layout, Presets, Updates).
+All settings in one place, with a live preview of your profile: **Settings → Larpcord → Larpcord Hub** (sub-tabs Accounts, Badges, Nitro, Decorations, Name, Activity, Connections, Servers, Themes, Music, Layout, Presets, Updates).
 Loading screen, tray and app icon are under **Settings → Larpcord → Larpcord Desktop → Customize App Assets**.
 
 ---

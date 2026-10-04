@@ -129,6 +129,14 @@ Important: must stay compatible with `electron-updater`, so keep the NSIS target
 - [x] New plugin `larpConnections`: made-up connected accounts on the own profile, display only
 - [x] Music file references no longer get lost when saving (ID sanitizing bug)
 
+## 11. Larp accounts (2026-10-04)
+- [x] Store v3: several larp accounts with separate settings, real profile (read-only), presets shared, migration from v1/v2
+- [x] Hub tab "Accounts": switch, create (empty / copy / preset), reorder, delete; banner on the real profile
+- [x] Entries in Discord's account switcher that look like real accounts; own real entry returns to the real profile
+- [x] Optional Discord-style loading screen when switching
+- [ ] Verify the account switcher IDs in the real client (reporter build / dev tools) and adjust `SWITCHER_IDS` if needed
+- [ ] Import/export of a whole larp account (for now: save it as a preset)
+
 ## 9. Added later by the user
 - [x] Use larpcordlogo.png everywhere as the official logo
 - [x] Make sure the background always matches the settings (theme, transitions, etc.)

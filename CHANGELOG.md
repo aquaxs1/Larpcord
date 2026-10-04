@@ -6,6 +6,12 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+### Added
+- **Larp accounts (new):** several complete larp profiles with separate settings that you switch between like real
+  accounts - right in Discord's account switcher, below your real accounts. Optional Discord-style loading screen
+  when switching. Presets are shared by all larp accounts, and your real profile is one click away.
+  Existing settings become your first larp account automatically. Nothing is sent to Discord.
+
 ## [0.3.0] – 2026-09-27
 
 ### Added
