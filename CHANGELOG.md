@@ -6,6 +6,8 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+## [0.4.0] – 2026-10-04
+
 ### Added
 - **Larp accounts (new):** several complete larp profiles with separate settings that you switch between like real
   accounts - right in Discord's account switcher, below your real accounts. Optional Discord-style loading screen

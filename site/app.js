@@ -290,6 +290,149 @@
         sb.title = { partner: "Partner server", verified: "Verified server" }[val("serverBadge")] || "";
         const lvl = +val("boostLevel");
         $("#guildBoost").textContent = lvl > 0 ? `💎 Level ${lvl} · ${Math.max(0, +val("boostCount") || 0)} boosts` : "";
+
+        renderConnections();
+        renderAccounts();
+    }
+
+    /* ---------- Connections ---------- */
+    const PLATFORMS = [
+        ["steam", "Steam", "#1b2838"], ["spotify", "Spotify", "#1db954"], ["github", "GitHub", "#24292f"],
+        ["twitch", "Twitch", "#9146ff"], ["xbox", "Xbox", "#107c10"], ["youtube", "YouTube", "#ff0000"],
+    ];
+    for (const [n, initial] of [[1, "steam"], [2, "spotify"]]) {
+        const sel = $(`#conn${n}Type`);
+        for (const [type, label] of PLATFORMS) sel.add(new Option(label, type, false, type === initial));
+    }
+    function renderConnections() {
+        const list = $("#pConnList");
+        list.replaceChildren();
+        for (const n of [1, 2]) {
+            const name = val(`conn${n}Name`).trim();
+            if (!on(`conn${n}On`) || !name) continue;
+            const [, label, color] = PLATFORMS.find(p => p[0] === val(`conn${n}Type`)) ?? PLATFORMS[0];
+            const chip = document.createElement("span");
+            chip.className = "p-conn";
+            chip.title = label;
+            const dot = document.createElement("i");
+            dot.style.background = color;
+            const small = document.createElement("small");
+            small.textContent = label;
+            chip.append(dot, document.createTextNode(name + (on("connVerified") ? " ✔" : "")), small);
+            list.appendChild(chip);
+        }
+        $("#pConns").hidden = list.children.length === 0;
+    }
+
+    /* ---------- Larp accounts ---------- */
+    // Every account keeps its own copy of all controls (like the app: separate settings per account)
+    const accountControls = () => $$(".controls input, .controls select").filter(el => el.id && el.id !== "accAnim");
+    function snapshot() {
+        const values = {};
+        for (const el of accountControls()) values[el.id] = el.type === "checkbox" ? el.checked : el.value;
+        const badges = $$("#badgeChecks input").filter(i => i.checked).map(i => i.dataset.badge);
+        return { values, badges, roles: roles.map(r => ({ ...r })) };
+    }
+    function restore(s) {
+        for (const el of accountControls()) {
+            if (!(el.id in s.values)) continue;
+            if (el.type === "checkbox") el.checked = s.values[el.id];
+            else el.value = s.values[el.id];
+        }
+        for (const i of $$("#badgeChecks input")) i.checked = s.badges.includes(i.dataset.badge);
+        roles = s.roles.map(r => ({ ...r }));
+        render();
+    }
+    const base = snapshot();
+    const variant = (values, badges, roleList) => ({ values: { ...base.values, ...values }, badges, roles: roleList });
+    const accounts = [
+        base,
+        variant({
+            displayName: "Staff Max", username: "staffmax", clanTag: "", nameStyle: "glow", theme1: "#5865f2", theme2: "#1e1f22",
+            decoration: "neon", effect: "sparkle", actType: "streaming", actName: "Discord Townhall", actDetails: "Answering questions",
+            actState: "", serverName: "Discord HQ", serverBadge: "verified", conn1Type: "github", conn1Name: "staffmax", conn2On: false
+        }, ["staff", "partner", "mod", "botdev"], [{ name: "Admin", color: "#e74c3c" }]),
+        variant({
+            displayName: "xX_OG_Xx", username: "og2015", clanTag: "OG", nameStyle: "rainbow", theme1: "#7289da", theme2: "#2c2f33",
+            decoration: "none", effect: "none", memberSince: "2015-05-13", nitroSince: "72", actType: "playing", actName: "Minecraft",
+            actDetails: "Since beta", actState: "", serverName: "OG Lounge", serverBadge: "partner", conn1Type: "twitch",
+            conn1Name: "og2015", conn2Type: "xbox", conn2Name: "xXOGXx"
+        }, ["early", "hype", "bug1"], [{ name: "VIP", color: "#9b59b6" }]),
+    ];
+    let activeAccount = 0;
+    let switching = false;
+
+    function renderAccounts() {
+        const list = $("#accList");
+        list.replaceChildren();
+        accounts.forEach((acc, i) => {
+            const v = i === activeAccount ? snapshot().values : acc.values;
+            const row = document.createElement("div");
+            row.className = "acc-item" + (i === activeAccount ? " active" : "");
+            const img = document.createElement("img");
+            img.src = "/assets/logo.png";
+            img.alt = "";
+            const names = document.createElement("span");
+            names.className = "acc-names";
+            const strong = document.createElement("strong");
+            strong.textContent = v.displayName || `Account ${i + 1}`;
+            const small = document.createElement("small");
+            small.textContent = v.username || "";
+            names.append(strong, small);
+            row.append(img, names);
+            if (i === activeAccount) {
+                const state = document.createElement("span");
+                state.className = "acc-state";
+                state.textContent = "Active";
+                row.appendChild(state);
+            } else {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "btn btn-small";
+                btn.textContent = "Switch";
+                btn.addEventListener("click", () => switchAccount(i));
+                row.appendChild(btn);
+            }
+            list.appendChild(row);
+        });
+    }
+
+    const TIPS = [
+        "You can drag and drop files into a channel to upload them.",
+        "Press Ctrl+K to quickly jump to a server, channel or DM.",
+        "Right-click a message to reply, react or copy its link.",
+    ];
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    async function switchAccount(i) {
+        if (switching || i === activeAccount) return;
+        switching = true;
+        accounts[activeAccount] = snapshot();
+        const swap = () => { activeAccount = i; restore(accounts[i]); };
+        try {
+            if (!on("accAnim") || reducedMotion) return swap();
+            setView("larp");
+            const screen = document.createElement("div");
+            screen.className = "d-switch";
+            const cubes = document.createElement("div");
+            cubes.className = "d-cubes";
+            cubes.append(document.createElement("span"), document.createElement("span"));
+            const title = document.createElement("b");
+            title.textContent = "Did you know";
+            const tip = document.createElement("p");
+            tip.textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+            screen.append(cubes, title, tip);
+            discord.appendChild(screen);
+            await sleep(20);
+            screen.classList.add("show");
+            await sleep(250);
+            swap();
+            await sleep(1100);
+            screen.classList.remove("show");
+            await sleep(260);
+            screen.remove();
+        } finally {
+            switching = false;
+        }
     }
 
     function nitroBadge(months) {
