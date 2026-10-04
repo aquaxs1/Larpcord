@@ -10,7 +10,7 @@ import { useEffect, useReducer, UserStore } from "@webpack/common";
 
 import { BUILTIN_PRESETS, createDefaultProfile, findBuiltinPreset, isReservedPresetName, LEGACY_BUILTIN_NAMES } from "./defaults";
 import { LarpError } from "./i18n";
-import { DeepPartial, LarpPreset, LarpProfile } from "./types";
+import { DeepPartial, LarpAccount, LarpPreset, LarpProfile } from "./types";
 import { sanitizePreset, sanitizeProfile } from "./validate";
 
 /*
@@ -37,17 +37,67 @@ export function presetKey(p: Pick<LarpPreset, "name" | "builtinId">): PresetKey 
 
 /**
  * Interner Speicherstand (nicht das Import/Export-Format).
+ * Version 3: larp accounts, each with its own profile. Presets stay shared across accounts.
  * Version 2: activePreset ist ein PresetKey. Version 1 speicherte dort den Namen (auch bei mitgelieferten).
+ * Versions 1 and 2 had a single `profile`; it becomes the first larp account.
  */
 interface PersistedState {
-    version: 2;
-    profile: LarpProfile;
+    version: 3;
+    accounts: LarpAccount[];
+    /** ID of the active larp account; undefined = real profile (no larp at all) */
+    activeAccount?: string;
     /** nur eigene Presets, die mitgelieferten kommen aus BUILTIN_PRESETS */
     presets: LarpPreset[];
     activePreset?: PresetKey;
+    /** Show a Discord-style loading screen when switching larp accounts */
+    switchAnimation: boolean;
 }
 
-let state: PersistedState = { version: 2, profile: createDefaultProfile(), presets: [] };
+export const MAX_ACCOUNTS = 20;
+
+/** Profile used while the real profile is active: nothing larped, read-only */
+const REAL_PROFILE: LarpProfile = createDefaultProfile();
+
+function newAccountId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function initialState(profile: LarpProfile = createDefaultProfile()): PersistedState {
+    const id = newAccountId();
+    return { version: 3, accounts: [{ id, profile }], activeAccount: id, presets: [], switchAnimation: true };
+}
+
+let state: PersistedState = initialState();
+
+function activeAccount(): LarpAccount | undefined {
+    return state.activeAccount ? state.accounts.find(a => a.id === state.activeAccount) : undefined;
+}
+
+/** Writes the profile of the active account. Returns false on the real profile (read-only). */
+function setActiveProfile(profile: LarpProfile, activePreset: PresetKey | undefined): boolean {
+    const acc = activeAccount();
+    if (!acc) {
+        logger.warn("Echtes Profil aktiv – Änderung ignoriert. Erst ein Larp-Konto wählen.");
+        return false;
+    }
+    state = { ...state, accounts: state.accounts.map(a => a === acc ? { ...a, profile } : a), activePreset };
+    return true;
+}
+
+function sanitizeAccounts(v: unknown): LarpAccount[] {
+    if (!Array.isArray(v)) return [];
+    const seen = new Set<string>();
+    const out: LarpAccount[] = [];
+    for (const a of v) {
+        if (!isPlainObject(a)) continue;
+        const id = typeof a.id === "string" ? a.id.replace(/[^\w-]/g, "").slice(0, 40) : "";
+        if (!id || seen.has(id)) continue;
+        seen.add(id);
+        out.push({ id, profile: sanitizeProfile(a.profile) });
+        if (out.length >= MAX_ACCOUNTS) break;
+    }
+    return out;
+}
 let loaded = false;
 let loadPromise: Promise<void> | undefined;
 const listeners = new Set<() => void>();
@@ -108,12 +158,23 @@ export const LarpStore = {
             try {
                 const saved = await DataStore.get<PersistedState>(STORE_KEY);
                 if (saved) {
-                    const presets = (Array.isArray(saved.presets) ? saved.presets : []).map(sanitizePreset).filter(Boolean) as LarpPreset[];
+                    const raw = saved as Partial<PersistedState> & { profile?: unknown; version?: unknown; };
+                    const presets = (Array.isArray(raw.presets) ? raw.presets : []).map(sanitizePreset).filter(Boolean) as LarpPreset[];
+                    let accounts = sanitizeAccounts(raw.accounts);
+                    let active = typeof raw.activeAccount === "string" ? raw.activeAccount : undefined;
+                    if (raw.version !== 3 || !accounts.length) {
+                        // Versions 1/2: the single profile becomes the first larp account
+                        const first = initialState(sanitizeProfile(raw.profile));
+                        accounts = first.accounts;
+                        active = first.activeAccount;
+                    }
                     state = {
-                        version: 2,
-                        profile: sanitizeProfile(saved.profile),
+                        version: 3,
+                        accounts,
+                        activeAccount: accounts.some(a => a.id === active) ? active : undefined,
                         presets,
-                        activePreset: migrateActivePreset(saved.activePreset, (saved as { version?: unknown; }).version, presets)
+                        activePreset: migrateActivePreset(raw.activePreset, raw.version === 3 ? 2 : raw.version, presets),
+                        switchAnimation: typeof raw.switchAnimation === "boolean" ? raw.switchAnimation : true
                     };
                 }
             } catch (e) {
@@ -132,22 +193,99 @@ export const LarpStore = {
         return version;
     },
 
-    /** Aktuelles Larp-Profil (nicht verändern, stattdessen update() nutzen) */
+    /** Aktuelles Larp-Profil (nicht verändern, stattdessen update() nutzen). Real profile → nothing larped. */
     get(): LarpProfile {
-        return state.profile;
+        return activeAccount()?.profile ?? REAL_PROFILE;
     },
 
     /** Tiefes Zusammenführen: Objekte werden gemergt, Arrays ersetzt, undefined entfernt ein Feld */
     update(patch: DeepPartial<LarpProfile> | ((p: LarpProfile) => DeepPartial<LarpProfile>)) {
-        const p = typeof patch === "function" ? patch(state.profile) : patch;
-        state = { ...state, profile: sanitizeProfile(deepMerge(state.profile, p)), activePreset: undefined };
+        const current = this.get();
+        const p = typeof patch === "function" ? patch(current) : patch;
+        if (!setActiveProfile(sanitizeProfile(deepMerge(current, p)), undefined)) return;
         persist();
         emit();
     },
 
     /** Profil komplett ersetzen */
     replace(profile: LarpProfile, activePreset?: PresetKey) {
-        state = { ...state, profile: sanitizeProfile(profile), activePreset };
+        if (!setActiveProfile(sanitizeProfile(profile), activePreset)) return;
+        persist();
+        emit();
+    },
+
+    // ---- Larp accounts ----
+
+    getAccounts(): readonly LarpAccount[] {
+        return state.accounts;
+    },
+
+    /** ID of the active larp account, undefined while the real profile is active */
+    get activeAccountId(): string | undefined {
+        return state.activeAccount;
+    },
+
+    get isRealProfile(): boolean {
+        return !activeAccount();
+    },
+
+    /** Switches to a larp account, or to the real profile with undefined. Nothing is sent to Discord. */
+    switchAccount(id: string | undefined) {
+        if (id !== undefined && !state.accounts.some(a => a.id === id)) return;
+        if (state.activeAccount === id) return;
+        state = { ...state, activeAccount: id, activePreset: undefined };
+        persist();
+        emit();
+    },
+
+    /** Creates a larp account (empty, copy of the current profile or from a preset) and switches to it */
+    // i18n-keys: accounts.errorLimit (LarpError)
+    createAccount(from: { kind: "empty"; } | { kind: "current"; } | { kind: "preset"; key: PresetKey; } = { kind: "empty" }): string {
+        if (state.accounts.length >= MAX_ACCOUNTS) throw new LarpError("accounts.errorLimit", { max: MAX_ACCOUNTS });
+        let profile = createDefaultProfile();
+        if (from.kind === "current") profile = structuredClone(this.get());
+        if (from.kind === "preset") {
+            const preset = this.findPreset(from.key);
+            if (!preset) throw new LarpError("core.presets.errorNotFound", { name: from.key.replace(/^(builtin|user):/, "") });
+            profile = structuredClone(preset.profile);
+        }
+        const id = newAccountId();
+        state = { ...state, accounts: [...state.accounts, { id, profile: sanitizeProfile(profile) }], activeAccount: id, activePreset: undefined };
+        persist();
+        emit();
+        return id;
+    },
+
+    /** Deletes a larp account. Deleting the active one switches to the real profile. */
+    deleteAccount(id: string) {
+        if (!state.accounts.some(a => a.id === id)) return;
+        state = {
+            ...state,
+            accounts: state.accounts.filter(a => a.id !== id),
+            activeAccount: state.activeAccount === id ? undefined : state.activeAccount
+        };
+        persist();
+        emit();
+    },
+
+    /** Moves an account up (-1) or down (+1) in the list */
+    moveAccount(id: string, delta: -1 | 1) {
+        const i = state.accounts.findIndex(a => a.id === id);
+        const j = i + delta;
+        if (i < 0 || j < 0 || j >= state.accounts.length) return;
+        const accounts = [...state.accounts];
+        [accounts[i], accounts[j]] = [accounts[j], accounts[i]];
+        state = { ...state, accounts };
+        persist();
+        emit();
+    },
+
+    get switchAnimation(): boolean {
+        return state.switchAnimation;
+    },
+
+    setSwitchAnimation(value: boolean) {
+        state = { ...state, switchAnimation: value };
         persist();
         emit();
     },
@@ -200,7 +338,7 @@ export const LarpStore = {
         if (!name) throw new LarpError("core.presets.errorNameRequired");
         if (isReservedPresetName(name)) throw new LarpError("core.presets.errorBuiltinOverwrite");
 
-        const preset: LarpPreset = { name, profile: structuredClone(state.profile) };
+        const preset: LarpPreset = { name, profile: structuredClone(this.get()) };
         const presets = state.presets.filter(p => p.name !== name);
         presets.push(preset);
         state = { ...state, presets, activePreset: userPresetKey(name) };
@@ -214,9 +352,10 @@ export const LarpStore = {
         if (!preset) throw new LarpError("core.presets.errorNotFound", { name: key.replace(/^(builtin|user):/, "") });
         // Server-Einstellungen sind an eigene Server gebunden → beim Preset-Wechsel behalten, falls das Preset keine hat
         const profile = structuredClone(preset.profile);
-        if (!Object.keys(profile.servers).length) profile.servers = state.profile.servers;
+        const current = this.get();
+        if (!Object.keys(profile.servers).length) profile.servers = current.servers;
         // Genauso das Layout: Presets ohne eigenes Layout lassen das aktuelle stehen
-        if (!profile.layout && state.profile.layout) profile.layout = state.profile.layout;
+        if (!profile.layout && current.layout) profile.layout = current.layout;
         this.replace(profile, presetKey(preset));
     },
 

@@ -232,6 +232,15 @@ export interface LarpProfile {
     watermark: boolean;
 }
 
+/**
+ * A larp account (larpAccounts): a complete, separate larp profile you switch to like a real account.
+ * Presets stay shared across all larp accounts.
+ */
+export interface LarpAccount {
+    id: string;
+    profile: LarpProfile;
+}
+
 /** Stabile IDs der mitgelieferten Presets (Anzeigename über den Schlüssel preset.builtin.<id>) */
 export type BuiltinPresetId = "staff" | "nitro" | "og2015";
 

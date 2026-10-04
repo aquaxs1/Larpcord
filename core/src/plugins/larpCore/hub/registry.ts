@@ -27,6 +27,7 @@ export interface HubTab {
 
 /** Titel werden als Schlüssel gespeichert und erst beim Rendern übersetzt (hubTabTitle) */
 export const HUB_TABS = [
+    { id: "accounts", titleKey: "core.hub.tab.accounts", plugin: "LarpAccounts" },
     { id: "badges", titleKey: "core.hub.tab.badges", plugin: "LarpBadges" },
     { id: "nitro", titleKey: "core.hub.tab.nitro", plugin: "LarpNitro" },
     { id: "decorations", titleKey: "core.hub.tab.decorations", plugin: "LarpDecorations" },

@@ -6,11 +6,11 @@
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { t, useLarpLocale } from "@plugins/larpCore/i18n";
-import { useLarpProfile } from "@plugins/larpCore/store";
+import { LarpStore, useLarpProfile } from "@plugins/larpCore/store";
 import { useState } from "@webpack/common";
 
 import { LARPCORD_LOGO } from "../logo";
-import { cl, Placeholder } from "./components";
+import { Btn, cl, Placeholder } from "./components";
 import { PresetsTab } from "./PresetsTab";
 import { UpdatesTab } from "./UpdatesTab";
 import { Preview } from "./Preview";
@@ -57,6 +57,12 @@ function LarpHub() {
 
             <div className={cl("hub-body")}>
                 <div className={cl("hub-content")}>
+                    {LarpStore.isRealProfile && tab !== "accounts" && tab !== "updates" && (
+                        <div className={cl("real-banner")}>
+                            <span>{t("accounts.realBanner")}</span>
+                            <Btn onClick={() => setTab(lastTab = "accounts")}>{t("accounts.chooseAccount")}</Btn>
+                        </div>
+                    )}
                     <ErrorBoundary message={t("core.hub.tabError")} key={tab}>
                         <TabContent id={tab} />
                     </ErrorBoundary>

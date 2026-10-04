@@ -55,6 +55,7 @@ larpcord/
 ├── core/                     ← fork of Vencord
 │   └── src/plugins/
 │       ├── larpCore/         ← store, hub, presets, import/export, watermark
+│       ├── larpAccounts/
 │       ├── larpBadges/
 │       ├── larpNitro/
 │       ├── larpDecorations/
@@ -75,6 +76,12 @@ Do **not** rename internal Vencord identifiers (`Vencord.*`), that breaks upstre
 ## Plugins
 
 - **larpCore:** central store (Vencord DataStore) with `get`/`update`/`subscribe`. Contains badges, custom badges (image + tooltip), “member since”, clan tag, Nitro (since/boosting since), profile theme colors, banner, animated avatar, decoration, profile effect, nameplate, name style, extras (verified check, owner crown), names (`username`, `displayName`), server settings per guildId (`partner`, `verified`, `boostLevel` 0–3, `boostCount`, local roles, local name/icon/banner), activities, profile music, layout, watermark (off by default). Save/load/delete/rename presets, built in: “Discord Staff”, “Nitro Supporter”, “OG 2015”. Import/export as `*.larp.json` (`{ version: 2, presets: [...] }`, version 1 is migrated on import), validate on import, image URLs only `https:` or `data:image/`. Settings tab “Larpcord” with sub-tabs and a live preview of your own profile. Optional watermark “🎭 Larpcord” in your own profile popout.
+- **larpAccounts:** larp accounts = complete larp profiles with separate settings (store v3: `accounts`,
+  `activeAccount`; undefined = real profile, read-only). Presets are shared across accounts; v1/v2 saves migrate into
+  the first account. Shown in Discord's account switcher via a global context menu patch (group with Discord's
+  `switch-account`/`manage-accounts` IDs), styled like real accounts; picking one swaps only the local profile,
+  optionally behind a Discord-style loading screen (own CSS, no Discord assets). MultiAccountStore, tokens and the
+  real switch are never touched.
 - **larpBadges:** Vencord's `@api/Badges` (`addProfileBadge`), own user ID only. All official badges (reference icons from Discord's client, copy nothing into the repo) plus custom badges, order via drag & drop. “Member since” on the profile.
 - **larpNitro & larpDecorations:** Nitro badge with date, boost badge tier computed from the date, theme colors, banner, animated avatar, selecting decorations/profile effects/nameplates from Discord's collectibles store with preview. Use existing Vencord plugins for profile themes and decorations as a template.
 - **larpName:** clan tag, verified check, owner crown, name styles (font, gradient, glow). **Name changer:** override username and display name locally and instantly, no cooldown, everywhere (chat, profile, member list, user panel, mentions, tooltips). Option “Show larp name instead of server nicknames” (on by default). Label it in the hub: “Only visible locally”.
@@ -206,6 +213,7 @@ After that came the big update from `TODO.md`:
 | Website | done (`site/`, English) |
 | English as main language | done for website and repo docs |
 | Fixes + larpConnections | done (name style preview, activities, profile name extras, connections) |
+| larpAccounts | done (store v3 + migration, hub tab, account switcher entries, loading screen) |
 
 ### Testing
 
