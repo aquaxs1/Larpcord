@@ -36,7 +36,7 @@
             <img src="/assets/logo.png" alt="Larpcord logo: the Discord mascot made of banknotes" width="320" height="320">
         </div>
         <div class="hero-text">
-            <p class="eyebrow"><span class="stamp" data-version>v0.2.0</span> for Windows</p>
+            <p class="eyebrow"><span class="stamp" data-version>v0.4.0</span> for Windows</p>
             <h1>Be whoever you want.<br><span class="gold">At least on your own screen.</span></h1>
             <p class="lead">Badges, Nitro look, decorations, a new name. <strong>Only you see it.</strong></p>
             <div class="cta-row">
@@ -49,47 +49,32 @@
     <!-- NEW -->
     <section id="new" class="section">
         <div class="section-head">
-            <h2>New in <span data-version-text>0.2.0</span></h2>
+            <h2>New in <span data-version-text>0.4.0</span></h2>
         </div>
         <div class="cards">
+            <article class="card note">
+                <div class="card-icon">👥</div>
+                <h3>Larp accounts</h3>
+                <p>Switch between whole larp profiles like real accounts.</p>
+                <button class="try" data-try="accounts">▶ Try it</button>
+            </article>
+            <article class="card note">
+                <div class="card-icon">🔗</div>
+                <h3>Connections</h3>
+                <p>Steam, Spotify, GitHub – any name you like.</p>
+                <button class="try" data-try="connections">▶ Try it</button>
+            </article>
+            <article class="card note">
+                <div class="card-icon">✨</div>
+                <h3>Name styles</h3>
+                <p>Fonts and effects, live in the preview.</p>
+                <button class="try" data-try="name">▶ Try it</button>
+            </article>
             <article class="card note">
                 <div class="card-icon">🎮</div>
                 <h3>Activities</h3>
                 <p>Play, listen, watch or stream anything.</p>
                 <button class="try" data-try="activity">▶ Try it</button>
-            </article>
-            <article class="card note">
-                <div class="card-icon">🎖️</div>
-                <h3>Local roles</h3>
-                <p>Owner, Admin, VIP – any role, any color.</p>
-                <button class="try" data-try="roles">▶ Try it</button>
-            </article>
-            <article class="card note">
-                <div class="card-icon">🖼️</div>
-                <h3>Restyle servers</h3>
-                <p>New name, icon and banner.</p>
-                <button class="try" data-try="server">▶ Try it</button>
-            </article>
-            <article class="card note">
-                <div class="card-icon">🎵</div>
-                <h3>Profile music</h3>
-                <p>Your song on your profile.</p>
-                <button class="try" data-try="music">▶ Try it</button>
-            </article>
-            <article class="card note">
-                <div class="card-icon">🌍</div>
-                <h3>Languages</h3>
-                <p>English and German, switch anytime.</p>
-            </article>
-            <article class="card note">
-                <div class="card-icon">🔄</div>
-                <h3>Auto-Updater</h3>
-                <p>Always up to date, automatically.</p>
-            </article>
-            <article class="card note">
-                <div class="card-icon">📦</div>
-                <h3>Installer</h3>
-                <p>One click, no admin rights.</p>
             </article>
         </div>
     </section>
@@ -104,13 +89,34 @@
         <div class="playground">
             <div class="panel controls">
                 <div class="tabs" role="tablist" aria-label="Larp areas">
+                    <button role="tab" data-tab="accounts" aria-selected="false">👥 Accounts</button>
                     <button role="tab" data-tab="badges" aria-selected="true">🏅 Badges</button>
                     <button role="tab" data-tab="nitro" aria-selected="false">💎 Nitro</button>
                     <button role="tab" data-tab="name" aria-selected="false">🪪 Name</button>
                     <button role="tab" data-tab="activity" aria-selected="false">🎮 Activity</button>
+                    <button role="tab" data-tab="connections" aria-selected="false">🔗 Connections</button>
                     <button role="tab" data-tab="roles" aria-selected="false">🎖️ Roles</button>
                     <button role="tab" data-tab="server" aria-selected="false">🏰 Server</button>
                     <button role="tab" data-tab="music" aria-selected="false">🎵 Music</button>
+                </div>
+
+                <div class="tabpanel" data-panel="accounts" hidden>
+                    <div class="acc-list" id="accList"></div>
+                    <label class="switch"><input type="checkbox" id="accAnim" checked><span></span> Loading screen when switching</label>
+                </div>
+
+                <div class="tabpanel" data-panel="connections" hidden>
+                    <div class="conn-row">
+                        <label class="switch"><input type="checkbox" id="conn1On" checked><span></span></label>
+                        <select id="conn1Type" aria-label="Platform"></select>
+                        <input type="text" id="conn1Name" value="richguy" maxlength="32" aria-label="Account name">
+                    </div>
+                    <div class="conn-row">
+                        <label class="switch"><input type="checkbox" id="conn2On" checked><span></span></label>
+                        <select id="conn2Type" aria-label="Platform"></select>
+                        <input type="text" id="conn2Name" value="moneybeats" maxlength="32" aria-label="Account name">
+                    </div>
+                    <label class="switch"><input type="checkbox" id="connVerified" checked><span></span> Verified</label>
                 </div>
 
                 <div class="tabpanel" data-panel="badges">
@@ -283,6 +289,11 @@
                                 </div>
                             </div>
 
+                            <div class="p-conns" id="pConns">
+                                <div class="p-label">Connections</div>
+                                <div class="p-conn-list" id="pConnList"></div>
+                            </div>
+
                             <div class="p-label">Member since</div>
                             <div class="p-since" id="pSince"></div>
 
@@ -303,6 +314,8 @@
             <h2>Everything you can larp</h2>
         </div>
         <div class="larp-grid">
+            <div class="larp-item"><h3>👥 Larp accounts</h3><ul><li>Whole profiles, separate settings</li><li>Switch like a real account</li></ul></div>
+            <div class="larp-item"><h3>🔗 Connections</h3><ul><li>Steam, Spotify, GitHub &amp; more</li><li>Any name, verified check</li></ul></div>
             <div class="larp-item"><h3>🏅 Badges</h3><ul><li>All official badges</li><li>Custom badges</li></ul></div>
             <div class="larp-item"><h3>💎 Nitro look</h3><ul><li>Theme, banner, animated avatar</li><li>Decorations &amp; effects</li></ul></div>
             <div class="larp-item"><h3>🪪 Name</h3><ul><li>New name, no cooldown</li><li>Clan tag, styles, check mark</li></ul></div>

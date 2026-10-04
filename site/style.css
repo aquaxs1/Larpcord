@@ -362,7 +362,8 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
 .discord[data-view="plain"] .p-music,
 .discord[data-view="plain"] .p-watermark,
 .discord[data-view="plain"] .d-sbadge,
-.discord[data-view="plain"] .d-boost { display: none !important; }
+.discord[data-view="plain"] .d-boost,
+.discord[data-view="plain"] .p-conns { display: none !important; }
 .discord[data-view="plain"] .p-badges { visibility: hidden; }
 
 /* ---------- What you can larp ---------- */
@@ -431,3 +432,36 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
 .legal h2 { font-size: 1.35rem; margin-top: 1.6em; color: var(--gold-2); }
 .legal p, .legal li { color: #d4dccf; }
 .legal .fill { background: rgba(212, 175, 55, .15); border: 1px dashed var(--gold); padding: 0 .3em; border-radius: 4px; color: var(--gold-2); }
+
+/* ---------- Connections (preview + controls) ---------- */
+.p-conn-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.p-conn { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 4px; background: #2e2f34; font-size: .78rem; font-weight: 600; }
+.p-conn i { width: 10px; height: 10px; border-radius: 50%; }
+.p-conn small { color: var(--d-muted); font-weight: 500; }
+.conn-row { display: flex; gap: 8px; align-items: center; }
+.conn-row select { width: auto; flex: none; }
+
+/* ---------- Larp accounts (controls + switch screen) ---------- */
+.acc-list { display: grid; gap: 8px; }
+.acc-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(0, 0, 0, .25); border: 1px solid transparent; }
+.acc-item.active { border-color: var(--mint); }
+.acc-item img { width: 34px; height: 34px; border-radius: 50%; background: #fff; flex: none; }
+.acc-names { display: grid; flex: 1; min-width: 0; line-height: 1.25; }
+.acc-names strong, .acc-names small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acc-names small { color: var(--muted); }
+.acc-state { font-size: .8rem; font-weight: 700; color: var(--mint-soft); }
+.discord { position: relative; }
+.d-switch { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: var(--d-bg); opacity: 0; transition: opacity .25s ease; }
+.d-switch.show { opacity: 1; }
+.d-cubes { position: relative; width: 32px; height: 32px; margin-bottom: 14px; }
+.d-cubes span { position: absolute; top: 0; left: 0; width: 10px; height: 10px; background: #5865f2; animation: d-cube 1.8s ease-in-out infinite; }
+.d-cubes span:last-child { animation-delay: -.9s; }
+@keyframes d-cube {
+    25% { transform: translateX(22px) rotate(-90deg) scale(.5); }
+    50% { transform: translateX(22px) translateY(22px) rotate(-179deg); }
+    50.1% { transform: translateX(22px) translateY(22px) rotate(-180deg); }
+    75% { transform: translateX(0) translateY(22px) rotate(-270deg) scale(.5); }
+    100% { transform: rotate(-360deg); }
+}
+.d-switch b { font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: #b5bac1; }
+.d-switch p { margin: 0; max-width: 320px; padding: 0 16px; text-align: center; color: var(--d-text); font-size: .95rem; }
