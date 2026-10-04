@@ -14,6 +14,11 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
   when switching. Presets are shared by all larp accounts, and your real profile is one click away.
   Existing settings become your first larp account automatically. Nothing is sent to Discord.
 
+### Fixed
+- **Screen sharing (Go Live):** clicking "Share your screen" could do nothing while a larp activity was set: Discord's
+  stream setup could pick up the larp activity as if it were a running game. Functional lookups now only see your
+  real activities. Larp activities still show up everywhere they are displayed.
+
 ## [0.3.0] – 2026-09-27
 
 ### Added

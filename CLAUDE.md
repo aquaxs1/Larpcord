@@ -87,7 +87,7 @@ Do **not** rename internal Vencord identifiers (`Vencord.*`), that breaks upstre
 - **larpName:** clan tag, verified check, owner crown, name styles (font, gradient, glow). **Name changer:** override username and display name locally and instantly, no cooldown, everywhere (chat, profile, member list, user panel, mentions, tooltips). Option “Show larp name instead of server nicknames” (on by default). Label it in the hub: “Only visible locally”.
 - **larpActivity:** your own activities (all types including custom status) and an activity changer
   for real, detected activities. Only `SelfPresenceStore.getActivities()` and
-  `PresenceStore.getActivities(id)` are patched; images go through a `larp:` key that a patch on
+  `PresenceStore.getActivities(id)` are wrapped (`findActivity` for the own user only sees real activities, Go Live); images go through a `larp:` key that a patch on
   `getAssetImage` resolves. The progress bar for “Listening” only exists because Discord then treats the activity as
   Spotify (name “Spotify”, `party.id` with a `spotify:` prefix).
 - **larpServers:** server list in the hub, per server partner/verified icon, boost level and count. Only patch display
