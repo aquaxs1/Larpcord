@@ -9,14 +9,13 @@ import { discordPlatformIcon, platformOf } from "@plugins/larpConnections/platfo
 import { t, useLarpLocale } from "@plugins/larpCore/i18n";
 import { LARPCORD_LOGO } from "@plugins/larpCore/logo";
 import { formatDate, getLarpBadges } from "@plugins/larpCore/profileBadges";
-import { useLarpProfile } from "@plugins/larpCore/store";
+import { logger, useLarpProfile } from "@plugins/larpCore/store";
 import { LarpProfile } from "@plugins/larpCore/types";
 import { SafeNameExtras } from "@plugins/larpName/NameExtras";
 import { ensureNameFontsLoaded, NAME_FONTS, resolveEffect } from "@plugins/larpName/nameStyles";
 import { assignedRoles } from "@plugins/larpServers/roles";
 import { VerifiedIcon } from "@plugins/showConnections/VerifiedIcon";
-import { openUserProfile } from "@utils/discord";
-import { SelectedGuildStore, showToast, Toasts, UserStore } from "@webpack/common";
+import { FluxDispatcher, SelectedChannelStore, SelectedGuildStore, showToast, Toasts, UserProfileActions, UserStore } from "@webpack/common";
 import type { CSSProperties } from "react";
 
 import { cl } from "./components";
@@ -195,10 +194,39 @@ function PreviewCard() {
 const SafeVerifiedIcon = ErrorBoundary.wrap(VerifiedIcon, { noop: true });
 
 /** Opens Discord's real profile modal of the own user – with every larp setting applied, 1:1 */
-function openRealProfile() {
-    const id = UserStore.getCurrentUser()?.id;
-    if (!id) return;
-    openUserProfile(id).catch(() => showToast(t("core.preview.openFailed"), Toasts.Type.FAILURE));
+export function openRealProfile() {
+    const userId = UserStore.getCurrentUser()?.id;
+    if (!userId) return;
+    const guildId = SelectedGuildStore.getGuildId() ?? undefined;
+    const channelId = SelectedChannelStore.getChannelId() ?? undefined;
+
+    // The hub lives inside the full-screen settings layer: close it first, otherwise the profile opens behind it
+    try {
+        FluxDispatcher.dispatch({ type: "LAYER_POP_ALL" });
+    } catch (e) {
+        logger.warn("Einstellungen konnten nicht geschlossen werden", e);
+    }
+
+    setTimeout(() => {
+        try {
+            UserProfileActions.openUserProfileModal({
+                userId,
+                guildId,
+                channelId,
+                analyticsLocation: { page: guildId ? "Guild Channel" : "DM Channel", section: "Profile Popout" }
+            });
+            return;
+        } catch (e) {
+            logger.warn("openUserProfileModal fehlgeschlagen, versuche USER_PROFILE_MODAL_OPEN", e);
+        }
+        try {
+            // Same action Discord's own openUserProfileModal dispatches (also used by the upstream Decor plugin)
+            FluxDispatcher.dispatch({ type: "USER_PROFILE_MODAL_OPEN", userId, guildId, channelId });
+        } catch (e) {
+            logger.error("Profil konnte nicht geöffnet werden", e);
+            showToast(t("core.preview.openFailed"), Toasts.Type.FAILURE);
+        }
+    }, 50);
 }
 
 /** Fehlermeldung erst beim Rendern übersetzen (ErrorBoundary.wrap würde sie beim Laden des Moduls einfrieren) */

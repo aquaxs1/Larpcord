@@ -142,3 +142,10 @@
     font-weight: 600;
     color: var(--text-positive, #23a55a);
 }
+
+.larp-account-hint {
+    flex: none;
+    max-width: 160px;
+    font-size: 11px;
+    color: var(--text-muted, #949ba4);
+}

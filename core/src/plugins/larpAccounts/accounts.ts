@@ -18,12 +18,24 @@ export interface AccountView {
     displayName: string;
     username: string;
     avatarUrl: string | undefined;
+    /** Larp account with its own picture (Nitro tab → animated avatar) */
+    hasOwnAvatar?: boolean;
     active: boolean;
 }
 
-function realAvatar(): string | undefined {
+/**
+ * The real Discord avatar, built straight from the user's avatar hash. user.getAvatarURL() can't be used:
+ * it runs through larpNitro's avatar patch and would return the *active* larp account's picture.
+ */
+export function realAvatarUrl(): string | undefined {
     try {
-        return UserStore.getCurrentUser()?.getAvatarURL(undefined, 80, false);
+        const user = UserStore.getCurrentUser() as unknown as { id: string; avatar?: string | null; } | undefined;
+        if (!user?.id) return undefined;
+        if (user.avatar) {
+            const ext = user.avatar.startsWith("a_") ? "gif" : "webp";
+            return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=80`;
+        }
+        return `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(user.id) >> 22n) % 6n)}.png`;
     } catch {
         return undefined;
     }
@@ -35,7 +47,7 @@ export function accountView(account: LarpAccount | undefined, index = 0): Accoun
     const realUsername = real.username || "";
     const active = LarpStore.activeAccountId === account?.id;
     if (!account) {
-        return { id: undefined, displayName: real.globalName || realUsername || t("accounts.real"), username: realUsername, avatarUrl: realAvatar(), active };
+        return { id: undefined, displayName: real.globalName || realUsername || t("accounts.real"), username: realUsername, avatarUrl: realAvatarUrl(), active };
     }
     const { names, profile } = account.profile;
     const username = names.username || realUsername;
@@ -43,7 +55,8 @@ export function accountView(account: LarpAccount | undefined, index = 0): Accoun
         id: account.id,
         displayName: names.displayName || names.username || real.globalName || t("accounts.unnamed", { number: index + 1 }),
         username,
-        avatarUrl: profile.animatedAvatarUrl || realAvatar(),
+        avatarUrl: profile.animatedAvatarUrl || realAvatarUrl(),
+        hasOwnAvatar: !!profile.animatedAvatarUrl,
         active
     };
 }

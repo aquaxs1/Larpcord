@@ -6,6 +6,18 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+## [0.4.2] – 2026-10-05
+
+### Fixed
+- **"Open my real profile"** in the hub didn't open anything: Larpcord now closes the settings first and then opens
+  Discord's real profile (with a fallback if Discord changes the call).
+- **Larp accounts** all showed the profile picture of the active account. Each account now shows its own picture
+  (Nitro tab → animated avatar of that account), or your real Discord picture if it has none.
+
+### Added
+- **Screen sharing diagnostics:** if "Share your screen" fails, Larpcord now shows the reason in a notice and in the
+  console (Ctrl+Shift+I) instead of failing silently.
+
 ## [0.4.1] – 2026-10-05
 
 ### Changed

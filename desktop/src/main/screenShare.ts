@@ -15,6 +15,12 @@ import { handle } from "./utils/ipcWrappers";
 const isWayland =
     process.platform === "linux" && (process.env.XDG_SESSION_TYPE === "wayland" || !!process.env.WAYLAND_DISPLAY);
 
+/** Larpcord: show screen share errors in the app instead of failing silently */
+function reportError(error: unknown) {
+    if (error === "Aborted") return;
+    sendRendererCommand(IpcCommands.SCREEN_SHARE_ERROR, String(error)).catch(() => {});
+}
+
 const supportsLoopbackWithoutChrome = process.platform === "win32" && Number(release().split(".").pop()) >= 19045;
 
 export function registerScreenShareHandler() {
@@ -40,9 +46,13 @@ export function registerScreenShareHandler() {
                     height: width * (9 / 16)
                 }
             })
-            .catch(err => console.error("Error during screenshare picker", err));
+            .catch(err => {
+                console.error("Error during screenshare picker", err);
+                reportError(err);
+            });
 
         if (!sources) return callback({});
+        if (!sources.length) reportError("No screens or windows found (desktopCapturer returned an empty list)");
 
         const data = sources.map(({ id, name, thumbnail }) => ({
             id,
@@ -70,6 +80,7 @@ export function registerScreenShareHandler() {
             skipPicker: false
         }).catch(e => {
             console.error("Error during screenshare picker", e);
+            reportError(e);
             return null;
         });
 

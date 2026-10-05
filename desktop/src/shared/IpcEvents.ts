@@ -92,5 +92,7 @@ export const enum IpcCommands {
 
     GET_LANGUAGES = "navigator.languages",
 
-    SCREEN_SHARE_PICKER = "screenshare:picker"
+    SCREEN_SHARE_PICKER = "screenshare:picker",
+    /** Larpcord: show a screen share error in the renderer */
+    SCREEN_SHARE_ERROR = "screenshare:error"
 }

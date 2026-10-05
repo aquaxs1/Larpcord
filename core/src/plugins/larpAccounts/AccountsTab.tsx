@@ -62,6 +62,7 @@ export function AccountsTab() {
                     {views.map((v, i) => (
                         <div key={v.id} className={v.active ? "larp-account-item larp-account-item-active" : "larp-account-item"}>
                             <AccountRow view={v} />
+                            {!v.hasOwnAvatar && <small className="larp-account-hint">{t("accounts.noAvatarHint")}</small>}
                             {v.active
                                 ? <span className="larp-account-badge">{t("accounts.active")}</span>
                                 : <Btn variant="secondary" onClick={() => switchLarpAccount(v.id)}>{t("accounts.switch")}</Btn>}
