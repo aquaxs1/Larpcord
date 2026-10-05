@@ -182,4 +182,5 @@ _(Items that could not be implemented reliably end up here, with a short reason.
 - ~~Clan tag, check mark and crown on the profile right next to the name instead of in the badge row~~ – done:
   patch on the profile name row (`#{intl::USER_PROFILE_PRONOUNS}`), badge row stays as fallback. Known limit: if
   Vencord's UserVoiceShow is also enabled, its profile indicator no longer matches that spot.
-- Hub preview using Discord's real profile component instead of a custom card.
+- Hub preview using Discord's real profile component instead of a custom card. (Partly done in 0.4.1: real name
+  extras, Discord's connection icons, roles and an "Open my real profile" button that opens the real profile.)

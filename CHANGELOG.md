@@ -6,6 +6,15 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+## [0.4.1] – 2026-10-05
+
+### Changed
+- **Hub preview closer to the real profile:** verified check, owner crown and clan tag are the exact same elements as
+  on your profile, connections use Discord's own platform icons and verified icon, and your larp roles of the server
+  that is open right now show up as role pills.
+- New button **"Open my real profile"** under the preview: opens Discord's actual profile with every larp setting
+  applied, 1:1.
+
 ## [0.4.0] – 2026-10-04
 
 ### Added

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findByPropsLazy } from "@webpack";
+
 /*
  * Connection platforms by Discord's own type names. Discord renders icon, colors and link of a
  * connected account from this type, so larp connections look exactly like real ones.
@@ -38,4 +40,19 @@ export const CONNECTION_PLATFORMS: { type: string; label: string; color: string;
 
 export function platformOf(type: string) {
     return CONNECTION_PLATFORMS.find(p => p.type === type) ?? { type, label: type, color: "#4e5058" };
+}
+
+/*
+ * Discord's own connection platform registry (the same lookup Vencord's ShowConnections uses), so previews
+ * show Discord's real platform icons. Missing → undefined, the caller falls back to a colored dot.
+ */
+const DiscordPlatforms: { get(type: string): { icon?: { darkSVG?: string; lightSVG?: string; }; } | undefined; } =
+    findByPropsLazy("isSupported", "getByUrl");
+
+export function discordPlatformIcon(type: string): string | undefined {
+    try {
+        return DiscordPlatforms.get(type)?.icon?.darkSVG;
+    } catch {
+        return undefined;
+    }
 }

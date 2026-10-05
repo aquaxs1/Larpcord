@@ -5,14 +5,18 @@
  */
 
 import ErrorBoundary from "@components/ErrorBoundary";
-import { platformOf } from "@plugins/larpConnections/platforms";
+import { discordPlatformIcon, platformOf } from "@plugins/larpConnections/platforms";
 import { t, useLarpLocale } from "@plugins/larpCore/i18n";
 import { LARPCORD_LOGO } from "@plugins/larpCore/logo";
 import { formatDate, getLarpBadges } from "@plugins/larpCore/profileBadges";
 import { useLarpProfile } from "@plugins/larpCore/store";
 import { LarpProfile } from "@plugins/larpCore/types";
+import { SafeNameExtras } from "@plugins/larpName/NameExtras";
 import { ensureNameFontsLoaded, NAME_FONTS, resolveEffect } from "@plugins/larpName/nameStyles";
-import { UserStore } from "@webpack/common";
+import { assignedRoles } from "@plugins/larpServers/roles";
+import { VerifiedIcon } from "@plugins/showConnections/VerifiedIcon";
+import { openUserProfile } from "@utils/discord";
+import { SelectedGuildStore, showToast, Toasts, UserStore } from "@webpack/common";
 import type { CSSProperties } from "react";
 
 import { cl } from "./components";
@@ -92,6 +96,8 @@ function PreviewCard() {
     const displayName = (user as any).globalName || user.username;
     const activity = larp.activities?.enabled ? larp.activities.list.find(a => a.enabled) : undefined;
     const connections = larp.connections?.list.filter(c => c.enabled) ?? [];
+    // Profiles show roles per server: the larp roles of the server that is open right now
+    const roles = assignedRoles(SelectedGuildStore.getGuildId());
 
     return (
         <div className={cl("preview")} style={{ background: `linear-gradient(180deg, ${c1}, ${c2})` }}>
@@ -108,14 +114,8 @@ function PreviewCard() {
             <div className={cl("preview-body")}>
                 <div className={cl("preview-name")}>
                     <span style={nameStyleCss(larp.nameStyle)}>{displayName}</span>
-                    {larp.extras.verifiedCheck && <span className={cl("preview-check")} title={t("core.preview.verified")}>✔</span>}
-                    {larp.extras.ownerCrown && <span title={t("core.preview.serverOwner")}>👑</span>}
-                    {larp.clanTag && (
-                        <span className={cl("preview-clan")}>
-                            {larp.clanTag.iconUrl && <img src={larp.clanTag.iconUrl} alt="" />}
-                            {larp.clanTag.tag}
-                        </span>
-                    )}
+                    {/* The same element as next to the name on the real profile */}
+                    <SafeNameExtras className="larp-name-extras-inline" />
                 </div>
                 <div className={cl("preview-username")}>{user.username}</div>
 
@@ -152,16 +152,35 @@ function PreviewCard() {
                     )}
                 </div>
 
+                {roles.length > 0 && (
+                    <div className={cl("preview-roles")}>
+                        <small>{t("core.preview.roles")}</small>
+                        <div>
+                            {roles.map(r => (
+                                <span key={r.id} className={cl("preview-role")}>
+                                    <i style={{ background: r.gradient ? `linear-gradient(135deg, ${r.color}, ${r.gradient})` : r.color }} />
+                                    {r.iconUrl && <img src={r.iconUrl} alt="" />}
+                                    {r.name}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {connections.length > 0 && (
                     <div className={cl("preview-connections")}>
                         <small>{t("core.preview.connections")}</small>
                         <div>
-                            {connections.map(c => (
-                                <span key={c.id} className={cl("preview-connection")} title={platformOf(c.type).label}>
-                                    <i style={{ background: platformOf(c.type).color }} />
-                                    {c.name}{c.verified ? " ✔" : ""}
-                                </span>
-                            ))}
+                            {connections.map(c => {
+                                const icon = discordPlatformIcon(c.type);
+                                return (
+                                    <span key={c.id} className={cl("preview-connection")} title={platformOf(c.type).label}>
+                                        {icon ? <img src={icon} alt="" /> : <i style={{ background: platformOf(c.type).color }} />}
+                                        <span>{c.name}</span>
+                                        {c.verified && <SafeVerifiedIcon />}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </div>
                 )}
@@ -172,11 +191,24 @@ function PreviewCard() {
     );
 }
 
+/** Discord's own "verified connection" icon; renders nothing if Discord renamed the component */
+const SafeVerifiedIcon = ErrorBoundary.wrap(VerifiedIcon, { noop: true });
+
+/** Opens Discord's real profile modal of the own user – with every larp setting applied, 1:1 */
+function openRealProfile() {
+    const id = UserStore.getCurrentUser()?.id;
+    if (!id) return;
+    openUserProfile(id).catch(() => showToast(t("core.preview.openFailed"), Toasts.Type.FAILURE));
+}
+
 /** Fehlermeldung erst beim Rendern übersetzen (ErrorBoundary.wrap würde sie beim Laden des Moduls einfrieren) */
 export function Preview() {
     return (
         <ErrorBoundary message={t("core.preview.error")}>
             <PreviewCard />
+            <button className={cl("btn", "btn-secondary", "preview-open")} onClick={openRealProfile}>
+                {t("core.preview.openReal")}
+            </button>
         </ErrorBoundary>
     );
 }

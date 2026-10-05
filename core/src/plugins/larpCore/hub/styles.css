@@ -367,32 +367,8 @@
     font-weight: 700;
 }
 
-.larp-preview-check {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--brand-500, #5865f2);
-    font-size: 10px;
-}
 
-.larp-preview-clan {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    padding: 0 5px;
-    border-radius: 4px;
-    background: rgb(255 255 255 / 12%);
-    font-size: 12px;
-    font-weight: 600;
-}
 
-.larp-preview-clan img {
-    width: 12px;
-    height: 12px;
-}
 
 .larp-preview-username {
     font-size: 13px;
@@ -666,4 +642,57 @@
 
 .larp-real-banner > span {
     flex: 1 1 auto;
+}
+
+.larp-preview-roles {
+    margin-top: 10px;
+}
+
+.larp-preview-roles > small {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+.larp-preview-roles > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+/* Discord-style role pill */
+.larp-preview-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 22px;
+    padding: 0 8px 0 6px;
+    border-radius: 4px;
+    background: var(--background-modifier-accent, rgb(255 255 255 / 8%));
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.larp-preview-role i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.larp-preview-role img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+}
+
+.larp-preview-connection img {
+    width: 18px;
+    height: 18px;
+}
+
+.larp-preview-open {
+    width: 100%;
+    margin-top: 10px;
 }
