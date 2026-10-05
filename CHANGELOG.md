@@ -6,6 +6,14 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+## [0.4.4] – 2026-10-05
+
+### Fixed
+- **Screen sharing (Go Live):** clicking "Share your screen" crashed Discord's UI
+  (`Cannot read properties of null (reading 'Modal')`). A Discord update renamed the dialog component the screen
+  share picker is built on; Larpcord now finds it the same way current Vencord does. This also fixes every other
+  dialog that uses it.
+
 ## [0.4.3] – 2026-10-05
 
 ### Fixed

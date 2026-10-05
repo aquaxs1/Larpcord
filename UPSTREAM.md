@@ -21,3 +21,5 @@ Keep these when merging upstream updates:
 
 - `core/src/plugins/crashHandler/index.ts`: always logs the crash error and component stack, shows the error in
   the crash notification and copies the details when it is clicked.
+- `core/src/webpack/common/modals.ts`: taken from upstream Vencord `main` (2026-10-05) – `Modal` and `ConfirmModal`
+  are found by code because Discord no longer exports them by name.
