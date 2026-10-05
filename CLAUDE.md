@@ -227,7 +227,7 @@ After that came the big update from `TODO.md`:
 | English as main language | done for website and repo docs |
 | Fixes + larpConnections | done (name style preview, activities, profile name extras, connections) |
 | larpAccounts | done (store v3 + migration, hub tab, account switcher entries, loading screen) |
-| larpSync | done (sync server in `server/`, `larpProfileFor`, hub tab "Sync", profile menu switch); production URL still to set |
+| larpSync | done (sync server in `server/`, `larpProfileFor`, hub tab "Sync", profile menu switch, default server `https://larpcord.duckdns.org`) |
 
 ### Testing
 

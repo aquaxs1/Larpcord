@@ -28,7 +28,7 @@ import { handle } from "./utils/ipcWrappers";
  */
 
 /** Sync server built into this version. Empty = sync is off until a server URL is set in the hub. */
-export const DEFAULT_SYNC_URL = "";
+export const DEFAULT_SYNC_URL = "https://larpcord.duckdns.org";
 
 const FILE = join(DATA_DIR, "larpSync.json");
 const LOGIN_TIMEOUT_MS = 5 * 60 * 1000;
