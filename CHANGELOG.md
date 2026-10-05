@@ -6,6 +6,16 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+## [0.4.3] – 2026-10-05
+
+### Fixed
+- The **"Own activities"** switch in Hub → Activity couldn't be turned off while no own activity was set.
+
+### Added
+- **Crash details:** when Discord's UI crashes ("Discord has crashed! Attempting to recover…"), the notice now shows
+  the error, and clicking it copies the full details. They are also always written to the console (Ctrl+Shift+I).
+  This helps tracking down the crash when starting a screen share – please send us the text if it happens to you.
+
 ## [0.4.2] – 2026-10-05
 
 ### Fixed

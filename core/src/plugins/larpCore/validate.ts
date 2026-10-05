@@ -271,8 +271,10 @@ function activities(v: unknown): LarpActivities | undefined {
     if (!isObj(v)) return undefined;
     const list = Array.isArray(v.list) ? v.list.map(activity).filter(Boolean).slice(0, MAX_ACTIVITIES) as LarpActivity[] : [];
     const rules = Array.isArray(v.rules) ? v.rules.map(activityRule).filter(Boolean).slice(0, MAX_ACTIVITY_RULES) as LarpActivityRule[] : [];
-    if (!list.length && !rules.length) return undefined;
-    return { enabled: bool(v.enabled, true), list, rules };
+    const enabled = bool(v.enabled, true);
+    // Keep an empty object when the master switch is off, otherwise "off" is lost on save
+    if (!list.length && !rules.length && enabled) return undefined;
+    return { enabled, list, rules };
 }
 
 const MAX_CONNECTIONS = 20;

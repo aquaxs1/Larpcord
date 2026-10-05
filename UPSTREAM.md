@@ -14,3 +14,10 @@ Keep track of the upstream commits here for future updates.
 2. Export `git diff <old-hash> <new-hash>` in the upstream repo as a patch.
 3. Apply the patch in the matching folder with `git apply --3way` and resolve conflicts.
 4. Update the hash in this table.
+
+## Local changes to upstream files
+
+Keep these when merging upstream updates:
+
+- `core/src/plugins/crashHandler/index.ts`: always logs the crash error and component stack, shows the error in
+  the crash notification and copies the details when it is clicked.

@@ -20,6 +20,7 @@ import { DataStore } from "@api/index";
 import { showNotification } from "@api/Notifications";
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
+import { copyWithToast } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { maybePromptToUpdate } from "@utils/updater";
@@ -56,6 +57,37 @@ const settings = definePluginSettings({
 let hasCrashedOnce = false;
 let isRecovering = false;
 let shouldAttemptRecover = true;
+// Larpcord: the last crash, shown in the notification and copied on click
+let lastCrash: { summary: string; details: string; } | null = null;
+
+function describeCrash(errorState: any) {
+    const error = errorState?.error;
+    let summary = "";
+    try {
+        summary = error instanceof Error
+            ? `${error.name}: ${error.message}`
+            : String(error ?? "");
+        summary = summary.split("\n")[0].slice(0, 150);
+    } catch { }
+
+    let details = "";
+    try {
+        details = [
+            error?.stack ?? summary,
+            errorState?.info?.componentStack ? `Component stack:${errorState.info.componentStack}` : ""
+        ].filter(Boolean).join("\n\n");
+    } catch { }
+
+    return { summary, details };
+}
+
+function crashBody(text: string) {
+    return lastCrash?.summary ? `${text} – ${lastCrash.summary} (click to copy details)` : text;
+}
+
+function copyCrashDetails() {
+    if (lastCrash?.details) copyWithToast(lastCrash.details, "Crash details copied");
+}
 
 export default definePlugin({
     name: "CrashHandler",
@@ -78,13 +110,11 @@ export default definePlugin({
     handleCrash(_this: any, errorState: any) {
         DataStore.del("KeepCurrentChannel_previousData");
 
-        if (IS_DEV) {
-            try {
-                if (errorState?.info && "componentStack" in errorState.info) {
-                    console.error("Component Stack:", errorState.info.componentStack);
-                }
-            } catch { }
-        }
+        // Larpcord: always log the error and component stack, not only in dev builds
+        try {
+            lastCrash = describeCrash(errorState);
+            CrashHandlerLogger.error("[Larpcord] Discord crashed:", errorState?.error, errorState?.info?.componentStack ?? "");
+        } catch { }
         _this.setState(errorState);
 
         // Already recovering, prevent error which happens more than once too fast to trigger another recover
@@ -100,7 +130,8 @@ export default definePlugin({
                         showNotification({
                             color: "#eed202",
                             title: "Discord has crashed!",
-                            body: "Awn :( Discord has crashed two times rapidly, not attempting to recover.",
+                            body: crashBody("Awn :( Discord has crashed two times rapidly, not attempting to recover."),
+                            onClick: copyCrashDetails,
                             noPersist: true
                         });
                     } catch { }
@@ -135,7 +166,8 @@ export default definePlugin({
             showNotification({
                 color: "#eed202",
                 title: "Discord has crashed!",
-                body: "Attempting to recover...",
+                body: crashBody("Attempting to recover..."),
+                onClick: copyCrashDetails,
                 noPersist: true
             });
         } catch { }
