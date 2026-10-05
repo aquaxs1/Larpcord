@@ -11,7 +11,13 @@ import type { LarpSong } from "main/larpMusic";
 import type { LarpPendingOnboarding, Settings } from "shared/settings";
 
 import type { LarpUpdaterOptions, LarpUpdaterStatus } from "../../../core/src/plugins/larpCore/updater/types";
-
+import type {
+    LarpSyncIndex,
+    LarpSyncLoginResult,
+    LarpSyncProfiles,
+    LarpSyncResult,
+    LarpSyncStatus
+} from "../../../core/src/plugins/larpSync/types";
 import { IpcEvents } from "../shared/IpcEvents";
 import { invoke, sendSync } from "./typedIpc";
 
@@ -136,9 +142,22 @@ export const VesktopNative = {
                 return () => void ipcRenderer.off(IpcEvents.LARP_UPDATER_STATUS, listener);
             },
             check: () => invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_CHECK),
-            setOptions: (options: LarpUpdaterOptions) => invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_SET_OPTIONS, options),
+            setOptions: (options: LarpUpdaterOptions) =>
+                invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_SET_OPTIONS, options),
             install: () => invoke<boolean>(IpcEvents.LARP_UPDATER_INSTALL),
             dismiss: (version: string) => invoke<LarpUpdaterStatus>(IpcEvents.LARP_UPDATER_DISMISS, version)
+        },
+        /** Larp sync with the Larpcord sync server (desktop/src/main/larpSync.ts) */
+        sync: {
+            status: () => invoke<LarpSyncStatus>(IpcEvents.LARP_SYNC_STATUS),
+            setUrl: (url: string) => invoke<LarpSyncResult<LarpSyncStatus>>(IpcEvents.LARP_SYNC_SET_URL, url),
+            login: () => invoke<LarpSyncLoginResult>(IpcEvents.LARP_SYNC_LOGIN),
+            cancelLogin: () => invoke<void>(IpcEvents.LARP_SYNC_CANCEL_LOGIN),
+            logout: () => invoke<LarpSyncStatus>(IpcEvents.LARP_SYNC_LOGOUT),
+            put: (profileJson: string) => invoke<LarpSyncResult<number>>(IpcEvents.LARP_SYNC_PUT, profileJson),
+            remove: () => invoke<LarpSyncResult>(IpcEvents.LARP_SYNC_DELETE),
+            index: (etag?: string) => invoke<LarpSyncResult<LarpSyncIndex>>(IpcEvents.LARP_SYNC_INDEX, etag),
+            profiles: (ids: string[]) => invoke<LarpSyncResult<LarpSyncProfiles>>(IpcEvents.LARP_SYNC_PROFILES, ids)
         }
     }
 };

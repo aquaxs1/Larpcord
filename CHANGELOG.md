@@ -6,6 +6,15 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+### Added
+- **Larp sync (new):** other Larpcord users see your larp profile and you see theirs – badges, Nitro look, banner,
+  colors, avatar, decoration, effect, nameplate, name style, clan tag, connections, display name and own activities.
+  Regular Discord users keep seeing your real profile, nothing goes through Discord. Log in once with Discord in your
+  browser (Hub → Sync); sharing and viewing are on by default and can be turned off. In someone's profile menu (⋯)
+  you can switch between their real and Larpcord profile.
+- **Sync server** in `server/` (Node 22 + SQLite, Docker Compose with Caddy for HTTPS) with a step-by-step guide for
+  hosting it on an Oracle Cloud VM.
+
 ## [0.4.4] – 2026-10-05
 
 ### Fixed

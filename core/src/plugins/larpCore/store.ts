@@ -411,6 +411,128 @@ export function useLarpProfile(): LarpProfile {
     return LarpStore.get();
 }
 
+// ---- Larp profiles of other Larpcord users (larpSync) ----
+// Filled by larpSync from the sync server. Display only: they only ever reach display copies, the same way
+// the own larp profile does. Nothing here is sent to Discord.
+
+const remoteProfiles = new Map<string, LarpProfile>();
+/** Users whose real profile the viewer chose to see ("Show real profile") */
+const showReal = new Set<string>();
+let remoteEnabled = true;
+/** IDs the sync server has a profile for (not loaded yet = fetched on first use) */
+let remoteIndex = new Set<string>();
+let requestRemote: ((userId: string) => void) | undefined;
+
+export const RemoteProfiles = {
+    /** Adds, replaces (profile) or removes (null) larp profiles of other users */
+    set(entries: Record<string, LarpProfile | null>) {
+        let changed = false;
+        for (const [id, profile] of Object.entries(entries)) {
+            if (isSelf(id)) continue;
+            if (profile) remoteProfiles.set(id, profile);
+            else if (!remoteProfiles.delete(id)) continue;
+            changed = true;
+        }
+        if (changed) emit();
+    },
+
+    clear() {
+        remoteIndex = new Set();
+        if (!remoteProfiles.size) return;
+        remoteProfiles.clear();
+        emit();
+    },
+
+    /** IDs with a shared profile on the server. Loaded profiles that are no longer listed are dropped. */
+    setIndex(ids: Iterable<string>) {
+        remoteIndex = new Set(ids);
+        let changed = false;
+        for (const id of [...remoteProfiles.keys()]) {
+            if (remoteIndex.has(id)) continue;
+            remoteProfiles.delete(id);
+            changed = true;
+        }
+        if (changed) emit();
+    },
+
+    inIndex(userId: string) {
+        return remoteIndex.has(userId);
+    },
+
+    /** larpSync: called (often, must be cheap) for listed users whose profile isn't loaded yet */
+    setRequester(fn: ((userId: string) => void) | undefined) {
+        requestRemote = fn;
+    },
+
+    /** Larp profile of another user, regardless of the viewer's choices */
+    get(userId: string): LarpProfile | undefined {
+        return remoteProfiles.get(userId);
+    },
+
+    ids(): string[] {
+        return [...remoteProfiles.keys()];
+    },
+
+    get enabled() {
+        return remoteEnabled;
+    },
+
+    setEnabled(value: boolean) {
+        if (remoteEnabled === value) return;
+        remoteEnabled = value;
+        emit();
+    },
+
+    isShowingReal(userId: string) {
+        return showReal.has(userId);
+    },
+
+    /** Per-user switch from the profile menu: true = real profile, false = larp profile */
+    setShowReal(userId: string, value: boolean) {
+        if (value === showReal.has(userId)) return;
+        if (value) showReal.add(userId);
+        else showReal.delete(userId);
+        emit();
+    },
+
+    /** Replaces the whole "show real profile" list (loaded by larpSync) */
+    loadShowReal(ids: string[]) {
+        showReal.clear();
+        for (const id of ids) showReal.add(id);
+        emit();
+    },
+
+    showRealList(): string[] {
+        return [...showReal];
+    }
+};
+
+/** Shown larp profile of another user (respects the viewer's switches), fast path without isSelf */
+export function remoteProfileFor(userId: string | null | undefined): LarpProfile | undefined {
+    if (!userId || !remoteEnabled || showReal.has(userId)) return undefined;
+    const profile = remoteProfiles.get(userId);
+    if (!profile && remoteIndex.has(userId)) requestRemote?.(userId);
+    return profile;
+}
+
+/**
+ * Larp profile to display for a user: the own one (active larp account), a shared one of another
+ * Larpcord user (larpSync), or undefined. Only features that are shared may use this; everything else
+ * (music, roles, servers, layout, themes) stays `isSelf`-only.
+ */
+export function larpProfileFor(userId: string | null | undefined): LarpProfile | undefined {
+    if (!userId) return undefined;
+    if (isSelf(userId)) return LarpStore.get();
+    return remoteProfileFor(userId);
+}
+
+/** React hook: larp profile for a user (own profile when userId is missing), re-renders on changes */
+export function useLarpProfileFor(userId?: string | null): LarpProfile | undefined {
+    const [, forceUpdate] = useReducer(x => x + 1, 0);
+    useEffect(() => LarpStore.subscribe(forceUpdate), []);
+    return userId ? larpProfileFor(userId) : LarpStore.get();
+}
+
 /** Regel 2: Larp-Overrides gelten ausschließlich für den eigenen User */
 export function isSelf(userId: string | null | undefined): boolean {
     if (!userId) return false;

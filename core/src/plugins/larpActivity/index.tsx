@@ -8,7 +8,8 @@ import "./styles.css";
 
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
 import { t } from "@plugins/larpCore/i18n";
-import { isSelf, LarpStore, logger } from "@plugins/larpCore/store";
+import { isSelf, LarpStore, logger, remoteProfileFor,RemoteProfiles } from "@plugins/larpCore/store";
+import { LarpProfile } from "@plugins/larpCore/types";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { findStoreLazy } from "@webpack";
@@ -41,10 +42,11 @@ const SelfPresenceStore = findStoreLazy("SelfPresenceStore");
 /** Cache built lists: React compares store results by identity */
 const cache = new WeakMap<object, { version: number; value: DiscordActivity[]; }>();
 
-function override(real: unknown): unknown {
+/** profile: whose larp activities to add (default: the own active larp account) */
+function override(real: unknown, profile?: LarpProfile): unknown {
     try {
         if (!Array.isArray(real)) return real;
-        const cfg = activityConfig();
+        const cfg = activityConfig(profile);
         // Nothing configured and no larp leftovers in the list: pass through unchanged
         if (!cfg && !real.some(isOwnActivity)) return real;
 
@@ -93,7 +95,11 @@ function hookPresenceStore(store: any) {
     const realGetActivities: AnyFn = store?.getActivities;
     wrapMethod(store, "PresenceStore", "getActivities", orig => function (this: unknown, ...args: unknown[]) {
         const real = orig.apply(this, args);
-        return isSelf(args[0] as string) ? override(real) : real;
+        const userId = args[0] as string;
+        if (isSelf(userId)) return override(real);
+        // Shared larp profile of another Larpcord user (larpSync): display only, like the own ones
+        const remote = remoteProfileFor(userId);
+        return remote ? override(real, remote) : real;
     });
     // findActivity is a functional lookup (e.g. Go Live looks for the running game to stream). For the own
     // user it only ever sees the real activities: a made-up one has no application behind it and made
@@ -186,9 +192,14 @@ export default definePlugin({
             hookPresenceStore(store);
             refreshPresence();
         });
-        let last = JSON.stringify(LarpStore.get().activities ?? null);
+        // Own activities plus the shared ones of other Larpcord users (larpSync)
+        const snapshot = () => JSON.stringify([
+            LarpStore.get().activities ?? null,
+            RemoteProfiles.ids().map(id => [id, remoteProfileFor(id)?.activities ?? null])
+        ]);
+        let last = snapshot();
         unsubscribe = LarpStore.subscribe(() => {
-            const now = JSON.stringify(LarpStore.get().activities ?? null);
+            const now = snapshot();
             if (now === last) return;
             last = now;
             refreshPresence();

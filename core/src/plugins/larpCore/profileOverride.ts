@@ -7,7 +7,7 @@
 import { isPluginEnabled } from "@api/PluginManager";
 import virtualMerge from "virtual-merge";
 
-import { isSelf, LarpStore, logger } from "./store";
+import { larpProfileFor, LarpStore, logger } from "./store";
 
 /*
  * Zentraler Hook auf UserProfileStore.getUserProfile(). Discord baut daraus das angezeigte Profil
@@ -33,13 +33,14 @@ const hexToInt = (hex: string) => parseInt(hex.slice(1), 16);
 const cache = new WeakMap<object, { version: number; result: any; }>();
 
 export function overrideProfile(userId: string, profile: any) {
-    if (profile == null || !isSelf(userId)) return profile;
+    if (profile == null) return profile;
 
     try {
         const hit = cache.get(profile);
         if (hit?.version === LarpStore.version) return hit.result;
 
-        const larp = LarpStore.get();
+        const larp = larpProfileFor(userId);
+        if (!larp) return profile;
         const patch: Record<string, unknown> = {};
 
         if (enabled("LarpNitro")) {

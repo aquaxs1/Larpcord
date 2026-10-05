@@ -62,6 +62,15 @@ Larpcord is an open-source, standalone Discord client (its own `.exe`) that lets
 - Presets are shared by all larp accounts; your real profile is always one click away
 - Only the local profile changes: no real account switch, nothing is sent to Discord
 
+### 🌐 Larp sync
+- Other Larpcord users see your larp profile, and you see theirs: badges, Nitro look, banner, colors, avatar,
+  decoration, effect, nameplate, name style, clan tag, connections, display name and own activities
+- Regular Discord users keep seeing your real profile; nothing goes through Discord
+- Runs over the Larpcord sync server (`server/`, self-hostable); log in once with Discord in your browser
+  (read-only "identify")
+- Switch between someone's real and Larpcord profile in their profile menu (⋯); sharing and viewing can be turned off
+  in the hub
+
 ### 🔗 Connections
 - Add made-up connected accounts to your profile: Steam, Spotify, GitHub, Twitch, Xbox, PlayStation and more
 - Any account name, optional account ID for the link, verified check on or off
@@ -112,7 +121,8 @@ Loading screen, tray and app icon are under **Settings → Larpcord → Larpcord
 Larpcord is **purely cosmetic and local**. Everything Discord's servers check stays exactly as it is:
 
 - No bigger uploads, no real HD streaming, no real server boosts
-- Other users do **not** see your larp badges, decorations or larp name
+- Regular Discord users do **not** see your larp badges, decorations or larp name (only other Larpcord users with
+  larp sync, see above)
 - Your real name stays: others keep seeing your real username and display name
 - Your real server order stays: the layout only exists in Larpcord; regular Discord (and your phone) look the same as before
 - Your account, your servers, your roles and your real connections are never changed
@@ -180,6 +190,7 @@ Larpcord stands on the shoulders of two great open-source projects:
 | `core/` | [Vencord](https://github.com/Vendicated/Vencord) | Client mod with all Larpcord plugins |
 | `desktop/` | [Vesktop](https://github.com/Vencord/Vesktop) | Standalone desktop app (`.exe`) |
 | `site/` | – | Project website |
+| `server/` | – | Larp sync server (Node 22, SQLite, Docker + Caddy), see [`server/README.md`](server/README.md) |
 
 The Larpcord plugins live in `core/src/plugins/larp*/`.
 

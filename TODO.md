@@ -137,6 +137,17 @@ Important: must stay compatible with `electron-updater`, so keep the NSIS target
 - [ ] Verify the account switcher IDs in the real client (reporter build / dev tools) and adjust `SWITCHER_IDS` if needed
 - [ ] Import/export of a whole larp account (for now: save it as a preset)
 
+## 12. Larp sync (2026-10-05)
+- [x] Sync server `server/`: OAuth2 "identify" login with browser polling, profile PUT/DELETE, index with ETag,
+  batch profile fetch, moderation (delete/ban), rate limits, tests, Docker + Caddy, Oracle guide
+- [x] `larpProfileFor(userId)` in larpCore: own profile or a shared one; badges, Nitro, decorations, name, activity
+  and connections use it (music, roles, servers, layout, themes stay own-only)
+- [x] Plugin `larpSync`: upload (debounced, only for the matching Discord account), lazy profile loading,
+  hub tab "Sync", "Show real profile" / "Show Larpcord profile" in the profile menu
+- [ ] Set the production server URL as `DEFAULT_SYNC_URL` (`desktop/src/main/larpSync.ts`) once it is running
+- [ ] Profile music for others (needs file hosting on the sync server)
+- [ ] Larp roles and server restyles for others (would need per-server sharing)
+
 ## 9. Added later by the user
 - [x] Use larpcordlogo.png everywhere as the official logo
 - [x] Make sure the background always matches the settings (theme, transitions, etc.)

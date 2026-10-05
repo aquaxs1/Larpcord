@@ -1,0 +1,15 @@
+{
+    "name": "larpcord-sync-server",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Sync server that lets Larpcord users see each other's larp profiles",
+    "license": "GPL-3.0-or-later",
+    "type": "module",
+    "engines": {
+        "node": ">=22.13"
+    },
+    "scripts": {
+        "start": "node --disable-warning=ExperimentalWarning src/server.mjs",
+        "test": "node --disable-warning=ExperimentalWarning --test"
+    }
+}

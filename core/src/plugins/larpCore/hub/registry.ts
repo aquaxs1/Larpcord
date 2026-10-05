@@ -34,6 +34,7 @@ export const HUB_TABS = [
     { id: "name", titleKey: "core.hub.tab.name", plugin: "LarpName" },
     { id: "activity", titleKey: "core.hub.tab.activity", plugin: "LarpActivity" },
     { id: "connections", titleKey: "core.hub.tab.connections", plugin: "LarpConnections" },
+    { id: "sync", titleKey: "core.hub.tab.sync", plugin: "LarpSync" },
     { id: "servers", titleKey: "core.hub.tab.servers", plugin: "LarpServers" },
     { id: "themes", titleKey: "core.hub.tab.themes", plugin: "LarpThemes" },
     { id: "music", titleKey: "core.hub.tab.music", plugin: "LarpMusic" },
