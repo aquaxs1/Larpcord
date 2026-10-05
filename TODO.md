@@ -144,7 +144,7 @@ Important: must stay compatible with `electron-updater`, so keep the NSIS target
   and connections use it (music, roles, servers, layout, themes stay own-only)
 - [x] Plugin `larpSync`: upload (debounced, only for the matching Discord account), lazy profile loading,
   hub tab "Sync", "Show real profile" / "Show Larpcord profile" in the profile menu
-- [ ] Set the production server URL as `DEFAULT_SYNC_URL` (`desktop/src/main/larpSync.ts`) once it is running
+- [x] Production server URL `https://larpcord.duckdns.org` as `DEFAULT_SYNC_URL` (`desktop/src/main/larpSync.ts`)
 - [ ] Profile music for others (needs file hosting on the sync server)
 - [ ] Larp roles and server restyles for others (would need per-server sharing)
 

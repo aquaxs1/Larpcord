@@ -74,8 +74,8 @@ curl https://larpcord.duckdns.org/v1/health     # {"ok":true}
 
 ### 5. Point Larpcord at it
 
-The server URL is set in Larpcord's hub → **Sync** (the default is built into the client:
-`DEFAULT_SYNC_URL` in `desktop/src/main/larpSync.ts`).
+The official server is `https://larpcord.duckdns.org`, built into the client as `DEFAULT_SYNC_URL`
+(`desktop/src/main/larpSync.ts`). Self-hosters enter their own URL in Larpcord's hub → **Sync**.
 
 ### Updating, logs, backup
 
