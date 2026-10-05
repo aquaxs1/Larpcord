@@ -9,3 +9,8 @@ desktop/vencord/
 desktop/release-notes.md
 desktop/dev-app-update.yml
 desktop/dist-updatetest/
+
+# Sync server
+server/.env
+server/data/*
+!server/data/.gitkeep

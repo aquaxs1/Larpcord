@@ -6,7 +6,7 @@
 
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
 import { t } from "@plugins/larpCore/i18n";
-import { isSelf, LarpStore } from "@plugins/larpCore/store";
+import { larpProfileFor } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
@@ -53,7 +53,7 @@ export default definePlugin({
 
     getBannerOverride(userId: string) {
         try {
-            return isSelf(userId) ? LarpStore.get().profile.bannerUrl : undefined;
+            return larpProfileFor(userId)?.profile.bannerUrl;
         } catch {
             return undefined;
         }
@@ -61,7 +61,7 @@ export default definePlugin({
 
     getAvatarOverride(user: { id?: string; } | null | undefined) {
         try {
-            return isSelf(user?.id) ? LarpStore.get().profile.animatedAvatarUrl : undefined;
+            return larpProfileFor(user?.id)?.profile.animatedAvatarUrl;
         } catch {
             return undefined;
         }

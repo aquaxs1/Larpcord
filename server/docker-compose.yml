@@ -1,0 +1,30 @@
+# Larpcord sync server + Caddy (automatic HTTPS via Let's Encrypt).
+# Setup: see README.md in this folder.
+services:
+  sync:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TRUST_PROXY: "1"
+      DATABASE: /data/larpcord-sync.db
+    volumes:
+      - ./data:/data
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file: .env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - sync
+
+volumes:
+  caddy_data:
+  caddy_config:

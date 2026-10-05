@@ -19,3 +19,17 @@ jobs:
       # Needs no dependencies: checks language files and keys used in the code
       - name: Check translations
         run: node scripts/i18n/check.mjs
+
+  sync-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # No dependencies either: node:http + node:sqlite, Discord is mocked
+      - name: Test sync server
+        working-directory: server
+        run: npm test

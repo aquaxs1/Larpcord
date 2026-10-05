@@ -1,0 +1,12 @@
+# SYNC_DOMAIN comes from .env, e.g. larpcord.duckdns.org
+{$SYNC_DOMAIN} {
+	encode gzip
+	request_body {
+		max_size 512KB
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	reverse_proxy sync:8080
+}

@@ -5,7 +5,7 @@
  */
 
 import { getSelfId, LarpStore, logger } from "@plugins/larpCore/store";
-import { LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes } from "@plugins/larpCore/types";
+import { LarpActivities, LarpActivity, LarpActivityFields, LarpActivityRule, LarpActivityTimes, LarpProfile } from "@plugins/larpCore/types";
 
 /*
  * Umwandlung Larp-Aktivität → Discord-Aktivitätsobjekt.
@@ -250,8 +250,8 @@ export function buildActivities(real: DiscordActivity[], cfg: LarpActivities | u
 }
 
 /** Aktuelle Einstellungen (oder undefined, wenn nichts eingerichtet ist) */
-export function activityConfig(): LarpActivities | undefined {
-    const cfg = LarpStore.get().activities;
+export function activityConfig(profile: LarpProfile = LarpStore.get()): LarpActivities | undefined {
+    const cfg = profile.activities;
     if (!cfg) return undefined;
     return cfg.list.length || cfg.rules.length ? cfg : undefined;
 }

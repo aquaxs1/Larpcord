@@ -10,6 +10,7 @@ import "./updater";
 import "./ipc";
 import "./userAssets";
 import "./larpMusic";
+import "./larpSync";
 import "./vesktopProtocol";
 
 import { app, BrowserWindow, nativeTheme } from "electron";

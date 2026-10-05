@@ -5,7 +5,7 @@
  */
 
 import { t } from "@plugins/larpCore/i18n";
-import { getSelfId, LarpStore, logger } from "@plugins/larpCore/store";
+import { getSelfId, LarpStore, logger, remoteProfileFor } from "@plugins/larpCore/store";
 import { GuildMemberStore, showToast, Toasts, UserStore } from "@webpack/common";
 
 /*
@@ -45,6 +45,12 @@ function activeNames() {
     return names.username || names.displayName ? names : undefined;
 }
 
+/** Names of another user's shared larp profile, if it sets a display name */
+function remoteNames(userId: string) {
+    const names = remoteProfileFor(userId)?.names;
+    return names?.displayName ? names : undefined;
+}
+
 export function getUsername(user: NamedUser, real: string) {
     try {
         if (user?.id == null || user.id !== fastSelfId()) return real;
@@ -56,8 +62,10 @@ export function getUsername(user: NamedUser, real: string) {
 
 export function getGlobalName(user: NamedUser, real: string | null | undefined) {
     try {
-        if (user?.id == null || user.id !== fastSelfId()) return real;
-        return LarpStore.get().names.displayName || real;
+        if (user?.id == null) return real;
+        if (user.id === fastSelfId()) return LarpStore.get().names.displayName || real;
+        // Shared larp profile of another Larpcord user (larpSync): display name only, never the username
+        return remoteProfileFor(user.id)?.names.displayName || real;
     } catch {
         return real;
     }
@@ -77,7 +85,8 @@ export function realName(user: NamedUser | null | undefined, key: "username" | "
 /** Sicht auf einen User mit echten Namen (für Serialisierung an Dritte) */
 export function realUserView<T extends NamedUser>(user: T): T {
     try {
-        if (user?.id == null || user.id !== fastSelfId() || !("_larpUN" in user || "_larpGN" in user)) return user;
+        if (user?.id == null || !("_larpUN" in user || "_larpGN" in user)) return user;
+        if (user.id !== fastSelfId() && !remoteProfileFor(user.id)) return user;
         return Object.create(user, {
             username: { value: realName(user, "username"), enumerable: true },
             globalName: { value: realName(user, "globalName"), enumerable: true }
@@ -103,8 +112,8 @@ const memberCache = new WeakMap<object, { version: number; member: Member; }>();
 /** Blendet den eigenen Server-Nickname aus, damit überall der Larp-Name erscheint */
 export function overrideMember<T extends Member | null | undefined>(member: T, userId: string): T {
     try {
-        if (member == null || member.nick == null || userId !== fastSelfId()) return member;
-        const names = activeNames();
+        if (member == null || member.nick == null || userId == null) return member;
+        const names = userId === fastSelfId() ? activeNames() : remoteNames(userId);
         if (!names?.overrideNicknames) return member;
 
         // Pro Member-Objekt und Store-Version cachen, damit React-Memos stabil bleiben
@@ -163,15 +172,25 @@ export function guardAccountBody<T extends Record<string, any>>(body: T): T {
  * (gleiche Daten, neue Identität). Es wird keine Flux-Aktion ausgelöst, also auch nichts gesendet.
  */
 export function refreshOwnUser() {
+    const id = fastSelfId();
+    if (id) refreshUsers([id]);
+}
+
+/** Same as refreshOwnUser for any users (e.g. when shared larp profiles of others arrive) */
+export function refreshUsers(ids: Iterable<string>) {
     try {
-        const id = fastSelfId();
         const users = UserStore.getUsers() as Record<string, any>;
-        const user = id ? users?.[id] : undefined;
-        if (!user || !("_larpUN" in user)) return;
-        users[id!] = new user.constructor({ ...user });
+        let changed = false;
+        for (const id of ids) {
+            const user = users?.[id];
+            if (!user || !("_larpUN" in user)) continue;
+            users[id] = new user.constructor({ ...user });
+            changed = true;
+        }
+        if (!changed) return;
         UserStore.emitChange();
         GuildMemberStore.emitChange();
     } catch (e) {
-        logger.warn("Eigenes User-Objekt konnte nicht aktualisiert werden", e);
+        logger.warn("User-Objekte konnten nicht aktualisiert werden", e);
     }
 }

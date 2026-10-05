@@ -23,7 +23,10 @@ Both checked in as plain folders (no submodule, `.git` removed), upstream commit
 ## Hard rules (never break)
 
 1. **Local only:** no write requests to the Discord API (no PATCH/POST on `/users/@me`, `/guilds/...` etc.).
-2. **Own user only:** profile and name overrides only for your own user ID (`UserStore.getCurrentUser().id`).
+2. **Own user only:** profile and name overrides only for your own user ID (`UserStore.getCurrentUser().id`) –
+   plus, display only, the shared larp profiles of other Larpcord users loaded by larpSync from the Larpcord sync
+   server. Go through `larpProfileFor(userId)`; features that are not shared (music, roles, servers, layout, themes)
+   stay `isSelf`-only. Never upload anything but the open Discord account's own active larp account.
 3. **Server badges are display only:** never change guild features globally.
 4. **No selfbot behavior:** no automated messages, reactions, joins.
 5. **Never change Discord's own server order** (account settings, synced).
@@ -52,6 +55,7 @@ larpcord/
 ├── ship.bat                  ← one-click installer build on Windows
 ├── scripts/                  ← build.mjs, install.mjs, set-version.mjs, generate-icons.py
 ├── site/                     ← project website (static, Vercel root "site", English only)
+├── server/                   ← larp sync server (Node 22 + node:sqlite, Docker + Caddy)
 ├── core/                     ← fork of Vencord
 │   └── src/plugins/
 │       ├── larpCore/         ← store, hub, presets, import/export, watermark
@@ -65,7 +69,8 @@ larpcord/
 │       ├── larpMusic/
 │       ├── larpConnections/
 │       ├── larpThemes/
-│       └── larpLayout/
+│       ├── larpLayout/
+│       └── larpSync/
 └── desktop/                  ← fork of Vesktop
 ```
 
@@ -96,6 +101,14 @@ Do **not** rename internal Vencord identifiers (`Vencord.*`), that breaks upstre
   **restyle servers** (name, icon, banner): `GuildStore` returns a display copy when reading, the image URLs
   come from patches on `getGuildIconURL`/`getGuildBannerURL`, and `guardGuildBody` keeps larp values out of
   `PATCH /guilds/<id>`.
+- **larpSync:** other Larpcord users see each other's larp profiles over the sync server (`server/`, never over
+  Discord). Login: Discord OAuth2 `identify` in the browser, the client polls `/v1/auth/poll` (main process,
+  `desktop/src/main/larpSync.ts`, token encrypted with `safeStorage`). Shared fields: `larpCore/shared.ts`
+  (`toSharedProfile`/`fromSharedProfile`, received profiles are sanitized again). Profiles of others live in
+  `RemoteProfiles` (`larpCore/store.ts`) and are loaded lazily for users in the server's index. Profile menu:
+  "Show real profile" / "Show Larpcord profile". Uploads only when the sync login matches the open Discord account;
+  on the real profile or with sharing off the shared profile is deleted. Activities of others never pose as Spotify
+  (no "Listen along", rule 7).
 - **larpConnections:** made-up connected accounts (platform type, name, optional account ID, verified) on the own
   profile. Display only: added to the display copy in `larpCore/profileOverride.ts` (`connectedAccounts`), option to
   hide the real ones there. `ConnectedAccountsStore` (Settings → Connections) is never touched.
@@ -214,6 +227,7 @@ After that came the big update from `TODO.md`:
 | English as main language | done for website and repo docs |
 | Fixes + larpConnections | done (name style preview, activities, profile name extras, connections) |
 | larpAccounts | done (store v3 + migration, hub tab, account switcher entries, loading screen) |
+| larpSync | done (sync server in `server/`, `larpProfileFor`, hub tab "Sync", profile menu switch); production URL still to set |
 
 ### Testing
 
