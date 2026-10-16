@@ -178,6 +178,12 @@ _(Items that could not be implemented reliably end up here, with a short reason.
   The splash right after installation (“Setting up Larpcord …”) covers the visible part.
 - **Dark color scheme in the uninstall window:** MUI defines `un.onGUIInit` itself; only the installer is themed.
 
+### Larp sync: built, then removed (2026-10-16)
+- A sync server that showed other Larpcord users' larp profiles was built (7fab4e5) and removed again before any
+  release. Do not bring it back as it was: its index of shared profiles was public, so anyone could list every
+  Discord account that uses Larpcord – a client mod against Discord's terms. A new attempt would need reads that
+  require a login, opt-in sharing, deletion of inactive profiles and an entry on the privacy page before launch.
+
 ### Open ideas
 - ~~Clan tag, check mark and crown on the profile right next to the name instead of in the badge row~~ – done:
   patch on the profile name row (`#{intl::USER_PROFILE_PRONOUNS}`), badge row stays as fallback. Known limit: if
