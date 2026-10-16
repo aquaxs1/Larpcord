@@ -6,16 +6,12 @@
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { t, useLarpLocale } from "@plugins/larpCore/i18n";
-import { useLarpProfileFor } from "@plugins/larpCore/store";
+import { useLarpProfile } from "@plugins/larpCore/store";
 
-/**
- * Clan tag, verified check and owner crown – the same element in chat, member list, profile and hub preview.
- * Without userId it shows the own larp profile (hub preview).
- */
-export function NameExtras({ className, userId }: { className?: string; userId?: string; }) {
-    const larp = useLarpProfileFor(userId);
+/** Clan tag, verified check and owner crown – the same element in chat, member list, profile and hub preview */
+export function NameExtras({ className }: { className?: string; }) {
+    const larp = useLarpProfile();
     useLarpLocale();
-    if (!larp) return null;
     const { clanTag, extras } = larp;
     if (!clanTag && !extras.verifiedCheck && !extras.ownerCrown) return null;
 

@@ -10,13 +10,13 @@ import { BadgePosition, ProfileBadge } from "@api/Badges";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
 import { t } from "@plugins/larpCore/i18n";
-import { larpProfileFor, LarpStore, RemoteProfiles } from "@plugins/larpCore/store";
+import { isSelf, LarpStore } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { useEffect, useReducer } from "@webpack/common";
 
 import { SafeNameExtras } from "./NameExtras";
-import { getGlobalName, getUsername, guardAccountBody, overrideMember, realName, realUserView, refreshOwnUser, refreshUsers, resetSelfIdCache } from "./names";
+import { getGlobalName, getUsername, guardAccountBody, overrideMember, realName, realUserView, refreshOwnUser, resetSelfIdCache } from "./names";
 import { toDisplayNameStyles } from "./nameStyles";
 import { NameTab } from "./NameTab";
 
@@ -45,17 +45,17 @@ function markInlineRendered() {
 
 function ProfileInlineExtras({ userId }: { userId?: string; }) {
     useEffect(markInlineRendered, []);
-    if (!larpProfileFor(userId)) return null;
-    return <SafeNameExtras userId={userId} className="larp-name-extras-inline" />;
+    if (!isSelf(userId)) return null;
+    return <SafeNameExtras className="larp-name-extras-inline" />;
 }
 
-function ProfileBadgeFallback({ userId }: { userId?: string; }) {
+function ProfileBadgeFallback() {
     const [, forceUpdate] = useReducer(x => x + 1, 0);
     useEffect(() => {
         inlineListeners.add(forceUpdate);
         return () => void inlineListeners.delete(forceUpdate);
     }, []);
-    return inlineRendered ? null : <SafeNameExtras userId={userId} className="larp-name-extras-profile" />;
+    return inlineRendered ? null : <SafeNameExtras className="larp-name-extras-profile" />;
 }
 
 const ProfileExtrasBadge: ProfileBadge = {
@@ -63,16 +63,14 @@ const ProfileExtrasBadge: ProfileBadge = {
     key: "larpcord_name_extras",
     position: BadgePosition.START,
     shouldShow: ({ userId }) => {
-        const larp = larpProfileFor(userId);
-        if (!larp || inlineRendered) return false;
-        const { clanTag, extras } = larp;
+        if (!isSelf(userId) || inlineRendered) return false;
+        const { clanTag, extras } = LarpStore.get();
         return !!clanTag || extras.verifiedCheck || extras.ownerCrown;
     },
-    component: ({ userId }) => <ProfileBadgeFallback userId={userId} />
+    component: () => <ProfileBadgeFallback />
 };
 
-// Converted name styles by style JSON (own and shared larp profiles), stable object identity for React
-const stylesCache = new Map<string, unknown>();
+let stylesCache: { key: string; value: unknown; } | undefined;
 let unsubscribeNames: (() => void) | undefined;
 
 export default definePlugin({
@@ -87,8 +85,8 @@ export default definePlugin({
 
     userProfileBadge: ProfileExtrasBadge,
 
-    renderMessageDecoration: ({ message }) => larpProfileFor(message?.author?.id) ? <SafeNameExtras userId={message.author.id} /> : null,
-    renderMemberListDecorator: ({ user }) => larpProfileFor(user?.id) ? <SafeNameExtras userId={user!.id} /> : null,
+    renderMessageDecoration: ({ message }) => isSelf(message?.author?.id) ? <SafeNameExtras /> : null,
+    renderMemberListDecorator: ({ user }) => isSelf(user?.id) ? <SafeNameExtras /> : null,
 
     patches: [
         {
@@ -192,15 +190,11 @@ export default definePlugin({
 
     getDisplayNameStyles(user: { id: string; }, original: unknown) {
         try {
-            const larp = larpProfileFor(user?.id);
-            if (!larp) return original;
-            const style = larp.nameStyle;
+            if (!isSelf(user?.id)) return original;
+            const style = LarpStore.get().nameStyle;
             const key = JSON.stringify(style ?? null);
-            if (!stylesCache.has(key)) {
-                if (stylesCache.size > 200) stylesCache.clear();
-                stylesCache.set(key, toDisplayNameStyles(style));
-            }
-            return stylesCache.get(key) ?? original;
+            if (stylesCache?.key !== key) stylesCache = { key, value: toDisplayNameStyles(style) };
+            return stylesCache.value ?? original;
         } catch {
             return original;
         }
@@ -213,20 +207,11 @@ export default definePlugin({
         // right away (the style is read through a getter, which React can't observe on its own)
         const snapshot = () => JSON.stringify([LarpStore.get().names, LarpStore.get().nameStyle ?? null]);
         let lastNames = snapshot();
-        // Same for other users whose shared larp profile (or the viewer's switch for it) changed
-        const remoteSnapshot = (id: string) => JSON.stringify(larpProfileFor(id) ? [larpProfileFor(id)!.names, larpProfileFor(id)!.nameStyle ?? null] : null);
-        let lastRemote = new Map<string, string>();
         unsubscribeNames = LarpStore.subscribe(() => {
             const now = snapshot();
-            if (now !== lastNames) {
-                lastNames = now;
-                refreshOwnUser();
-            }
-            const nextRemote = new Map(RemoteProfiles.ids().map(id => [id, remoteSnapshot(id)]));
-            const changed = [...new Set([...nextRemote.keys(), ...lastRemote.keys()])]
-                .filter(id => nextRemote.get(id) !== lastRemote.get(id));
-            lastRemote = nextRemote;
-            if (changed.length) refreshUsers(changed);
+            if (now === lastNames) return;
+            lastNames = now;
+            refreshOwnUser();
         });
     },
 
@@ -234,6 +219,5 @@ export default definePlugin({
         unregisterHubTab("name");
         unsubscribeNames?.();
         refreshOwnUser();
-        refreshUsers(RemoteProfiles.ids());
     }
 });

@@ -9,7 +9,7 @@ import { isPluginEnabled } from "@api/PluginManager";
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
 import { t } from "@plugins/larpCore/i18n";
 import { getLarpBadges } from "@plugins/larpCore/profileBadges";
-import { larpProfileFor, logger } from "@plugins/larpCore/store";
+import { isSelf, LarpStore, logger } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
@@ -27,13 +27,12 @@ const nitroActive = () => {
 const LarpBadges: ProfileBadge = {
     id: "larpcord_badges",
     position: BadgePosition.START,
-    shouldShow: ({ userId }) => !!larpProfileFor(userId),
+    shouldShow: ({ userId }) => isSelf(userId),
     getBadges({ userId }) {
-        const larp = larpProfileFor(userId);
-        if (!larp) return [];
+        if (!isSelf(userId)) return [];
         try {
             const withNitro = nitroActive();
-            return getLarpBadges(larp)
+            return getLarpBadges(LarpStore.get())
                 .filter(b => withNitro || (b.kind !== "nitro" && b.kind !== "boost"))
                 .map(b => ({
                     id: b.id,
@@ -73,10 +72,11 @@ export default definePlugin({
         }
     ],
 
-    /** Own user or a shared larp profile, otherwise Discord's original value */
+    /** Regel 2: nur für den eigenen User, sonst Discords Originalwert */
     getMemberSince(userId: string, original: number) {
         try {
-            const memberSince = larpProfileFor(userId)?.memberSince;
+            if (!isSelf(userId)) return original;
+            const { memberSince } = LarpStore.get();
             const ts = memberSince ? Date.parse(memberSince) : NaN;
             return isNaN(ts) ? original : ts;
         } catch {

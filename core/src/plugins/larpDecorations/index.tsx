@@ -6,7 +6,7 @@
 
 import { registerHubTab, unregisterHubTab } from "@plugins/larpCore/hub/registry";
 import { t } from "@plugins/larpCore/i18n";
-import { larpProfileFor } from "@plugins/larpCore/store";
+import { isSelf, LarpStore } from "@plugins/larpCore/store";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
@@ -18,18 +18,8 @@ import { DecorationsTab } from "./DecorationsTab";
  * selbst und der Server bleiben unberührt. Profileffekte laufen über den Profil-Hook in larpCore.
  */
 
-// Stable object identity per value (otherwise Discord re-renders all the time); shared larp profiles add more entries
-const decoCache = new Map<string, any>();
-const nameplateCache = new Map<string, any>();
-
-function cached(cache: Map<string, any>, key: string, make: () => any) {
-    let value = cache.get(key);
-    if (value === undefined) {
-        if (cache.size > 500) cache.clear();
-        cache.set(key, value = make());
-    }
-    return value;
-}
+let decoCache: { key: string; value: any; } | undefined;
+let nameplateCache: { key: string; value: any; } | undefined;
 
 export default definePlugin({
     name: "LarpDecorations",
@@ -59,11 +49,13 @@ export default definePlugin({
 
     getDecoration(user: { id: string; }, original: unknown) {
         try {
-            const decoration = larpProfileFor(user?.id)?.decoration;
+            if (!isSelf(user?.id)) return original;
+            const { decoration } = LarpStore.get();
             if (!decoration) return original;
             // stabile Objekt-Identität, sonst rendert Discord ständig neu
             const key = `${decoration.asset}:${decoration.skuId}`;
-            return cached(decoCache, key, () => ({ asset: decoration.asset, skuId: decoration.skuId ?? "0" }));
+            if (decoCache?.key !== key) decoCache = { key, value: { asset: decoration.asset, skuId: decoration.skuId ?? "0" } };
+            return decoCache.value;
         } catch {
             return original;
         }
@@ -71,11 +63,14 @@ export default definePlugin({
 
     getNameplate(user: { id: string; }, original: unknown) {
         try {
-            const larp = larpProfileFor(user?.id);
-            const nameplate = larp?.nameplate, nameplateData = larp?.nameplateData;
+            if (!isSelf(user?.id)) return original;
+            const { nameplate, nameplateData } = LarpStore.get();
             if (!nameplate || !nameplateData) return original;
             const key = `${nameplate}:${nameplateData.asset}:${nameplateData.palette}`;
-            return cached(nameplateCache, key, () => ({ skuId: nameplate, asset: nameplateData.asset, label: nameplateData.label ?? "", palette: nameplateData.palette ?? "" }));
+            if (nameplateCache?.key !== key) {
+                nameplateCache = { key, value: { skuId: nameplate, asset: nameplateData.asset, label: nameplateData.label ?? "", palette: nameplateData.palette ?? "" } };
+            }
+            return nameplateCache.value;
         } catch {
             return original;
         }
