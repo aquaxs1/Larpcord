@@ -4,7 +4,7 @@ All notable changes to Larpcord. The format is based on [Keep a Changelog](https
 and versions follow [Semantic Versioning](https://semver.org/). The sections here automatically become
 the GitHub release text and the changelog in the in-app update notice (`scripts/release-notes.mjs`).
 
-## [Unreleased]
+## [0.4.5-beta.1] – 2026-10-17
 
 ### Changed
 - **Name style fonts are now part of Larpcord.** The name font preview in the Larpcord Hub used to load fonts from Google Fonts,
