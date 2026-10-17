@@ -137,17 +137,6 @@ Important: must stay compatible with `electron-updater`, so keep the NSIS target
 - [ ] Verify the account switcher IDs in the real client (reporter build / dev tools) and adjust `SWITCHER_IDS` if needed
 - [ ] Import/export of a whole larp account (for now: save it as a preset)
 
-## 12. Larp sync (2026-10-05)
-- [x] Sync server `server/`: OAuth2 "identify" login with browser polling, profile PUT/DELETE, index with ETag,
-  batch profile fetch, moderation (delete/ban), rate limits, tests, Docker + Caddy, Oracle guide
-- [x] `larpProfileFor(userId)` in larpCore: own profile or a shared one; badges, Nitro, decorations, name, activity
-  and connections use it (music, roles, servers, layout, themes stay own-only)
-- [x] Plugin `larpSync`: upload (debounced, only for the matching Discord account), lazy profile loading,
-  hub tab "Sync", "Show real profile" / "Show Larpcord profile" in the profile menu
-- [ ] Set the production server URL as `DEFAULT_SYNC_URL` (`desktop/src/main/larpSync.ts`) once it is running
-- [ ] Profile music for others (needs file hosting on the sync server)
-- [ ] Larp roles and server restyles for others (would need per-server sharing)
-
 ## 9. Added later by the user
 - [x] Use larpcordlogo.png everywhere as the official logo
 - [x] Make sure the background always matches the settings (theme, transitions, etc.)
@@ -188,6 +177,12 @@ _(Items that could not be implemented reliably end up here, with a short reason.
   NSIS plugin in the build and only runs for a few seconds while the oneClick installer already shows progress.
   The splash right after installation (“Setting up Larpcord …”) covers the visible part.
 - **Dark color scheme in the uninstall window:** MUI defines `un.onGUIInit` itself; only the installer is themed.
+
+### Larp sync: built, then removed (2026-10-16)
+- A sync server that showed other Larpcord users' larp profiles was built (7fab4e5) and removed again before any
+  release. Do not bring it back as it was: its index of shared profiles was public, so anyone could list every
+  Discord account that uses Larpcord – a client mod against Discord's terms. A new attempt would need reads that
+  require a login, opt-in sharing, deletion of inactive profiles and an entry on the privacy page before launch.
 
 ### Open ideas
 - ~~Clan tag, check mark and crown on the profile right next to the name instead of in the badge row~~ – done:
