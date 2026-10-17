@@ -30,7 +30,7 @@ export function nameStyleCss(style: LarpProfile["nameStyle"]): CSSProperties {
     const fontKey = style.font && NAME_FONTS[style.font] ? style.font : undefined;
     const font = fontKey ? NAME_FONTS[fontKey].css : style.font;
     if (font) {
-        if (fontKey && NAME_FONTS[fontKey].google) ensureNameFontsLoaded();
+        if (fontKey && NAME_FONTS[fontKey].bundled) ensureNameFontsLoaded();
         css.fontFamily = font.startsWith("var(") ? font : `"${font}", var(--font-display)`;
     }
 

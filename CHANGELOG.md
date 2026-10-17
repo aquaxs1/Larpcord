@@ -6,6 +6,12 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+### Changed
+- **Name style fonts are now part of Larpcord.** The name font preview in the Larpcord Hub used to load fonts from Google Fonts,
+  so Google saw your IP address. The 11 fonts (Bangers, BioRhyme, Cherry Bomb One, Chicle, Kalam, MuseoModerno,
+  New Rocker, Orbitron, Pixelify Sans, Playpen Sans, Zilla Slab; SIL Open Font License) now ship with the app,
+  and the preview contacts no one.
+
 ## [0.4.4] – 2026-10-05
 
 ### Fixed
