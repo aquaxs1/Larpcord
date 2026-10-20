@@ -66,7 +66,8 @@ larpcord/
 │       ├── larpConnections/
 │       ├── larpThemes/
 │       └── larpLayout/
-└── desktop/                  ← fork of Vesktop
+├── desktop/                  ← fork of Vesktop
+└── mobile/                   ← Android/iOS apps (Capacitor): Discord web + the core injected at document start
 ```
 
 Do **not** rename internal Vencord identifiers (`Vencord.*`), that breaks upstream merges. Only visible names are called “Larpcord”.
@@ -155,12 +156,27 @@ language setting, without restart.
   `extraMetadata.productName`, otherwise they share the data folder and single-instance lock with the user's
   installed Larpcord.
 
+## Mobile (Android/iOS)
+
+`mobile/` is a Capacitor app whose web view loads `https://discord.com/app` (`capacitor.config.json`, desktop user
+agent/content mode). `mobile/scripts/build-inject.mjs` builds the core with `buildWeb` and wraps
+`core/dist/Vencord.user.js` with `mobile/scripts/prelude.js` (Tampermonkey shims `unsafeWindow`/`GM_xmlhttpRequest`,
+discord.com top frame only, viewport at 1000 px on phones) into `mobile/www/larpcord-inject.js` (generated, not
+committed). `cap sync` copies it into the apps' `public/` folder; Android injects it via
+`WebViewCompat.addDocumentStartJavaScript` in `MainActivity.load()`, iOS via a `WKUserScript` in
+`LarpcordViewController`. The core runs with `IS_WEB`, so everything behind `IS_VESKTOP` (updater, music files,
+app icon) is off there. `.github/workflows/mobile.yml` builds the APK (ubuntu) and the unsigned IPA (macOS) on PRs
+and is called by `release.yml` to upload `Larpcord.apk`/`Larpcord.ipa` to the release. Android signing uses the
+`ANDROID_*` secrets, falling back to a debug signature. App icons: `npx @capacitor/assets generate --assetPath resources`
+in `mobile/` (sources in `mobile/resources/`, made from `desktop/build/icon.png`).
+
 ## Website
 
 `site/` is a static site (HTML/CSS/JS, no build) deployed on Vercel with root directory `site`. English only.
 `index.html` (new tools, live “try it” preview, what you can larp, differences to regular Discord, download),
 `privacy.html` (served as `/privacy`), `vercel.json` (clean URLs, security headers/CSP). The download button reads
-the latest release via the GitHub API and links the setup `.exe` asset; a GitHub button sits next to it. No cookies, no tracking, no external fonts.
+the latest release via the GitHub API and links the setup `.exe`, `Larpcord.apk` and `Larpcord.ipa` assets (a mobile
+button hides while the latest release has no such file); a GitHub button sits next to them. No cookies, no tracking, no external fonts.
 
 ## Logo
 

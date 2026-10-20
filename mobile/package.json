@@ -1,0 +1,19 @@
+{
+    "name": "larpcord-mobile",
+    "private": true,
+    "version": "0.1.0",
+    "description": "Larpcord for Android and iOS – Discord web with the Larpcord plugins",
+    "license": "GPL-3.0-or-later",
+    "scripts": {
+        "inject": "node scripts/build-inject.mjs",
+        "sync": "node scripts/build-inject.mjs && cap sync"
+    },
+    "dependencies": {
+        "@capacitor/android": "8.5.2",
+        "@capacitor/core": "8.5.2",
+        "@capacitor/ios": "8.5.2"
+    },
+    "devDependencies": {
+        "@capacitor/cli": "8.5.2"
+    }
+}

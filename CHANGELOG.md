@@ -4,6 +4,13 @@ All notable changes to Larpcord. The format is based on [Keep a Changelog](https
 and versions follow [Semantic Versioning](https://semver.org/). The sections here automatically become
 the GitHub release text and the changelog in the in-app update notice (`scripts/release-notes.mjs`).
 
+## [Unreleased]
+
+### Added
+- **Larpcord for Android and iOS.** Every release now also has `Larpcord.apk` and `Larpcord.ipa`: Discord's web app
+  with all Larpcord plugins, loaded before Discord starts like on the desktop. Android installs directly, the iOS
+  file is installed with AltStore, SideStore or Sideloadly. The website has download buttons for both.
+
 ## [0.4.5-beta.1] – 2026-10-17
 
 ### Changed

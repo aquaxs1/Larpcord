@@ -410,6 +410,11 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
 .banknote code { background: rgba(29, 61, 42, .12); }
 .steps { position: relative; max-width: 760px; margin: 28px auto 0; padding-left: 1.3em; color: #25372b; }
 .steps li { margin: .4em 0; }
+.platform-icon { flex: none; }
+.install-guides { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 28px; max-width: 980px; margin: 28px auto 0; text-align: left; }
+.install-guides h3 { margin: 0; color: var(--bill); font-size: 1.05rem; }
+.install-guides .steps { margin: 8px 0 0; }
+.mobile-note { position: relative; max-width: 760px; margin: 18px auto 0; color: #3c5144; font-size: .9rem; text-align: center; }
 
 /* ---------- Footer ---------- */
 .footer {

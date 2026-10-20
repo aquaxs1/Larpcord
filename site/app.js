@@ -500,7 +500,7 @@
     render();
 
     /* ---------- Download link from the latest release ---------- */
-    // Uses the setup .exe of the latest release (the auto-updater's blockmap and latest.yml are skipped).
+    // Uses the setup .exe, the .apk and the .ipa of the latest release (the auto-updater's blockmap and latest.yml are skipped).
     // If there is none, the link stays on the releases page.
     const REPO = "aquaxs1/Larpcord";
     fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { Accept: "application/vnd.github+json" } })
@@ -511,14 +511,22 @@
                 $$("[data-version]").forEach(el => { el.textContent = `v${version}`; });
                 $$("[data-version-text]").forEach(el => { el.textContent = version; });
             }
-            const exe = (rel.assets || []).find(a => /\.exe$/i.test(a.name));
+            const assets = rel.assets || [];
+            const asset = re => assets.find(a => re.test(a.name) && /^https:\/\/github\.com\//.test(a.browser_download_url));
+            const exe = asset(/\.exe$/i);
             const info = $("#releaseInfo");
-            if (exe && /^https:\/\/github\.com\//.test(exe.browser_download_url)) {
+            if (exe) {
                 $("#downloadBtn").href = exe.browser_download_url;
                 const mb = (exe.size / 1048576).toFixed(0);
                 info.textContent = `v${version} · ${mb} MB`;
             } else {
                 info.textContent = `v${version}`;
+            }
+            // Android and iOS builds: hide a button while the latest release doesn't have that file yet
+            for (const [id, re] of [["#downloadAndroid", /\.apk$/i], ["#downloadIos", /\.ipa$/i]]) {
+                const file = asset(re);
+                if (file) $(id).href = file.browser_download_url;
+                else $(id).hidden = true;
             }
         })
         .catch(() => { /* Offline or rate-limited: the link to the releases page stays */ });

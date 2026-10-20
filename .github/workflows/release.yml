@@ -1,4 +1,4 @@
-# Builds the Windows .exe and publishes it as a GitHub release including latest.yml and .blockmap,
+# Builds the Windows .exe (plus the Android .apk and iOS .ipa via mobile.yml) and publishes it as a GitHub release including latest.yml and .blockmap,
 # so the auto-updater (electron-updater) in every installed Larpcord finds the new version.
 #
 # Two ways to start a release:
@@ -138,3 +138,11 @@ jobs:
           [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = "false" ] \
             || { echo "::error::Release is still a draft"; exit 1; }
           echo "Published: $uploaded"
+
+  # Android (.apk) and iOS (.ipa), uploaded to the same release once the Windows build has created it
+  mobile:
+    needs: windows
+    uses: ./.github/workflows/mobile.yml
+    with:
+      tag: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}
+    secrets: inherit
