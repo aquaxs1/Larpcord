@@ -1,0 +1,223 @@
+# Builds Larpcord for Android (.apk) and iOS (.ipa) from mobile/.
+#
+# - Pull requests that touch mobile/ or core/: test build, the files are attached to the run as artifacts.
+# - Actions → Mobile → "Run workflow": same, for any branch.
+# - Called by release.yml with a tag: the files are uploaded to that GitHub release as Larpcord.apk and Larpcord.ipa.
+#
+# Android signing: with the repository secrets ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS
+# and ANDROID_KEY_PASSWORD the APK is signed with that key, so a new version installs over the old one. Without them
+# it falls back to a debug signature (installable, but every release has a different key).
+#
+# iOS: the .ipa is unsigned. Sideloading tools (AltStore, SideStore, Sideloadly) sign it with the user's own Apple ID.
+name: Mobile
+
+on:
+  pull_request:
+    paths:
+      - "mobile/**"
+      - "core/**"
+      - ".github/workflows/mobile.yml"
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        description: "Release tag to upload the APK and IPA to, e.g. v0.5.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ inputs.tag }}
+
+jobs:
+  # Builds the core for the web once and wraps it into mobile/www/larpcord-inject.js for both apps
+  inject:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      code: ${{ steps.version.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "$TAG" ]; then
+            version="${TAG#v}"
+          else
+            version="$(node -p 'require("./desktop/package.json").version')-dev"
+          fi
+          # Android needs a growing integer: 0.5.0-beta.2 → 50002, 0.5.0 → 50099, 1.2.3 → 1020399.
+          # The last two digits are the beta number (99 for the final release), so it installs over its betas.
+          IFS=. read -r major minor patch <<< "${version%%-*}"
+          suffix=99
+          if [[ "$version" == *-* ]]; then
+            pre="${version#*-}"
+            [[ "$pre" =~ ([0-9]+)$ ]] && suffix=$(( 10#${BASH_REMATCH[1]} < 99 ? 10#${BASH_REMATCH[1]} : 98 )) || suffix=0
+          fi
+          code=$(( (major * 10000 + minor * 100 + patch) * 100 + suffix ))
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Building $version ($code)"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install core dependencies
+        run: pnpm -C core install --frozen-lockfile
+
+      - name: Build inject script
+        run: node mobile/scripts/build-inject.mjs
+        env:
+          VENCORD_HASH: ${{ github.sha }}
+          VENCORD_REMOTE: ${{ github.repository }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: larpcord-inject
+          path: mobile/www/larpcord-inject.js
+          if-no-files-found: error
+
+  android:
+    needs: inject
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: larpcord-inject
+          path: mobile/www
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: pnpm -C mobile install --frozen-lockfile
+
+      - name: Copy web assets into the Android project
+        run: pnpm -C mobile exec cap sync android
+
+      - name: Signing key
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/larpcord.keystore"
+            echo "LARPCORD_KEYSTORE=$RUNNER_TEMP/larpcord.keystore" >> "$GITHUB_ENV"
+            echo "Signing with the release key"
+          else
+            echo "::warning::No ANDROID_KEYSTORE_BASE64 secret – the APK gets a debug signature"
+          fi
+
+      - name: Build APK
+        working-directory: mobile/android
+        shell: bash
+        env:
+          LARPCORD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          LARPCORD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          LARPCORD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          props=(-PlarpcordVersion=${{ needs.inject.outputs.version }} -PlarpcordVersionCode=${{ needs.inject.outputs.code }})
+          if [ -n "${LARPCORD_KEYSTORE:-}" ]; then
+            ./gradlew --no-daemon assembleRelease "${props[@]}"
+            cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/Larpcord.apk"
+          else
+            ./gradlew --no-daemon assembleDebug "${props[@]}"
+            cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Larpcord.apk"
+          fi
+          ls -la "$GITHUB_WORKSPACE/Larpcord.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Larpcord-android
+          path: Larpcord.apk
+          if-no-files-found: error
+
+      - name: Upload to release
+        if: env.TAG != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$TAG" Larpcord.apk --clobber
+
+  ios:
+    needs: inject
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: larpcord-inject
+          path: mobile/www
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm -C mobile install --frozen-lockfile
+
+      - name: Copy web assets into the iOS project
+        run: pnpm -C mobile exec cap sync ios
+
+      - name: Build app (unsigned)
+        working-directory: mobile/ios/App
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          xcodebuild build \
+            -project App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination "generic/platform=iOS" \
+            -derivedDataPath "$RUNNER_TEMP/build" \
+            MARKETING_VERSION="$(echo '${{ needs.inject.outputs.version }}' | cut -d- -f1)" \
+            CURRENT_PROJECT_VERSION="${{ needs.inject.outputs.code }}" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+
+      - name: Pack IPA
+        run: |
+          set -euo pipefail
+          app="$RUNNER_TEMP/build/Build/Products/Release-iphoneos/App.app"
+          [ -d "$app" ] || { echo "::error::App.app missing after the build"; exit 1; }
+          [ -f "$app/public/larpcord-inject.js" ] || { echo "::error::larpcord-inject.js is not in the app"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$app" "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/Larpcord.ipa" Payload)
+          ls -la "$GITHUB_WORKSPACE/Larpcord.ipa"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Larpcord-ios
+          path: Larpcord.ipa
+          if-no-files-found: error
+
+      - name: Upload to release
+        if: env.TAG != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$TAG" Larpcord.ipa --clobber

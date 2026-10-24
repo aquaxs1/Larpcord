@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Larpcord</string>
+    <string name="title_activity_main">Larpcord</string>
+    <string name="package_name">dev.larpcord.app</string>
+    <string name="custom_url_scheme">dev.larpcord.app</string>
+</resources>

@@ -123,7 +123,7 @@ Larpcord is **purely cosmetic and local**. Everything Discord's servers check st
 
 ## 🚀 Installation
 
-1. Download the latest release from [Releases](https://github.com/aquaxs1/Larpcord/releases) (`Larpcord-Setup.zip` or `Larpcord-Setup.exe`)
+1. Download the latest release from [Releases](https://github.com/aquaxs1/Larpcord/releases) (`Larpcord-Setup.zip` or `Larpcord-Setup.exe`; for phones see [Android & iOS](#-android--ios))
 2. Run `Larpcord-Setup.exe` – one click, a short progress bar, done (installed just for you, no admin rights needed)
 3. On first launch a short onboarding walks you through the most important settings
 4. Log in with your Discord account and get started under Settings → **Larpcord**
@@ -134,6 +134,23 @@ Larpcord is **purely cosmetic and local**. Everything Discord's servers check st
 
 Larpcord lets you know as soon as a new version is available and installs it right away if you want.
 Uninstall via **Settings → Apps**; Larpcord then asks whether your presets and settings should be kept.
+
+### 📱 Android & iOS
+
+Every release also has `Larpcord.apk` (Android) and `Larpcord.ipa` (iOS). On phones Larpcord is Discord's web app
+with the Larpcord plugins injected before Discord loads, so all Larpcord features work the same as on the desktop.
+
+- **Android:** open `Larpcord.apk` on your phone and allow “Install unknown apps” for your browser when asked.
+- **iOS:** the `.ipa` is not signed (that needs a paid Apple developer account). Install it with
+  [AltStore](https://altstore.io), [SideStore](https://sidestore.io) or [Sideloadly](https://sideloadly.io),
+  which sign it with your own Apple ID. With a free Apple ID the app has to be refreshed every 7 days.
+
+Good to know:
+
+- Discord's web app is made for desktops. On phones Larpcord shows it at tablet width (pinch to zoom); tablets get the full layout.
+- Things that only the desktop app has stay desktop-only: the auto-updater (update by installing the new file),
+  profile music from a local file (use a URL), and the extra features in the desktop part such as the app icon.
+- Voice, video and screen sharing behave like Discord in a mobile browser.
 
 ### Build it yourself
 
@@ -157,8 +174,16 @@ More commands:
 
 To publish a release, add a `## [x.y.z]` section to `CHANGELOG.md`, then run **Actions → Release → Run workflow**
 on `main` with that version (or push a `v*` tag). See `.github/workflows/release.yml`:
-it builds `Larpcord-Setup.exe` plus `latest.yml` (so the auto-updater finds the version) and `Larpcord-Setup.zip`
-(optional; the website links to the .exe). Tags with `-beta` (e.g. `v0.3.0-beta.1`) are published as prereleases on the **Beta** channel.
+it builds `Larpcord-Setup.exe` plus `latest.yml` (so the auto-updater finds the version), `Larpcord-Setup.zip`
+(optional; the website links to the .exe), `Larpcord.apk` and `Larpcord.ipa`. Tags with `-beta` (e.g. `v0.3.0-beta.1`) are published as prereleases on the **Beta** channel.
+
+**Mobile apps:** `mobile/` wraps Discord's web app with [Capacitor](https://capacitorjs.com).
+`node mobile/scripts/build-inject.mjs` builds the core for the web and writes `mobile/www/larpcord-inject.js`,
+which both apps inject at document start; `pnpm -C mobile exec cap sync` copies it into `mobile/android` and
+`mobile/ios`. The APK builds with Android Studio or `./gradlew assembleDebug` in `mobile/android`, the IPA needs
+Xcode on a Mac. `.github/workflows/mobile.yml` builds both on every pull request that touches `mobile/` or `core/`
+and on every release. To sign the APK with a fixed key (so new versions install over old ones), add the repository
+secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`.
 
 **Contributing a language:** copy `core/src/plugins/larpCore/i18n/locales/en.json` under the language code
 (e.g. `fr.json`), translate it and run `pnpm i18n:check` – that's all it takes. English is the reference language.
@@ -179,6 +204,7 @@ Larpcord stands on the shoulders of two great open-source projects:
 |---|---|---|
 | `core/` | [Vencord](https://github.com/Vendicated/Vencord) | Client mod with all Larpcord plugins |
 | `desktop/` | [Vesktop](https://github.com/Vencord/Vesktop) | Standalone desktop app (`.exe`) |
+| `mobile/` | [Capacitor](https://capacitorjs.com) | Android (`.apk`) and iOS (`.ipa`) apps: Discord's web app plus the core |
 | `site/` | – | Project website |
 
 The Larpcord plugins live in `core/src/plugins/larp*/`.
