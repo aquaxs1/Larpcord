@@ -1,7 +1,7 @@
 # Builds Larpcord for Android (.apk) and iOS (.ipa) from mobile/.
 #
 # - Pull requests that touch mobile/ or core/: test build, the files are attached to the run as artifacts.
-# - Actions → Mobile → "Run workflow": same, for any branch.
+# - Actions → Mobile → "Run workflow": same, for any branch; with a tag it also attaches both files to that release.
 # - Called by release.yml with a tag: the files are uploaded to that GitHub release as Larpcord.apk and Larpcord.ipa.
 #
 # Android signing: with the repository secrets ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS
@@ -18,6 +18,11 @@ on:
       - "core/**"
       - ".github/workflows/mobile.yml"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Optional: existing release tag to attach the APK and IPA to, e.g. v0.4.4"
+        required: false
+        type: string
   workflow_call:
     inputs:
       tag:
