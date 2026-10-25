@@ -176,7 +176,7 @@ in `mobile/` (sources in `mobile/resources/`, made from `desktop/build/icon.png`
 `index.html` (new tools, live “try it” preview, what you can larp, differences to regular Discord, download),
 `privacy.html` (served as `/privacy`), `vercel.json` (clean URLs, security headers/CSP). The download button reads
 the latest release via the GitHub API and links the setup `.exe`, `Larpcord.apk` and `Larpcord.ipa` assets (a mobile
-button hides while the latest release has no such file); a GitHub button sits next to them. No cookies, no tracking, no external fonts.
+button falls back to the newest release that has its file); a GitHub button sits next to them. No cookies, no tracking, no external fonts.
 
 ## Logo
 

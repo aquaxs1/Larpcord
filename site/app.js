@@ -522,11 +522,24 @@
             } else {
                 info.textContent = `v${version}`;
             }
-            // Android and iOS builds: hide a button while the latest release doesn't have that file yet
-            for (const [id, re] of [["#downloadAndroid", /\.apk$/i], ["#downloadIos", /\.ipa$/i]]) {
+            // Android and iOS builds: from the latest release, or else from the newest release that has the file
+            const mobile = [["#downloadAndroid", /\.apk$/i], ["#downloadIos", /\.ipa$/i]];
+            const missing = mobile.filter(([id, re]) => {
                 const file = asset(re);
                 if (file) $(id).href = file.browser_download_url;
-                else $(id).hidden = true;
+                return !file;
+            });
+            if (missing.length) {
+                fetch(`https://api.github.com/repos/${REPO}/releases?per_page=20`, { headers: { Accept: "application/vnd.github+json" } })
+                    .then(r => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+                    .then(list => {
+                        for (const [id, re] of missing) {
+                            const file = list.filter(r => !r.draft).flatMap(r => r.assets || [])
+                                .find(a => re.test(a.name) && /^https:\/\/github\.com\//.test(a.browser_download_url));
+                            if (file) $(id).href = file.browser_download_url;
+                        }
+                    })
+                    .catch(() => { /* The buttons keep their links to the latest release */ });
             }
         })
         .catch(() => { /* Offline or rate-limited: the link to the releases page stays */ });
