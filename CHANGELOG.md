@@ -6,6 +6,8 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
 
 ## [Unreleased]
 
+## [0.4.5] – 2026-11-10
+
 ### Added
 - **Larpcord for Android and iOS.** Every release now also has `Larpcord.apk` and `Larpcord.ipa`: Discord's web app
   with all Larpcord plugins, loaded before Discord starts like on the desktop. Android installs directly, the iOS
@@ -16,6 +18,10 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
   grey or white window instead of Discord. Larpcord now understands the new format again. The same update had also
   broken a few smaller things, which are fixed too: the local server banner and server badge, the real name being
   passed to games/overlays, the small confirmation toasts, the update notice bar and the "open settings" buttons.
+
+### Changed
+- **Name style fonts are now part of Larpcord** (first shipped in 0.4.5-beta.1): the name font preview in the
+  Larpcord Hub no longer loads fonts from Google Fonts, so it contacts no one.
 
 ## [0.4.5-beta.1] – 2026-10-17
 
