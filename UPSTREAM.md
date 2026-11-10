@@ -23,3 +23,10 @@ Keep these when merging upstream updates:
   the crash notification and copies the details when it is clicked.
 - `core/src/webpack/common/modals.ts`: taken from upstream Vencord `main` (2026-10-05) – `Modal` and `ConfirmModal`
   are found by code because Discord no longer exports them by name.
+- `core/src/webpack/webpack.ts`, `core/src/webpack/patchWebpack.ts`, `core/src/webpack/common/menu.ts`,
+  `core/src/debug/loadLazyChunks.ts`, `core/src/debug/runReporter.ts`, `core/src/plugins/_api/notices.ts` and
+  `core/packages/discord-types/webpack/index.d.ts`: taken from upstream Vencord `main` (2026-11-10) for Discord's
+  switch to rspack (exports passed as plain values, no `loaded` flag on modules, numeric chunk ids).
+- `core/src/webpack/common/utils.ts`: `Toasts`/`showToast` translate to Discord's new toast store, and
+  `SettingsRouter`, `ChannelRouter` and `UserProfileActions` are found by code. Upstream changed these APIs instead;
+  Larpcord keeps the old ones so its plugins and the other bundled plugins keep working.

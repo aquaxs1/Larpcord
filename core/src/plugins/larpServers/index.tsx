@@ -68,7 +68,8 @@ export default definePlugin({
             // Abgeleitete Anzeige-Infos einer Guild (Badge-Typ, Boost-Stufe/-Anzahl)
             find: /="INVITE_ONLY";\i\.has\(/,
             replacement: {
-                match: /(function \i\((\i)\)\{)(?=var \i;let \i=new Set\(\2\.features\))/,
+                // the function is a named declaration in older builds and an anonymous export in newer ones
+                match: /(function(?: \i)?\((\i)\)\{)(?=var \i;let \i=new Set\(\2\.features\))/,
                 replace: "$1$2=$self.displayGuild($2);"
             }
         },
@@ -154,7 +155,8 @@ export default definePlugin({
         },
         {
             // Server-Banner (Kanalliste, Server-Einstellungen)
-            find: "/banners/",
+            // "/banners/" alone also matches Discord's route constants, which come first in newer builds
+            find: "getGuildBannerURL:",
             replacement: {
                 match: /(\{id:(\i),banner:\i\}=\i,\i=arguments\.length>1[^;]*;)/,
                 replace: "$1const larpGuildBanner=$self.guildBannerUrl($2);if(larpGuildBanner!=null)return larpGuildBanner;"

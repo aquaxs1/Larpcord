@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { Logger } from "@utils/Logger";
 import type * as t from "@vencord/discord-types";
 import { _resolveReady, filters, findByCodeLazy, findByPropsLazy, findLazy, mapMangledModuleLazy, waitFor } from "@webpack";
 import type * as TSPattern from "ts-pattern";
@@ -102,15 +103,36 @@ export interface ToastOptions {
     duration?: number;
 }
 
-interface ToastsExports {
-    showToast: (data: ToastData) => void;
-    popToast(): void;
-}
-
-const ToastsExports = mapMangledModuleLazy(".currentToastMap.has(", {
-    showToast: filters.byCode(".currentToastMap.has("),
+// Larpcord: Discord replaced its toast module with a store that takes { text, variant, position, duration }.
+// The old Toasts API is kept and translated, so nothing that shows toasts has to change.
+const ToastsExports = mapMangledModuleLazy("queuedToastsMap:new Map", {
+    showToast: filters.byCode(".currentToastMap.get("),
     popToast: filters.byCode(".delete(")
 });
+
+const toastLogger = new Logger("Toasts");
+
+function showToastData(data: ToastData) {
+    try {
+        ToastsExports.showToast({
+            text: data.message,
+            variant: data.type === ToastType.SUCCESS ? "success" : data.type === ToastType.FAILURE ? "critical" : undefined,
+            position: data.options?.position === ToastPosition.BOTTOM ? "bottom" : "top",
+            duration: data.options?.duration
+        });
+    } catch (e) {
+        // Fallback: a toast must never take the caller down with it
+        toastLogger.error("Failed to show toast:", data.message, e);
+    }
+}
+
+function popToast() {
+    try {
+        ToastsExports.popToast();
+    } catch (e) {
+        toastLogger.error("Failed to pop toast", e);
+    }
+}
 
 export function createToast(message: string, type: string, options?: ToastOptions): ToastData {
     return {
@@ -126,8 +148,8 @@ export const Toasts = {
     Position: ToastPosition,
     genId: () => (Math.random() || Math.random()).toString(36).slice(2),
 
-    show: ToastsExports.showToast,
-    pop: ToastsExports.popToast,
+    show: showToastData,
+    pop: popToast,
     create: createToast,
 };
 
@@ -161,12 +183,13 @@ export const NavigationRouter: t.NavigationRouter = mapMangledModuleLazy("transi
     forward: filters.byCode("goForward()"),
 });
 export const ChannelRouter: t.ChannelRouter = mapMangledModuleLazy('"Thread must have a parent ID."', {
-    transitionToChannel: filters.byCode(".preload"),
+    transitionToChannel: filters.byCode(".openTextInVoiceIfVoiceChannel"),
     transitionToThread: filters.byCode('"Thread must have a parent ID."')
 });
 
-export let SettingsRouter: any;
-waitFor(["openUserSettings", "USER_SETTINGS_MODAL_KEY"], m => SettingsRouter = m);
+export const SettingsRouter: any = mapMangledModuleLazy('type:"USER_SETTINGS_MODAL_OPEN"', {
+    openUserSettings: filters.byCode('type:"USER_SETTINGS_MODAL_OPEN"')
+});
 
 export const PermissionsBits: t.PermissionsBits = findLazy(m => typeof m.ADMINISTRATOR === "bigint");
 
@@ -180,7 +203,10 @@ export const { zustandPersist } = mapMangledModuleLazy(".onRehydrateStorage)?", 
 
 export const MessageActions = findByPropsLazy("editMessage", "sendMessage");
 export const MessageCache = findByPropsLazy("clearCache", "_channelMessages");
-export const UserProfileActions = findByPropsLazy("openUserProfileModal", "closeUserProfileModal");
+// Larpcord: Discord no longer exports these by name, so the function is found by code (as upstream Vencord does)
+export const UserProfileActions = {
+    openUserProfileModal: findByCodeLazy('type:"USER_PROFILE_MODAL_OPEN"') as (props: Record<string, any>) => Promise<void> | void
+};
 export const InviteActions = findByPropsLazy("resolveInvite");
 export const ChannelActionCreators = findByPropsLazy("openPrivateChannel");
 

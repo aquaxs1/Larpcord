@@ -11,6 +11,12 @@ the GitHub release text and the changelog in the in-app update notice (`scripts/
   with all Larpcord plugins, loaded before Discord starts like on the desktop. Android installs directly, the iOS
   file is installed with AltStore, SideStore or Sideloadly. The website has download buttons for both.
 
+### Fixed
+- **Blank window on startup.** A Discord update switched to a new build format, and Larpcord only showed an empty
+  grey or white window instead of Discord. Larpcord now understands the new format again. The same update had also
+  broken a few smaller things, which are fixed too: the local server banner and server badge, the real name being
+  passed to games/overlays, the small confirmation toasts, the update notice bar and the "open settings" buttons.
+
 ## [0.4.5-beta.1] – 2026-10-17
 
 ### Changed
