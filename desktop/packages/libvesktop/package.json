@@ -7,6 +7,7 @@
         "node-gyp": "^11.4.2"
     },
     "scripts": {
+        "install": "node -e \"\"",
         "build": "node-gyp configure build",
         "clean": "node-gyp clean",
         "test": "npm run build && node test.js"
