@@ -30,3 +30,6 @@ Keep these when merging upstream updates:
 - `core/src/webpack/common/utils.ts`: `Toasts`/`showToast` translate to Discord's new toast store, and
   `SettingsRouter`, `ChannelRouter` and `UserProfileActions` are found by code. Upstream changed these APIs instead;
   Larpcord keeps the old ones so its plugins and the other bundled plugins keep working.
+- `desktop/packages/libvesktop/package.json`: explicit no-op `install` script. Without it pnpm runs `node-gyp rebuild`
+  on every install (because of `binding.gyp`), which fails on Windows runners whose Visual Studio node-gyp doesn't
+  know. The module is Linux-only and the build uses the prebuilt binaries; `pnpm buildLibVesktop` still compiles it.
