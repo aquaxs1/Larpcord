@@ -168,7 +168,8 @@ export default definePlugin({
             // RPC-Serialisierung (Spiele, Overlays) ebenfalls mit echtem Namen
             find: /global_name:\i,avatar:\i,avatar_decoration_data:/,
             replacement: {
-                match: /(?<=premiumType:\i\}=)(\i)(?=;return\{id:)/,
+                // the destructured field list changes between builds (premiumType was dropped), so only anchor on its start
+                match: /(?<=\{id:\i,username:\i,[^{}]*\}=)(\i)(?=;return\{id:)/,
                 replace: "$self.realUserView($1)"
             }
         }
