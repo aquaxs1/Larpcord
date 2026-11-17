@@ -1,22 +1,57 @@
 {
-    "$schema": "https://openapi.vercel.sh/vercel.json",
-    "cleanUrls": true,
-    "trailingSlash": false,
-    "redirects": [
-        { "source": "/datenschutz", "destination": "/privacy", "permanent": true }
-    ],
-    "headers": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/assets/aqx/(.*)",
+      "headers": [
         {
-            "source": "/(.*)",
-            "headers": [
-                { "key": "X-Content-Type-Options", "value": "nosniff" },
-                { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-                { "key": "X-Frame-Options", "value": "DENY" },
-                {
-                    "key": "Content-Security-Policy",
-                    "value": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src https://api.github.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'"
-                }
-            ]
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
         }
-    ]
+      ]
+    },
+    {
+      "source": "/assets/aqx/fonts/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), browsing-topics=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; img-src 'self' data: blob:; style-src 'self'; font-src 'self'; script-src 'self'; connect-src 'self' https://api.github.com; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/datenschutz",
+      "destination": "/privacy",
+      "permanent": true
+    }
+  ]
 }

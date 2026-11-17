@@ -177,6 +177,9 @@ in `mobile/` (sources in `mobile/resources/`, made from `desktop/build/icon.png`
 `privacy.html` (served as `/privacy`), `vercel.json` (clean URLs, security headers/CSP). The download button reads
 the latest release via the GitHub API and links the setup `.exe`, `Larpcord.apk` and `Larpcord.ipa` assets (a mobile
 button falls back to the newest release that has its file); a GitHub button sits next to them. No cookies, no tracking, no external fonts.
+The look comes from the shared AquAxs kit in `site/assets/aqx/` (same files in every project site, change the
+accent in `site/assets/site.css`, not there); `site/assets/scene.js` is the 3D hero. `app.js` (preview, download
+buttons) is independent of the kit, and the preview's styles in `site.css` are scoped to `#try`.
 
 ## Logo
 

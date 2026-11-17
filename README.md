@@ -190,9 +190,10 @@ secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALI
 
 ### Website
 
-The project website lives in `site/` (plain HTML/CSS/JS, no build step). On Vercel, choose `site` as the
-Root Directory and “Other” as the framework. Preview locally with `npx serve site`. Fill in the controller
-placeholders in `site/privacy.html` before publishing.
+The project website lives in `site/` (plain HTML/CSS/JS, no build step). It shares its look and its 3D stage
+with the other AquAxs project sites (`site/assets/aqx/`); the live “Try it” preview keeps its own styles.
+On Vercel, choose `site` as the Root Directory and “Other” as the framework. Preview locally with
+`npx serve site`. More in [`site/README.md`](site/README.md).
 
 ---
 
