@@ -1,91 +1,114 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Larpcord – The Discord client where you can be anyone</title>
-    <meta name="description" content="Larpcord is an open-source Discord client for Windows: badges, Nitro look, decorations, a different name and your own layout – visible only on your own PC.">
-    <meta name="theme-color" content="#0d1f15">
-    <meta property="og:title" content="Larpcord">
-    <meta property="og:description" content="Badges, Nitro look, decorations, name and layout – only on your own screen.">
-    <meta property="og:image" content="/assets/logo.png">
-    <link rel="icon" type="image/png" href="/assets/logo.png">
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Larpcord – The Discord client where you can be anyone</title>
+  <meta name="description" content="Larpcord is an open-source Discord client for Windows: badges, Nitro look, decorations, a different name and your own layout – visible only on your own PC.">
+  <link rel="canonical" href="https://larpcorddc.vercel.app/">
+  <meta name="theme-color" content="#050806">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Larpcord">
+  <meta property="og:title" content="Larpcord – The Discord client where you can be anyone">
+  <meta property="og:description" content="Larpcord is an open-source Discord client for Windows: badges, Nitro look, decorations, a different name and your own layout – visible only on your own PC.">
+  <meta property="og:url" content="https://larpcorddc.vercel.app/">
+  <meta property="og:image" content="https://larpcorddc.vercel.app/assets/logo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="preload" href="assets/aqx/fonts/bodoni-moda-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/aqx/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/aqx/aqx.css">
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/aqx/boot.js"></script>
+  <script type="module" src="assets/aqx/aqx.js"></script>
+  <script src="app.js" defer></script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Larpcord", "description": "Larpcord is an open-source Discord client for Windows: badges, Nitro look, decorations, a different name and your own layout – visible only on your own PC.", "url": "https://larpcorddc.vercel.app/", "applicationCategory": "SocialNetworkingApplication", "operatingSystem": "Windows 10, Windows 11, Android, iOS", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "author": {"@type": "Person", "name": "AquAxs", "url": "https://aqua.is-a.dev/"}, "image": "https://larpcorddc.vercel.app/assets/logo.png", "license": "https://www.gnu.org/licenses/gpl-3.0.html", "sameAs": ["https://github.com/aquaxs1/Larpcord"]}</script>
 </head>
 <body>
-<div class="money-rain" aria-hidden="true"></div>
+  <a class="skip" href="#main">Skip to content</a>
+  <canvas class="aqx-sky" aria-hidden="true"></canvas>
+  <div class="aqx-aura" aria-hidden="true"></div>
+  <div class="aqx-progress" aria-hidden="true"></div>
 
-<header class="topbar">
-    <a class="brand" href="/" aria-label="Larpcord home">
-        <img src="/assets/logo.png" alt="" width="36" height="36">
-        <span>Larpcord</span>
-    </a>
-    <nav class="topnav" aria-label="Main navigation">
-        <a href="#new">New</a>
-        <a href="#try">Try it</a>
-        <a href="#larp">What you can larp</a>
-        <a href="#differences">Differences</a>
-        <a class="btn btn-small" href="#download">Download</a>
-    </nav>
-</header>
+  <header class="nav" data-stuck="false" data-open="false">
+    <div class="nav-inner">
+      <a class="brand" href="./" aria-label="Larpcord home"><img src="assets/logo.png" alt="" width="32" height="32"><span>Larpcord</span></a>
+      <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links"><span></span></button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="./#new">New</a></li>
+        <li><a href="./#try">Try it</a></li>
+        <li><a href="./#larp">What you can larp</a></li>
+        <li><a href="./#differences">Differences</a></li>
+        <li><a class="btn btn-primary btn-sm" href="./#download">Download</a></li>
+      </ul>
+    </div>
+  </header>
 
-<main>
-    <!-- HERO -->
+  <main id="main">
+    <div class="money-rain" aria-hidden="true"></div>
+
     <section class="hero">
-        <div class="hero-logo">
-            <img src="/assets/logo.png" alt="Larpcord logo: the Discord mascot made of banknotes" width="320" height="320">
+      <div class="stage" data-scene="assets/scene.js" data-mode="hero" aria-hidden="true"><canvas></canvas></div>
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow"><span data-version>v0.4.0</span> for Windows</span>
+          <h1>Be whoever you want. <em>At least on your own screen.</em></h1>
+          <p class="lead">Badges, Nitro look, decorations, a new name. <strong>Only you see it.</strong></p>
+          <div class="btn-row">
+            <a class="btn btn-primary btn-lg" href="#download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download</a>
+            <a class="btn btn-lg" href="#try"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.500v15l13-7.500z"/></svg>Try it</a>
+          </div>
         </div>
-        <div class="hero-text">
-            <p class="eyebrow"><span class="stamp" data-version>v0.4.0</span> for Windows</p>
-            <h1>Be whoever you want.<br><span class="gold">At least on your own screen.</span></h1>
-            <p class="lead">Badges, Nitro look, decorations, a new name. <strong>Only you see it.</strong></p>
-            <div class="cta-row">
-                <a class="btn btn-gold" href="#download">⬇ Download</a>
-                <a class="btn btn-ghost" href="#try">Try it</a>
-            </div>
-        </div>
+      </div>
+      <span class="hero-hint">Click to flip the view</span>
     </section>
 
-    <!-- NEW -->
-    <section id="new" class="section">
-        <div class="section-head">
-            <h2>New in <span data-version-text>0.4.0</span></h2>
+    <section class="sec" id="new">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="eyebrow">What's new</span>
+          <h2>New in <em data-version-text>0.4.0</em></h2>
         </div>
-        <div class="cards">
-            <article class="card note">
-                <div class="card-icon">👥</div>
-                <h3>Larp accounts</h3>
-                <p>Switch between whole larp profiles like real accounts.</p>
-                <button class="try" data-try="accounts">▶ Try it</button>
-            </article>
-            <article class="card note">
-                <div class="card-icon">🔗</div>
-                <h3>Connections</h3>
-                <p>Steam, Spotify, GitHub – any name you like.</p>
-                <button class="try" data-try="connections">▶ Try it</button>
-            </article>
-            <article class="card note">
-                <div class="card-icon">✨</div>
-                <h3>Name styles</h3>
-                <p>Fonts and effects, live in the preview.</p>
-                <button class="try" data-try="name">▶ Try it</button>
-            </article>
-            <article class="card note">
-                <div class="card-icon">🎮</div>
-                <h3>Activities</h3>
-                <p>Play, listen, watch or stream anything.</p>
-                <button class="try" data-try="activity">▶ Try it</button>
-            </article>
+        <div class="cards" data-cols="4">
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 15.5c2.5.3 4.5 1.6 5.5 4.5"/></svg></span>
+            <h3>Larp accounts</h3>
+            <p>Switch between whole larp profiles like real accounts.</p>
+            <button class="btn btn-sm try" type="button" data-try="accounts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.500v15l13-7.500z"/></svg>Try it</button>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.700 0l3-3a4 4 0 0 0-5.700-5.700l-1 1M14 10a4 4 0 0 0-5.700 0l-3 3a4 4 0 0 0 5.700 5.700l1-1"/></svg></span>
+            <h3>Connections</h3>
+            <p>Steam, Spotify, GitHub – any name you like.</p>
+            <button class="btn btn-sm try" type="button" data-try="connections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.500v15l13-7.500z"/></svg>Try it</button>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800zM19 16l.800 2.200L22 19l-2.200.800L19 22l-.800-2.200L16 19l2.200-.800z"/></svg></span>
+            <h3>Name styles</h3>
+            <p>Fonts and effects, live in the preview.</p>
+            <button class="btn btn-sm try" type="button" data-try="name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.500v15l13-7.500z"/></svg>Try it</button>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 11v3M5.500 12.500h3M15.500 11.500h.010M18 13.500h.010"/></svg></span>
+            <h3>Activities</h3>
+            <p>Play, listen, watch or stream anything.</p>
+            <button class="btn btn-sm try" type="button" data-try="activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.500v15l13-7.500z"/></svg>Try it</button>
+          </article>
         </div>
+      </div>
     </section>
 
-    <!-- PLAYGROUND -->
-    <section id="try" class="section">
-        <div class="section-head">
-            <h2>Try it right here</h2>
-            <p>Tweak it on the left, see it on the right.</p>
+    <section class="sec" id="try">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="eyebrow">Live preview</span>
+          <h2>Try it <em>right here</em></h2>
+          <p class="lead">Tweak it on the left, see it on the right.</p>
         </div>
-
         <div class="playground">
             <div class="panel controls">
                 <div class="tabs" role="tablist" aria-label="Larp areas">
@@ -306,120 +329,256 @@
                 </div>
             </div>
         </div>
+      </div>
     </section>
 
-    <!-- LARP -->
-    <section id="larp" class="section">
-        <div class="section-head">
-            <h2>Everything you can larp</h2>
+    <section class="sec" id="larp">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="eyebrow">Features</span>
+          <h2>Everything <em>you can larp</em></h2>
         </div>
-        <div class="larp-grid">
-            <div class="larp-item"><h3>👥 Larp accounts</h3><ul><li>Whole profiles, separate settings</li><li>Switch like a real account</li></ul></div>
-            <div class="larp-item"><h3>🔗 Connections</h3><ul><li>Steam, Spotify, GitHub &amp; more</li><li>Any name, verified check</li></ul></div>
-            <div class="larp-item"><h3>🏅 Badges</h3><ul><li>All official badges</li><li>Custom badges</li></ul></div>
-            <div class="larp-item"><h3>💎 Nitro look</h3><ul><li>Theme, banner, animated avatar</li><li>Decorations &amp; effects</li></ul></div>
-            <div class="larp-item"><h3>🪪 Name</h3><ul><li>New name, no cooldown</li><li>Clan tag, styles, check mark</li></ul></div>
-            <div class="larp-item"><h3>🎮 Activities</h3><ul><li>Any game, song or stream</li><li>Rename real ones</li></ul></div>
-            <div class="larp-item"><h3>🏰 Servers</h3><ul><li>Partner &amp; verified badge</li><li>Boosts, name, icon, banner</li></ul></div>
-            <div class="larp-item"><h3>🎖️ Roles</h3><ul><li>Any role per server</li><li>Colored names</li></ul></div>
-            <div class="larp-item"><h3>🎵 Music</h3><ul><li>Your song on your profile</li></ul></div>
-            <div class="larp-item"><h3>🧩 Layout &amp; themes</h3><ul><li>Sort servers, pin DMs</li><li>Colors, fonts, sounds</li></ul></div>
-            <div class="larp-item"><h3>🎭 Presets</h3><ul><li>Switch setups in one click</li><li>Share as <code>.larp.json</code></li></ul></div>
+        <div class="cards" data-cols="4">
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 15.5c2.5.3 4.5 1.6 5.5 4.5"/></svg></span>
+            <h3>Larp accounts</h3>
+            <ul>
+              <li>Whole profiles, separate settings</li>
+              <li>Switch like a real account</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.700 0l3-3a4 4 0 0 0-5.700-5.700l-1 1M14 10a4 4 0 0 0-5.700 0l-3 3a4 4 0 0 0 5.700 5.700l1-1"/></svg></span>
+            <h3>Connections</h3>
+            <ul>
+              <li>Steam, Spotify, GitHub &amp; more</li>
+              <li>Any name, verified check</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="m8.500 14-1.500 7 5-3 5 3-1.500-7"/></svg></span>
+            <h3>Badges</h3>
+            <ul>
+              <li>All official badges</li>
+              <li>Custom badges</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9zM2 9h20M9 3l-3 6 6 12 6-12-3-6"/></svg></span>
+            <h3>Nitro look</h3>
+            <ul>
+              <li>Theme, banner, animated avatar</li>
+              <li>Decorations &amp; effects</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.500-1.500 1.700-2 3-2s2.500.500 3 2M14 10h5M14 14h4"/></svg></span>
+            <h3>Name</h3>
+            <ul>
+              <li>New name, no cooldown</li>
+              <li>Clan tag, styles, check mark</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 11v3M5.500 12.500h3M15.500 11.500h.010M18 13.500h.010"/></svg></span>
+            <h3>Activities</h3>
+            <ul>
+              <li>Any game, song or stream</li>
+              <li>Rename real ones</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.500h.010M7 16.500h.010"/></svg></span>
+            <h3>Servers</h3>
+            <ul>
+              <li>Partner &amp; verified badge</li>
+              <li>Boosts, name, icon, banner</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 8 4 4 5-7 5 7 4-4-2 11H5z"/></svg></span>
+            <h3>Roles</h3>
+            <ul>
+              <li>Any role per server</li>
+              <li>Colored names</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></span>
+            <h3>Music</h3>
+            <ul>
+              <li>Your song on your profile</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></span>
+            <h3>Layout &amp; themes</h3>
+            <ul>
+              <li>Sort servers, pin DMs</li>
+              <li>Colors, fonts, sounds</li>
+            </ul>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5"/></svg></span>
+            <h3>Presets</h3>
+            <ul>
+              <li>Switch setups in one click</li>
+              <li>Share as <code>.larp.json</code></li>
+            </ul>
+          </article>
         </div>
+      </div>
     </section>
 
-    <!-- DIFFERENCES -->
-    <section id="differences" class="section">
-        <div class="section-head">
-            <h2>Larpcord vs. Discord</h2>
+    <section class="sec" id="differences">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="eyebrow">Differences</span>
+          <h2>Larpcord <em>vs. Discord</em></h2>
         </div>
-        <div class="table-wrap">
-            <table class="compare-table">
-                <thead>
-                    <tr><th scope="col"></th><th scope="col">Discord</th><th scope="col">Larpcord</th></tr>
-                </thead>
-                <tbody>
-                    <tr><th scope="row">Badges &amp; Nitro</th><td>What you paid for</td><td>Anything – only you see it</td></tr>
-                    <tr><th scope="row">Name</th><td>Cooldown</td><td>Instant, local only</td></tr>
-                    <tr><th scope="row">Server order</th><td>Synced</td><td>Your own, only in Larpcord</td></tr>
-                    <tr><th scope="row">Activity &amp; roles</th><td>Real</td><td>Anything, local only</td></tr>
-                    <tr><th scope="row">Uploads &amp; streaming</th><td>Your plan</td><td>Unchanged</td></tr>
-                    <tr><th scope="row">Your account</th><td>–</td><td>Never touched</td></tr>
-                </tbody>
-            </table>
+        <div class="table-wrap reveal">
+          <table>
+            <thead>
+              <tr>
+                <td></td>
+                <th scope="col">Discord</th>
+                <th scope="col">Larpcord</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Badges &amp; Nitro</th>
+                <td>What you paid for</td>
+                <td>Anything – only you see it</td>
+              </tr>
+              <tr>
+                <th scope="row">Name</th>
+                <td>Cooldown</td>
+                <td>Instant, local only</td>
+              </tr>
+              <tr>
+                <th scope="row">Server order</th>
+                <td>Synced</td>
+                <td>Your own, only in Larpcord</td>
+              </tr>
+              <tr>
+                <th scope="row">Activity &amp; roles</th>
+                <td>Real</td>
+                <td>Anything, local only</td>
+              </tr>
+              <tr>
+                <th scope="row">Uploads &amp; streaming</th>
+                <td>Your plan</td>
+                <td>Unchanged</td>
+              </tr>
+              <tr>
+                <th scope="row">Your account</th>
+                <td>–</td>
+                <td>Never touched</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="warn">
-            Client mods break Discord's Terms of Service – use at your own risk. Don't fool people with fake badges.
+        <div class="note warn reveal">
+          <p>Client mods break Discord's Terms of Service – use at your own risk. Don't fool people with fake badges.</p>
         </div>
+      </div>
     </section>
 
-    <!-- DOWNLOAD -->
-    <section id="download" class="section">
-        <div class="download banknote">
-            <div class="bn-corner tl">L</div><div class="bn-corner tr">L</div>
-            <div class="bn-corner bl">L</div><div class="bn-corner br">L</div>
-            <div class="download-inner">
-                <img src="/assets/logo.png" alt="" width="120" height="120" class="bn-portrait">
-                <div>
-                    <h2>Download Larpcord</h2>
-                    <p class="release-line"><span id="releaseInfo">Windows 10/11 · Android · iOS</span></p>
-                    <div class="download-buttons">
-                        <a class="btn btn-gold btn-big" id="downloadBtn" href="https://github.com/aquaxs1/Larpcord/releases/latest">⬇ Download (.exe)</a>
-                        <a class="btn btn-dark btn-big" id="downloadAndroid" href="https://github.com/aquaxs1/Larpcord/releases/latest/download/Larpcord.apk"><svg class="platform-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.4395 5.5586c-.675 1.1664-1.352 2.3318-2.0274 3.498-.0366-.0155-.0742-.0286-.1113-.043-1.8249-.6957-3.484-.8-4.42-.787-1.8551.0185-3.3544.4643-4.2597.8203-.084-.1494-1.7526-3.021-2.0215-3.4864a1.1451 1.1451 0 0 0-.1406-.1914c-.3312-.364-.9054-.4859-1.379-.203-.475.282-.7136.9361-.3886 1.5019 1.9466 3.3696-.0966-.2158 1.9473 3.3593.0172.031-.4946.2642-1.3926 1.0177C2.8987 12.176.452 14.772 0 18.9902h24c-.119-1.1-.3929-2.1063-.7754-3.0118-.4226-1.002-.9721-1.8826-1.6035-2.6562-1.0782-1.3207-2.4655-2.4042-3.7852-3.1191.6406-1.1078 1.2802-2.2148 1.9219-3.3223.2032-.3528.2141-.7798.0275-1.1426a1.1503 1.1503 0 0 0-2.0263-.0586l.0005-.0001zm-.0918 9.9063c.5938.0007 1.0756.4836 1.0743 1.0774-.0007.5938-.4836 1.0756-1.0774 1.0743-.5938-.0007-1.0756-.4836-1.0743-1.0774.0013-.5938.4836-1.0756 1.0774-1.0743zm-12.6974 0c.5938.0007 1.0756.4836 1.0743 1.0774-.0007.5938-.4836 1.0756-1.0774 1.0743-.5938-.0007-1.0756-.4836-1.0743-1.0774.0013-.5938.4836-1.0756 1.0774-1.0743z"/></svg> Android (.apk)</a>
-                        <a class="btn btn-dark btn-big" id="downloadIos" href="https://github.com/aquaxs1/Larpcord/releases/latest/download/Larpcord.ipa"><svg class="platform-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg> iOS (.ipa)</a>
-                        <a class="btn btn-dark btn-big" href="https://github.com/aquaxs1/Larpcord" rel="noopener"><svg class="gh-icon" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg> GitHub</a>
-                    </div>
-                </div>
-            </div>
-            <div class="install-guides">
-                <div>
-                    <h3>Windows</h3>
-                    <ol class="steps">
-                        <li>Run <code>Larpcord-Setup.exe</code></li>
-                        <li>SmartScreen: “More info” → “Run anyway”</li>
-                        <li>Log in → Settings → <em>Larpcord</em></li>
-                    </ol>
-                </div>
-                <div>
-                    <h3>Android</h3>
-                    <ol class="steps">
-                        <li>Open <code>Larpcord.apk</code> on your phone</li>
-                        <li>Allow “Install unknown apps” for your browser when asked</li>
-                        <li>Log in → Settings → <em>Larpcord</em></li>
-                    </ol>
-                </div>
-                <div>
-                    <h3>iOS</h3>
-                    <ol class="steps">
-                        <li>Install <code>Larpcord.ipa</code> with AltStore, SideStore or Sideloadly (your Apple ID signs it)</li>
-                        <li>Free Apple IDs: refresh the app every 7 days in the sideloading tool</li>
-                        <li>Log in → Settings → <em>Larpcord</em></li>
-                    </ol>
-                </div>
-            </div>
-            <p class="mobile-note">On phones, Larpcord is Discord's web app with the Larpcord plugins, shown at tablet width. Voice and video depend on the web version.</p>
+    <section class="sec" id="download">
+      <div class="wrap">
+        <div class="cta reveal">
+          <img class="cta-logo" src="assets/logo.png" alt="" width="120" height="120" loading="lazy" decoding="async">
+          <h2>Download <em>Larpcord</em></h2>
+          <p class="lead" id="releaseInfo">Windows 10/11 · Android · iOS</p>
+          <div class="btn-row">
+            <a class="btn btn-primary btn-lg" id="downloadBtn" href="https://github.com/aquaxs1/Larpcord/releases/latest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download (.exe)</a>
+            <a class="btn btn-lg" id="downloadAndroid" href="https://github.com/aquaxs1/Larpcord/releases/latest/download/Larpcord.apk"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.4395 5.5586c-.675 1.1664-1.352 2.3318-2.0274 3.498-.0366-.0155-.0742-.0286-.1113-.043-1.8249-.6957-3.484-.8-4.42-.787-1.8551.0185-3.3544.4643-4.2597.8203-.084-.1494-1.7526-3.021-2.0215-3.4864a1.1451 1.1451 0 0 0-.1406-.1914c-.3312-.364-.9054-.4859-1.379-.203-.475.282-.7136.9361-.3886 1.5019 1.9466 3.3696-.0966-.2158 1.9473 3.3593.0172.031-.4946.2642-1.3926 1.0177C2.8987 12.176.452 14.772 0 18.9902h24c-.119-1.1-.3929-2.1063-.7754-3.0118-.4226-1.002-.9721-1.8826-1.6035-2.6562-1.0782-1.3207-2.4655-2.4042-3.7852-3.1191.6406-1.1078 1.2802-2.2148 1.9219-3.3223.2032-.3528.2141-.7798.0275-1.1426a1.1503 1.1503 0 0 0-2.0263-.0586l.0005-.0001zm-.0918 9.9063c.5938.0007 1.0756.4836 1.0743 1.0774-.0007.5938-.4836 1.0756-1.0774 1.0743-.5938-.0007-1.0756-.4836-1.0743-1.0774.0013-.5938.4836-1.0756 1.0774-1.0743zm-12.6974 0c.5938.0007 1.0756.4836 1.0743 1.0774-.0007.5938-.4836 1.0756-1.0774 1.0743-.5938-.0007-1.0756-.4836-1.0743-1.0774.0013-.5938.4836-1.0756 1.0774-1.0743z"/></svg>Android (.apk)</a>
+            <a class="btn btn-lg" id="downloadIos" href="https://github.com/aquaxs1/Larpcord/releases/latest/download/Larpcord.ipa"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>iOS (.ipa)</a>
+            <a class="btn btn-lg" href="https://github.com/aquaxs1/Larpcord" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4.500 1.500-4.500-2.500-6-3m12 6v-3.500c0-1 .100-1.400-.500-2 2.800-.300 5.500-1.400 5.500-6a4.600 4.600 0 0 0-1.300-3.200 4.200 4.200 0 0 0-.100-3.200s-1.100-.300-3.500 1.300a12.300 12.300 0 0 0-6.200 0C6.500 2.800 5.400 3.100 5.400 3.100a4.200 4.200 0 0 0-.100 3.200A4.600 4.600 0 0 0 4 9.500c0 4.600 2.700 5.700 5.500 6-.600.600-.600 1.200-.500 2V21"/></svg>GitHub</a>
+          </div>
         </div>
+        <div class="cards" data-cols="3">
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.500h.010M10 6.500h.010"/></svg></span>
+            <h3>Windows</h3>
+            <ol>
+              <li>Run <code>Larpcord-Setup.exe</code></li>
+              <li>SmartScreen: “More info” → “Run anyway”</li>
+              <li>Log in → Settings → <em>Larpcord</em></li>
+            </ol>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg></span>
+            <h3>Android</h3>
+            <ol>
+              <li>Open <code>Larpcord.apk</code> on your phone</li>
+              <li>Allow “Install unknown apps” for your browser when asked</li>
+              <li>Log in → Settings → <em>Larpcord</em></li>
+            </ol>
+          </article>
+          <article class="card reveal">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg></span>
+            <h3>iOS</h3>
+            <ol>
+              <li>Install <code>Larpcord.ipa</code> with AltStore, SideStore or Sideloadly (your Apple ID signs it)</li>
+              <li>Free Apple IDs: refresh the app every 7 days in the sideloading tool</li>
+              <li>Log in → Settings → <em>Larpcord</em></li>
+            </ol>
+          </article>
+        </div>
+        <p class="fineprint">On phones, Larpcord is Discord's web app with the Larpcord plugins, shown at tablet width. Voice and video depend on the web version.</p>
+      </div>
     </section>
-</main>
+  </main>
 
-<footer class="footer">
-    <div class="footer-brand">
-        <img src="/assets/logo.png" alt="" width="40" height="40">
-        <div>
-            <strong>Larpcord</strong>
-            <p>Not affiliated with Discord Inc. · GPL-3.0</p>
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-about">
+          <a class="brand" href="./"><img src="assets/logo.png" alt="" width="32" height="32" loading="lazy"><span>Larpcord</span></a>
+          <p>The Discord client where you can be anyone — on your own screen.</p>
         </div>
+        <nav class="footer-col" aria-label="Quick links">
+          <h2>Quick links</h2>
+          <ul>
+            <li><a href="./">Website</a></li>
+            <li><a href="privacy">Privacy</a></li>
+            <li><a href="./#download">Download</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-col" aria-label="Project">
+          <h2>Project</h2>
+          <ul>
+            <li><a href="https://github.com/aquaxs1/Larpcord" rel="noopener">GitHub</a></li>
+            <li><a href="https://github.com/aquaxs1/Larpcord/releases" rel="noopener">Releases &amp; Changelog</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="family">
+        <span class="family-label">More by AquAxs</span>
+        <ul>
+          <li><a href="https://aqua.is-a.dev/portfolio" data-home rel="noopener">All projects</a></li>
+          <li><a href="https://pfpair.app/" rel="noopener">Pfpair</a></li>
+          <li><a href="https://handled-market.vercel.app/" rel="noopener">Handled</a></li>
+          <li><a href="https://mybluejarvis.vercel.app/" rel="noopener">My Jarvis</a></li>
+          <li><a href="https://guardiantus-av.vercel.app/" rel="noopener">Guardiantus AV</a></li>
+          <li><a href="https://explorer-manager.vercel.app/" rel="noopener">Explorer Manager</a></li>
+          <li><a href="https://cipher-box-file-encrypter.vercel.app/" rel="noopener">CipherBox</a></li>
+          <li><a href="https://easy-cloner.vercel.app/" rel="noopener">Easy Server Cloner</a></li>
+          <li><a href="https://simple-skin.vercel.app/" rel="noopener">Simple Skin</a></li>
+          <li><a href="https://autobuild-gui.vercel.app/" rel="noopener">Autobuild GUI</a></li>
+          <li><a href="https://timetrackerextension.vercel.app/" rel="noopener">WebsiteTimeTrack</a></li>
+          <li><a href="https://wave-uninstaller.vercel.app/" rel="noopener">Wave Uninstaller</a></li>
+          <li><a href="https://discord-sakurabot.vercel.app/" rel="noopener">Sakura Bot</a></li>
+          <li><a href="https://revox-client.vercel.app/" rel="noopener">Revox Client</a></li>
+          <li><a href="https://chesstrainer.cc.cd/" rel="noopener">Chess Trainer</a></li>
+        </ul>
+      </div>
+      <div class="footer-legal">
+        <p>Not affiliated with Discord Inc. · GPL-3.0</p>
+      </div>
     </div>
-    <nav class="quicklinks" aria-label="Quick links">
-        <h2>Quick links</h2>
-        <a href="/">Website</a>
-        <a href="/privacy">Privacy</a>
-        <a href="#download">Download</a>
-        <a href="https://github.com/aquaxs1/Larpcord" rel="noopener">GitHub</a>
-        <a href="https://github.com/aquaxs1/Larpcord/releases" rel="noopener">Releases &amp; Changelog</a>
-    </nav>
-</footer>
-
-<script src="/app.js" defer></script>
+  </footer>
 </body>
 </html>
